@@ -12,7 +12,7 @@ Conventions:
 ---
 
 ### TASK-001: Initialize Vite + React + TypeScript project
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Scaffold a Vite + React + TS project at the repo root. Create `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/main.tsx`, `src/App.tsx`. Install `react`, `react-dom`, `typescript`, `vite`, `@vitejs/plugin-react`, and type packages. Ensure `npm run dev` and `npm run build` scripts exist.
 - **Verification**: `npm run build` completes without errors.
