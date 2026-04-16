@@ -72,7 +72,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/board.test.ts` passes.
 
 ### TASK-011: Engine — backtracking solver with uniqueness check
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-010
 - **Description**: Create `src/engine/solver/backtracking.ts` exporting `solve(board)` and `countSolutions(board, cap = 2)` (stops once 2 solutions found; used for uniqueness). Add `src/engine/solver/backtracking.test.ts` with known-solution fixtures for Classic, Mini, and Six, plus a uniqueness test.
 - **Verification**: `npx vitest run src/engine/solver/backtracking.test.ts` passes.
@@ -132,7 +132,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
 
 ### TASK-021: Store — game slice (Zustand)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-003, TASK-010
 - **Description**: Install `zustand`. Create `src/store/game.ts` with state: `board`, `selection`, `notesMode`, `mistakes`, `timer` (startTs, accumulatedMs, paused). Actions: `newGame(variant, difficulty)`, `select(pos)`, `placeDigit(d)`, `toggleNote(d)`, `erase()`, `toggleNotesMode()`, `pause()`, `resume()`. No persistence yet. Tests for `placeDigit` auto-removing pencil marks from peers and incrementing mistakes on conflict.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
