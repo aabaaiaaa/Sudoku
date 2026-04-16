@@ -108,7 +108,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts` passes.
 
 ### TASK-017: Engine — technique solver aggregator
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-016
 - **Description**: Create `src/engine/solver/techniques/index.ts` exporting `nextStep(board)` that applies techniques in increasing difficulty order and returns the first one that makes progress (or null). Export the technique list in order. Test that naked singles fire before hidden singles, etc.
 - **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts` passes.
