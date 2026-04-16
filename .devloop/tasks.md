@@ -120,7 +120,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts` passes.
 
 ### TASK-019: Engine — difficulty rater
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-018
 - **Description**: Create `src/engine/generator/rate.ts` that runs the technique solver on a puzzle and returns the hardest technique required, mapped to `Easy | Medium | Hard | Expert`. Include clue-count bounds per variant (per requirements doc §5). Test with hand-crafted puzzles of each tier for Classic.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
@@ -210,7 +210,7 @@ Conventions:
 - **Verification**: `npx vitest run src/screens/Home.test.tsx` passes.
 
 ### TASK-034: Screen — Game layout
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-027, TASK-029, TASK-030, TASK-031, TASK-032
 - **Description**: Create `src/screens/Game.tsx` composing Board, NumberPad, Timer, Hint, KeyboardHandler, and a back-to-home button. Mobile-first layout (board above pad, constrained on desktop). Smoke test renders without crashing when a game is active.
 - **Verification**: `npx vitest run src/screens/Game.test.tsx` passes.
