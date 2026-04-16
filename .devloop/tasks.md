@@ -114,7 +114,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts` passes.
 
 ### TASK-018: Engine — puzzle generator (Classic 9×9)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-017
 - **Description**: Create `src/engine/generator/generate.ts`. Strategy: fill a full valid solution (randomized backtracking), then remove cells one at a time while `countSolutions === 1`, stopping when further removal would break uniqueness or a clue-count floor is reached. Test that generated puzzles are unique and solvable for Classic, Mini, and Six.
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts` passes.
@@ -198,7 +198,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/Timer.test.tsx` passes.
 
 ### TASK-032: Component — Hint
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-017, TASK-027
 - **Description**: Create `src/components/Hint.tsx` with a button that calls `nextStep(board)` and, on result, highlights the relevant cell(s) and shows the technique name + explanation in a small panel. Does not fill the digit. Shows a friendly "no available hint" message when `nextStep` returns null. Test: button click surfaces the hint panel with expected text for a naked-single fixture.
 - **Verification**: `npx vitest run src/components/Hint.test.tsx` passes.
