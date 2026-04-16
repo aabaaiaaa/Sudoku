@@ -19,6 +19,8 @@ interface HomeProps {
    * the component re-renders when the user triggers actions.
    */
   getSavedGameImpl?: (variant: string) => SavedGame | null;
+  /** Invoked after a successful newGame/resume, so the parent can navigate. */
+  onEnterGame?: () => void;
 }
 
 const difficulties = ['easy', 'medium', 'hard', 'expert'] as const;
@@ -49,6 +51,7 @@ export function Home({
   store = gameStore,
   confirmReplace,
   getSavedGameImpl = getSavedGame,
+  onEnterGame,
 }: HomeProps) {
   const newGame = useStore(store, (s) => s.newGame);
   const resumeSavedGame = useStore(store, (s) => s.resumeSavedGame);
@@ -81,10 +84,12 @@ export function Home({
     const v = variants[variantId];
     if (!v) return;
     newGame(v, difficulty);
+    onEnterGame?.();
   };
 
   const handleResume = (id: VariantId) => {
-    resumeSavedGame(id);
+    const ok = resumeSavedGame(id);
+    if (ok) onEnterGame?.();
   };
 
   return (
@@ -134,7 +139,7 @@ export function Home({
           type="button"
           data-testid="home-new-game"
           onClick={handleNewGame}
-          className="px-3 py-2 border rounded"
+          className="btn btn-primary"
         >
           New Game
         </button>
@@ -150,10 +155,10 @@ export function Home({
                   type="button"
                   data-testid={`home-resume-${id}`}
                   onClick={() => handleResume(id)}
-                  className="w-full text-left p-3 border rounded"
+                  className="card w-full text-left p-3 transition-colors"
                 >
                   <div className="font-medium">{variantLabels[id]}</div>
-                  <div className="text-sm">
+                  <div className="text-sm opacity-80">
                     <span data-testid={`home-resume-${id}-difficulty`} className="capitalize">
                       {save.difficulty}
                     </span>

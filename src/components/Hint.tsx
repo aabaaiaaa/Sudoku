@@ -85,7 +85,7 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
         type="button"
         data-testid="hint-button"
         onClick={handleClick}
-        className="px-3 py-2 border rounded self-start"
+        className="btn self-start"
       >
         Hint
       </button>
@@ -93,15 +93,12 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
         <div
           role="status"
           data-testid="hint-panel"
-          className="p-3 border rounded bg-yellow-50 text-sm"
+          className="card p-3 text-sm"
         >
-          <div
-            data-testid="hint-technique"
-            className="font-semibold text-gray-900"
-          >
+          <div data-testid="hint-technique" className="font-semibold">
             {techniqueLabel(state.result)}
           </div>
-          <div data-testid="hint-explanation" className="text-gray-700">
+          <div data-testid="hint-explanation" className="opacity-80">
             {state.result.explanation}
           </div>
         </div>
@@ -110,7 +107,7 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
         <div
           role="status"
           data-testid="hint-panel"
-          className="p-3 border rounded bg-gray-50 text-sm text-gray-700"
+          className="card p-3 text-sm opacity-80"
         >
           No available hint. Try checking your entries.
         </div>

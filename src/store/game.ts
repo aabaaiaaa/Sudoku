@@ -97,6 +97,26 @@ function initialState(variant: Variant, difficulty = 'easy'): GameState {
 }
 
 /**
+ * Auto-start the timer on the first user interaction with a game. Only resumes
+ * when the clock isn't already running, so manual pause/tab-hide behavior is
+ * preserved (input is blocked while manually paused since the board is hidden).
+ */
+function autoStartTimer(
+  get: () => GameStore,
+  set: (partial: Partial<GameStore>) => void,
+): void {
+  const { timer } = get();
+  if (timer.startTs != null) return;
+  set({
+    timer: {
+      startTs: Date.now(),
+      accumulatedMs: timer.accumulatedMs,
+      paused: false,
+    },
+  });
+}
+
+/**
  * Computes the total elapsed time for the timer at the moment of snapshot,
  * including any currently-running segment since `startTs`.
  */
@@ -172,6 +192,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
 
     select: (pos) => {
       set({ selection: pos });
+      autoStartTimer(get, set);
     },
 
     placeDigit: (d) => {
@@ -214,6 +235,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
         board: { variant: board.variant, cells: newCells },
         mistakes: conflict ? get().mistakes + 1 : get().mistakes,
       });
+      autoStartTimer(get, set);
       get().saveCurrent();
     },
 
@@ -234,6 +256,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
       const newCells = board.cells.map((row) => row.slice());
       newCells[selection.row][selection.col] = { ...cell, notes: newNotes };
       set({ board: { variant: board.variant, cells: newCells } });
+      autoStartTimer(get, set);
       get().saveCurrent();
     },
 
@@ -250,11 +273,13 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
         given: false,
       };
       set({ board: { variant: board.variant, cells: newCells } });
+      autoStartTimer(get, set);
       get().saveCurrent();
     },
 
     toggleNotesMode: () => {
       set({ notesMode: !get().notesMode });
+      autoStartTimer(get, set);
     },
 
     pause: () => {

@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { Home } from './screens/Home';
 import { Game } from './screens/Game';
 import { Stats } from './screens/Stats';
 import { Settings } from './screens/Settings';
-import { gameStore } from './store/game';
 
 type Screen = 'home' | 'game' | 'stats' | 'settings';
 
@@ -39,23 +38,6 @@ export default function App() {
     window.location.hash = next;
   }, []);
 
-  // Subscribe to the singleton game store so we can auto-navigate to the
-  // Game screen when the user starts or resumes a game from Home.
-  const state = useSyncExternalStore(
-    gameStore.subscribe,
-    gameStore.getState,
-    gameStore.getState,
-  );
-  const hasGivens = state.board.cells.some((row) => row.some((c) => c.given));
-  const prevHadGivens = useRef(hasGivens);
-
-  useEffect(() => {
-    if (!prevHadGivens.current && hasGivens && screen === 'home') {
-      navigate('game');
-    }
-    prevHadGivens.current = hasGivens;
-  }, [hasGivens, screen, navigate]);
-
   let content;
   switch (screen) {
     case 'game':
@@ -69,7 +51,7 @@ export default function App() {
       break;
     case 'home':
     default:
-      content = <Home />;
+      content = <Home onEnterGame={() => navigate('game')} />;
       break;
   }
 
@@ -81,7 +63,12 @@ export default function App() {
       {showTabBar && (
         <nav
           data-testid="tab-bar"
-          className="fixed bottom-0 inset-x-0 bg-slate-100 border-t flex sm:hidden"
+          className="fixed bottom-0 inset-x-0 flex sm:hidden"
+          style={{
+            background: 'var(--cell-bg)',
+            borderTop: '1px solid var(--border)',
+            color: 'var(--fg)',
+          }}
           aria-label="Primary"
         >
           <button

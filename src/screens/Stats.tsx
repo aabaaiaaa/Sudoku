@@ -80,7 +80,7 @@ export function Stats({ store = statsStore }: StatsProps) {
               type="button"
               data-testid="stats-reset-confirm"
               onClick={handleConfirm}
-              className="px-3 py-2 border rounded"
+              className="btn"
             >
               Confirm reset
             </button>
@@ -88,7 +88,7 @@ export function Stats({ store = statsStore }: StatsProps) {
               type="button"
               data-testid="stats-reset-cancel"
               onClick={handleCancel}
-              className="px-3 py-2 border rounded"
+              className="btn"
             >
               Cancel
             </button>
@@ -98,7 +98,7 @@ export function Stats({ store = statsStore }: StatsProps) {
             type="button"
             data-testid="stats-reset"
             onClick={handleReset}
-            className="px-3 py-2 border rounded"
+            className="btn"
           >
             Reset
           </button>

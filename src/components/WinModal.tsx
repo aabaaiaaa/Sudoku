@@ -99,16 +99,16 @@ export function WinModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="win-modal-title"
-      className="fixed inset-0 flex items-center justify-center bg-black/40"
+      className="fixed inset-0 flex items-center justify-center bg-black/50"
     >
-      <div className="bg-white rounded shadow-lg p-6 min-w-[260px] max-w-sm">
-        <h2
-          id="win-modal-title"
-          className="text-lg font-semibold mb-3 text-gray-900"
-        >
+      <div
+        className="card p-6 min-w-[260px] max-w-sm shadow-xl"
+        style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}
+      >
+        <h2 id="win-modal-title" className="text-lg font-semibold mb-3">
           Puzzle Complete!
         </h2>
-        <dl className="text-sm text-gray-700 mb-4 space-y-1">
+        <dl className="text-sm mb-4 space-y-1 opacity-90">
           <div className="flex justify-between">
             <dt>Time</dt>
             <dd data-testid="win-time">{formatElapsed(displayTimeMs)}</dd>
@@ -123,7 +123,7 @@ export function WinModal({
             type="button"
             data-testid="win-home"
             onClick={() => onHome?.()}
-            className="px-3 py-2 border rounded"
+            className="btn"
           >
             Home
           </button>
@@ -131,7 +131,7 @@ export function WinModal({
             type="button"
             data-testid="win-new-game"
             onClick={() => onNewGame?.()}
-            className="px-3 py-2 border rounded bg-blue-600 text-white"
+            className="btn btn-primary"
           >
             New Game
           </button>

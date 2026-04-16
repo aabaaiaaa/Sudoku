@@ -23,14 +23,14 @@ export function NumberPad({ store = gameStore }: NumberPadProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-5 gap-2">
       {variant.digits.map((d) => (
         <button
           key={d}
           type="button"
           data-testid={`pad-digit-${d}`}
           onClick={() => handleDigitClick(d)}
-          className="px-3 py-2 border rounded"
+          className="btn text-lg font-semibold aspect-square"
         >
           {d}
         </button>
@@ -39,7 +39,7 @@ export function NumberPad({ store = gameStore }: NumberPadProps) {
         type="button"
         data-testid="pad-erase"
         onClick={() => erase()}
-        className="px-3 py-2 border rounded"
+        className="btn col-span-2"
       >
         Erase
       </button>
@@ -48,9 +48,9 @@ export function NumberPad({ store = gameStore }: NumberPadProps) {
         data-testid="pad-notes"
         onClick={() => toggleNotesMode()}
         aria-pressed={notesMode}
-        className="px-3 py-2 border rounded"
+        className="btn col-span-3 font-medium"
       >
-        Notes
+        {notesMode ? '✏️ Notes: ON' : '✏️ Notes'}
       </button>
     </div>
   );
