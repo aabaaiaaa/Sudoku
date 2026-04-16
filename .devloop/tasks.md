@@ -96,7 +96,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts` passes.
 
 ### TASK-015: Engine — technique solver: pointing pairs / box-line reduction
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-014
 - **Description**: Add `src/engine/solver/techniques/intersection.ts` detecting pointing pairs (candidates confined to a box-line intersection, eliminating from the rest of the line) and box-line reduction (the inverse). Test each direction with a fixture.
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts` passes.
@@ -174,7 +174,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/Board.test.tsx` passes.
 
 ### TASK-028: Component — Cell
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-027
 - **Description**: Create `src/components/Cell.tsx` rendering digit (or pencil-marks grid when empty), with styling for given, selected, peer-highlighted, same-digit-highlighted, and conflict states driven by props. Test: renders digit, renders 1-9 pencil marks when empty, applies conflict class when `isConflict` is true.
 - **Verification**: `npx vitest run src/components/Cell.test.tsx` passes.
@@ -222,7 +222,7 @@ Conventions:
 - **Verification**: `npx vitest run src/screens/Stats.test.tsx` passes.
 
 ### TASK-036: Screen — Settings
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-025, TASK-026
 - **Description**: Create `src/screens/Settings.tsx` with a theme selector (Light / Dark / Notepad / Space) and a "Follow system" toggle. Wires to the settings store. Test: selecting a non-auto theme clears follow-system; toggling follow-system picks the system theme.
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes.
@@ -276,7 +276,7 @@ Conventions:
 - **Verification**: `npx playwright test tests/e2e/timer.spec.ts` passes.
 
 ### TASK-045: E2E — resume saved game after reload
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-024, TASK-033
 - **Description**: Add `tests/e2e/resume.spec.ts`. Start a new Classic game, place a few digits, reload the page, confirm a Resume card appears on Home with the correct variant, click it, and assert the board state is restored.
 - **Verification**: `npx playwright test tests/e2e/resume.spec.ts` passes.
