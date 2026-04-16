@@ -18,25 +18,25 @@ Conventions:
 - **Verification**: `npm run build` completes without errors.
 
 ### TASK-002: Add Tailwind CSS
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Install `tailwindcss`, `postcss`, `autoprefixer`. Generate `tailwind.config.js` and `postcss.config.js`. Add Tailwind directives to `src/index.css` and import it from `main.tsx`. Add a visible test class on `App.tsx` (e.g. a styled heading) to confirm it applies.
 - **Verification**: `npm run build` completes and the output CSS in `dist/` contains Tailwind utility classes (grep for `bg-` or similar in built CSS).
 
 ### TASK-003: Configure Vitest with a smoke test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Install `vitest`, `@vitest/ui`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`. Add `vitest.config.ts` (or extend `vite.config.ts`) with jsdom env. Add `test` script running `vitest run`. Create `src/smoke.test.ts` with a trivial assertion.
 - **Verification**: `npx vitest run src/smoke.test.ts` passes.
 
 ### TASK-004: Configure Playwright with a smoke test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Install `@playwright/test` and run `npx playwright install chromium`. Add `playwright.config.ts` pointing at the Vite dev server (webServer config). Create `tests/e2e/smoke.spec.ts` that navigates to `/` and asserts the page loads.
 - **Verification**: `npx playwright test tests/e2e/smoke.spec.ts` passes.
 
 ### TASK-005: Add vite-plugin-pwa with a minimal manifest
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Install `vite-plugin-pwa`. Configure it in `vite.config.ts` with `registerType: 'autoUpdate'`, a minimal `manifest` (name, short_name, theme_color, display: 'standalone', placeholder icons). Create a `public/` folder with placeholder SVG icons referenced by the manifest.
 - **Verification**: `npm run build` completes and `dist/manifest.webmanifest` plus `dist/sw.js` exist.
