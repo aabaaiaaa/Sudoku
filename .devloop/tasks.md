@@ -90,7 +90,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts` passes.
 
 ### TASK-014: Engine — technique solver: naked pairs/triples
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-013
 - **Description**: Add `src/engine/solver/techniques/naked-subset.ts` detecting naked pairs and naked triples in any house and returning candidate eliminations. Test with fixtures for a naked pair eliminating candidates in the same row.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts` passes.
@@ -162,13 +162,13 @@ Conventions:
 - **Verification**: `npx vitest run src/themes/ThemeProvider.test.tsx` passes.
 
 ### TASK-026: Themes — Notepad and Space
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-025
 - **Description**: Add `src/themes/notepad.css` (paper/graphite aesthetic: warm off-white bg, pencil-grey player ink, inked black given clues, ruled-paper accent) and `src/themes/space.css` (deep indigo bg, luminous digits, subtle starfield accent via radial gradient). Register both in the theme registry. Add a visual smoke test that each theme sets the `data-theme` attribute correctly.
 - **Verification**: `npx vitest run src/themes/ThemeProvider.test.tsx` passes (same test file, extended with new theme cases).
 
 ### TASK-027: Component — Board renderer
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021, TASK-025
 - **Description**: Create `src/components/Board.tsx` rendering an N×N grid parameterized by variant. Uses thicker borders at box boundaries. Reads current board + selection from the game store and emits `onSelectCell(pos)`. Include `data-testid="sudoku-board"` and per-cell `data-testid="cell-r{row}-c{col}"`. Snapshot/render test renders a Classic empty board with 81 cells.
 - **Verification**: `npx vitest run src/components/Board.test.tsx` passes.
@@ -204,7 +204,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/Hint.test.tsx` passes.
 
 ### TASK-033: Screen — Home
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-023, TASK-024
 - **Description**: Create `src/screens/Home.tsx`: variant picker (Classic / Mini / Six), difficulty picker (Easy / Medium / Hard / Expert), a "New Game" button, and a "Resume" card per variant that has a saved game (showing difficulty and elapsed time). Clicking Resume loads that save into the game store. Clicking New Game with an existing save in that variant prompts a confirm.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx` passes.

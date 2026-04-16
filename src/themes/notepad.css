@@ -1,0 +1,19 @@
+[data-theme='notepad'] {
+  --bg: #f6f1e4;
+  --fg: #3b3a36;
+  --cell-bg: #fbf7ea;
+  --cell-given: #111111;
+  --cell-selected: #e8dfbf;
+  --cell-peer: #efe7cf;
+  --cell-conflict: #efc9c1;
+  --border: #b9a97a;
+  --accent: #6b5b3a;
+  --ruled-line: #c9b98a;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 23px,
+    var(--ruled-line) 23px,
+    var(--ruled-line) 24px
+  );
+}

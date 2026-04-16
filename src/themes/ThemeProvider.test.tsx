@@ -49,4 +49,45 @@ describe('ThemeProvider', () => {
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
+
+  it('applies data-theme="notepad" when the notepad theme is selected', () => {
+    const store = createSettingsStore();
+    store.getState().setTheme('notepad');
+
+    render(<ThemeProvider store={store} />);
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('notepad');
+  });
+
+  it('applies data-theme="space" when the space theme is selected', () => {
+    const store = createSettingsStore();
+    store.getState().setTheme('space');
+
+    render(<ThemeProvider store={store} />);
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('space');
+  });
+
+  it('switches data-theme between all four registered themes', () => {
+    const store = createSettingsStore();
+    store.getState().setTheme('light');
+
+    render(<ThemeProvider store={store} />);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+
+    act(() => {
+      store.getState().setTheme('notepad');
+    });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('notepad');
+
+    act(() => {
+      store.getState().setTheme('space');
+    });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('space');
+
+    act(() => {
+      store.getState().setTheme('dark');
+    });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
 });

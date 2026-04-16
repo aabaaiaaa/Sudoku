@@ -1,0 +1,18 @@
+[data-theme='space'] {
+  --bg: #0a0b1e;
+  --fg: #e5ecff;
+  --cell-bg: #10132b;
+  --cell-given: #ffffff;
+  --cell-selected: #24306b;
+  --cell-peer: #1a1f48;
+  --cell-conflict: #5b1a3a;
+  --border: #2a2f5c;
+  --accent: #a78bfa;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, #ffffff, transparent 50%),
+    radial-gradient(1px 1px at 75% 15%, #cfd7ff, transparent 50%),
+    radial-gradient(1px 1px at 40% 80%, #ffffff, transparent 50%),
+    radial-gradient(1.5px 1.5px at 90% 60%, #e0e7ff, transparent 50%),
+    radial-gradient(1px 1px at 10% 70%, #ffffff, transparent 50%),
+    radial-gradient(ellipse at center, #141638 0%, #0a0b1e 70%);
+}
