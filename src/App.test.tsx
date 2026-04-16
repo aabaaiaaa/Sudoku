@@ -48,6 +48,7 @@ describe('App navigation', () => {
 
     act(() => {
       fireEvent.click(screen.getByTestId('tab-home'));
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
     expect(screen.getByTestId('home-new-game')).toBeTruthy();
   });

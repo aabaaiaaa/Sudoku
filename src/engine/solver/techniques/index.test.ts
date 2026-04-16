@@ -54,9 +54,11 @@ describe('nextStep', () => {
 
     const result = nextStep(board);
     expect(result).not.toBeNull();
-    expect(result!.technique).toBe('hidden-single');
-    expect(result!.cell).toEqual({ row: 0, col: 0 });
-    expect(result!.digit).toBe(9);
+    if (result?.technique !== 'hidden-single') {
+      throw new Error(`expected hidden-single, got ${result?.technique}`);
+    }
+    expect(result.cell).toEqual({ row: 0, col: 0 });
+    expect(result.digit).toBe(9);
   });
 
 });

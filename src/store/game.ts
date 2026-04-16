@@ -3,6 +3,8 @@ import { peers } from '../engine/peers';
 import type { Board, Cell, Digit, Position, Variant } from '../engine/types';
 import { createEmptyBoard } from '../engine/types';
 import { getVariant } from '../engine/variants';
+import { generateForDifficulty } from '../engine/generator/generate-for-difficulty';
+import type { Difficulty } from '../engine/generator/rate';
 import {
   clearSavedGame,
   deserializeNotes,
@@ -146,7 +148,14 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
 
     newGame: (variantInput, difficulty) => {
       const v = resolveVariant(variantInput);
-      const next = initialState(v, difficulty ?? 'easy');
+      const diff = (difficulty ?? 'easy') as Difficulty;
+      const next = initialState(v, diff);
+      try {
+        const { puzzle } = generateForDifficulty(v, diff);
+        next.board = puzzle;
+      } catch {
+        // If generation fails (unknown difficulty, etc.), keep the empty board.
+      }
       set(next);
 
       // Starting a new game for a variant OVERWRITES that variant's save.
@@ -205,6 +214,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
         board: { variant: board.variant, cells: newCells },
         mistakes: conflict ? get().mistakes + 1 : get().mistakes,
       });
+      get().saveCurrent();
     },
 
     toggleNote: (d) => {
@@ -224,6 +234,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
       const newCells = board.cells.map((row) => row.slice());
       newCells[selection.row][selection.col] = { ...cell, notes: newNotes };
       set({ board: { variant: board.variant, cells: newCells } });
+      get().saveCurrent();
     },
 
     erase: () => {
@@ -239,6 +250,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
         given: false,
       };
       set({ board: { variant: board.variant, cells: newCells } });
+      get().saveCurrent();
     },
 
     toggleNotesMode: () => {

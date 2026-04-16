@@ -27,7 +27,7 @@ test('selecting the Notepad theme persists across reload', async ({ page }) => {
   await page.reload();
 
   // --- Step 2: navigate to Settings. ---------------------------------------
-  await page.goto('/settings');
+  await page.goto('/#/settings');
 
   // --- Step 3: select the Notepad theme. -----------------------------------
   const notepadRadio = page.getByTestId('settings-theme-notepad');

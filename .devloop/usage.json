@@ -1,0 +1,10 @@
+{
+  "inputTokens": 14267,
+  "outputTokens": 184517,
+  "cacheCreationTokens": 1037692,
+  "cacheReadTokens": 14644007,
+  "totalTokens": 15880483,
+  "costUsd": 34.72784675,
+  "totalIterations": 18,
+  "totalTasksCompleted": 18
+}

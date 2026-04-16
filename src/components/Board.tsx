@@ -1,6 +1,7 @@
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import type { Cell, Digit, Position, Variant } from '../engine/types';
+import { findConflicts } from '../engine/board';
 
 interface BoardProps {
   store?: typeof gameStore;
@@ -13,6 +14,7 @@ interface CellViewProps {
   col: number;
   variant: Variant;
   selected: boolean;
+  conflict: boolean;
   onClick: () => void;
 }
 
@@ -45,21 +47,24 @@ function cellBorderClasses(row: number, col: number, variant: Variant): string {
   return classes.join(' ');
 }
 
-function CellView({ cell, row, col, variant, selected, onClick }: CellViewProps) {
+function CellView({ cell, row, col, variant, selected, conflict, onClick }: CellViewProps) {
   const borderClasses = cellBorderClasses(row, col, variant);
-  const bgClass = selected
-    ? 'bg-blue-200'
-    : cell.given
-      ? 'bg-gray-100'
-      : 'bg-white';
+  const bgClass = conflict
+    ? 'bg-red-200'
+    : selected
+      ? 'bg-blue-200'
+      : cell.given
+        ? 'bg-gray-100'
+        : 'bg-white';
   const textClass = cell.given ? 'text-gray-900 font-bold' : 'text-blue-700';
+  const conflictClass = conflict ? 'conflict' : '';
 
   return (
     <button
       type="button"
       data-testid={`cell-r${row}-c${col}`}
       onClick={onClick}
-      className={`aspect-square w-full flex items-center justify-center select-none ${bgClass} ${borderClasses} ${textClass} focus:outline-none`}
+      className={`aspect-square w-full flex items-center justify-center select-none ${bgClass} ${borderClasses} ${textClass} ${conflictClass} focus:outline-none`}
     >
       {cell.value != null ? (
         <span className="text-xl sm:text-2xl">{cell.value}</span>
@@ -101,6 +106,10 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
 
   const variant = board.variant;
 
+  const conflictKeys = new Set(
+    findConflicts(board).map((p) => `${p.row},${p.col}`),
+  );
+
   const handleSelect = (pos: Position) => {
     if (onSelectCell) {
       onSelectCell(pos);
@@ -130,6 +139,7 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
               col={c}
               variant={variant}
               selected={isSelected}
+              conflict={conflictKeys.has(`${r},${c}`)}
               onClick={() => handleSelect({ row: r, col: c })}
             />
           );

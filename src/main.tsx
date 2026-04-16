@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { gameStore } from './store/game';
+import { ThemeProvider } from './themes/ThemeProvider';
 import './index.css';
 import './themes/light.css';
 import './themes/dark.css';
@@ -15,6 +16,8 @@ import './themes/space.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   </StrictMode>,
 );

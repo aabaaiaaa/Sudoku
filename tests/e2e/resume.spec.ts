@@ -87,8 +87,12 @@ test('resumes a saved Classic game after page reload', async ({ page }) => {
 
   // --- Step 3: reload the page. --------------------------------------------
   await page.reload();
-
-  // --- Step 4: a Resume card for Classic should be visible on Home. --------
+  // The app auto-navigates to the Game screen via the hash (`#/game`) when a
+  // game is active, and reload preserves that hash. Return to Home so the
+  // Resume card is visible.
+  await page.evaluate(() => {
+    window.location.hash = '#/home';
+  });
   const resumeHeading = page.getByRole('heading', { name: 'Resume' });
   await expect(resumeHeading).toBeVisible();
 

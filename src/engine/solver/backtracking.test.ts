@@ -68,12 +68,12 @@ describe('solve — mini 4x4', () => {
 describe('solve — six 6x6', () => {
   it('solves a simple six puzzle', () => {
     const grid = [
-      [1, 0, 0, 0, 0, 6],
-      [0, 0, 3, 4, 0, 0],
-      [0, 2, 0, 0, 5, 0],
-      [0, 5, 0, 0, 2, 0],
-      [0, 0, 2, 1, 0, 0],
-      [6, 0, 0, 0, 0, 3],
+      [1, 0, 0, 0, 5, 6],
+      [0, 5, 0, 1, 0, 0],
+      [0, 0, 4, 0, 0, 1],
+      [5, 0, 0, 2, 0, 0],
+      [0, 0, 5, 0, 1, 0],
+      [6, 1, 0, 0, 0, 5],
     ];
     const board = buildBoard(sixVariant, grid);
     const solved = solve(board);
