@@ -54,13 +54,13 @@ Conventions:
 - **Verification**: `npx tsc --noEmit src/engine/variants/classic.ts src/engine/variants/index.ts` completes without errors.
 
 ### TASK-008: Engine — Mini 4×4 and Six 6×6 variants
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007
 - **Description**: Add `src/engine/variants/mini.ts` (4×4, 2×2 boxes, digits 1-4) and `src/engine/variants/six.ts` (6×6, 2 rows × 3 cols per box, digits 1-6). Register both in the variant registry.
 - **Verification**: `npx tsc --noEmit src/engine/variants/mini.ts src/engine/variants/six.ts` completes without errors.
 
 ### TASK-009: Engine — peer computation
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007
 - **Description**: Create `src/engine/peers.ts` with `rowPeers`, `colPeers`, `boxPeers`, and combined `peers(variant, pos)` returning the set of peer positions for a cell. Write `src/engine/peers.test.ts` covering all three variants and a corner/center spot check.
 - **Verification**: `npx vitest run src/engine/peers.test.ts` passes.
