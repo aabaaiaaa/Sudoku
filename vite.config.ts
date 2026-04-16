@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/Sudoku/',
   server: {
     port: 5179,
     strictPort: true,
@@ -27,7 +28,8 @@ export default defineConfig({
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
-        start_url: '/',
+        scope: '/Sudoku/',
+        start_url: '/Sudoku/',
         icons: [
           {
             src: 'icon-192.svg',
