@@ -126,7 +126,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
 
 ### TASK-020: Engine — difficulty-targeted generator
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-019
 - **Description**: Add `generateForDifficulty(variant, difficulty)` that repeatedly generates + rates until it produces a puzzle at the requested tier or hits a retry cap; on cap exhaustion, returns the closest tier produced. Test that it returns a puzzle rated at the requested tier for each of the 4 tiers on Classic.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
@@ -228,13 +228,13 @@ Conventions:
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes.
 
 ### TASK-037: Win modal + stats recording
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-022, TASK-034
 - **Description**: Create `src/components/WinModal.tsx` that opens when `isComplete(board)` becomes true, showing final time and mistakes and offering "New Game" / "Home". On mount, calls `stats.recordCompletion` and clears the in-progress save for that variant. Test: simulate completion, assert recordCompletion invoked once and save cleared.
 - **Verification**: `npx vitest run src/components/WinModal.test.tsx` passes.
 
 ### TASK-038: Routing / navigation
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-033, TASK-034, TASK-035, TASK-036
 - **Description**: Wire top-level navigation between Home, Game, Stats, Settings. Either a tiny router (e.g. `react-router-dom`) or a hash-based screen switcher — choose the smaller option. Add a persistent bottom tab bar on mobile for Home/Stats/Settings; the Game screen is its own full-screen view.
 - **Verification**: `npm run build` completes without errors and navigation smoke test `npx vitest run src/App.test.tsx` passes.
