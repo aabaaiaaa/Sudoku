@@ -1,8 +1,17 @@
 import { createStore } from 'zustand/vanilla';
 import { peers } from '../engine/peers';
-import type { Board, Digit, Position, Variant } from '../engine/types';
+import type { Board, Cell, Digit, Position, Variant } from '../engine/types';
 import { createEmptyBoard } from '../engine/types';
 import { getVariant } from '../engine/variants';
+import {
+  clearSavedGame,
+  deserializeNotes,
+  getSavedGame,
+  hasSavedGame as hasSavedGameStorage,
+  putSavedGame,
+  serializeNotes,
+  type SavedGame,
+} from './save';
 
 export interface TimerState {
   startTs: number | null;
@@ -16,6 +25,12 @@ export interface GameState {
   notesMode: boolean;
   mistakes: number;
   timer: TimerState;
+  /**
+   * The difficulty label used for the currently-loaded game. Stored so that
+   * save-file snapshots can round-trip a game without the store needing to
+   * consult any other source of truth.
+   */
+  difficulty: string;
 }
 
 export interface GameActions {
@@ -33,6 +48,22 @@ export interface GameActions {
   toggleNotesMode: () => void;
   pause: () => void;
   resume: () => void;
+
+  /** True iff a save exists in localStorage for the given variant. */
+  hasSavedGame: (variant: string) => boolean;
+  /**
+   * Attempts to restore the game state for the given variant from the save
+   * file. Resets selection and notesMode. Returns true on success, false
+   * when no save is present.
+   */
+  resumeSavedGame: (variant: string) => boolean;
+  /** Snapshots the current game state into the save file for its variant. */
+  saveCurrent: () => void;
+  /**
+   * Clears the save for the current variant (called when a game is
+   * successfully finished).
+   */
+  completeGame: () => void;
 }
 
 export type GameStore = GameState & GameActions;
@@ -52,14 +83,59 @@ function initialTimer(): TimerState {
   return { startTs: null, accumulatedMs: 0, paused: true };
 }
 
-function initialState(variant: Variant): GameState {
+function initialState(variant: Variant, difficulty = 'easy'): GameState {
   return {
     board: createEmptyBoard(variant),
     selection: null,
     notesMode: false,
     mistakes: 0,
     timer: initialTimer(),
+    difficulty,
   };
+}
+
+/**
+ * Computes the total elapsed time for the timer at the moment of snapshot,
+ * including any currently-running segment since `startTs`.
+ */
+function elapsedMsOf(timer: TimerState): number {
+  if (timer.startTs == null) return timer.accumulatedMs;
+  return timer.accumulatedMs + (Date.now() - timer.startTs);
+}
+
+/** Serializes the current board state to the on-disk SavedCell shape. */
+function serializeBoardCells(board: Board): SavedGame['cells'] {
+  return board.cells.map((row) =>
+    row.map((cell) => ({
+      value: cell.value,
+      notes: serializeNotes(cell.notes),
+      given: cell.given,
+    })),
+  );
+}
+
+/**
+ * Rehydrates a board `cells` grid from a save. If the grid dimensions don't
+ * match the variant (e.g. corrupted save), returns null.
+ */
+function deserializeBoardCells(variant: Variant, saved: SavedGame['cells']): Cell[][] | null {
+  if (saved.length !== variant.size) return null;
+  const cells: Cell[][] = [];
+  for (let r = 0; r < variant.size; r++) {
+    const row = saved[r];
+    if (!row || row.length !== variant.size) return null;
+    const outRow: Cell[] = [];
+    for (let c = 0; c < variant.size; c++) {
+      const sc = row[c];
+      outRow.push({
+        value: sc.value,
+        notes: deserializeNotes(sc.notes),
+        given: sc.given,
+      });
+    }
+    cells.push(outRow);
+  }
+  return cells;
 }
 
 export function createGameStore(initialVariant: Variant | string = 'classic') {
@@ -68,10 +144,21 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
   return createStore<GameStore>((set, get) => ({
     ...initialState(variant),
 
-    newGame: (variantInput, _difficulty) => {
-      void _difficulty;
+    newGame: (variantInput, difficulty) => {
       const v = resolveVariant(variantInput);
-      set(initialState(v));
+      const next = initialState(v, difficulty ?? 'easy');
+      set(next);
+
+      // Starting a new game for a variant OVERWRITES that variant's save.
+      const snapshot: SavedGame = {
+        variant: v.id,
+        difficulty: next.difficulty,
+        cells: serializeBoardCells(next.board),
+        mistakes: next.mistakes,
+        elapsedMs: elapsedMsOf(next.timer),
+        savedAt: Date.now(),
+      };
+      putSavedGame(snapshot);
     },
 
     select: (pos) => {
@@ -182,6 +269,49 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
           paused: false,
         },
       });
+    },
+
+    hasSavedGame: (variantId) => hasSavedGameStorage(variantId),
+
+    resumeSavedGame: (variantId) => {
+      const saved = getSavedGame(variantId);
+      if (!saved) return false;
+      const v = getVariant(variantId);
+      if (!v) return false;
+      const cells = deserializeBoardCells(v, saved.cells);
+      if (!cells) return false;
+
+      set({
+        board: { variant: v, cells },
+        selection: null,
+        notesMode: false,
+        mistakes: saved.mistakes,
+        timer: {
+          startTs: null,
+          accumulatedMs: saved.elapsedMs,
+          paused: true,
+        },
+        difficulty: saved.difficulty,
+      });
+      return true;
+    },
+
+    saveCurrent: () => {
+      const { board, mistakes, timer, difficulty } = get();
+      const snapshot: SavedGame = {
+        variant: board.variant.id,
+        difficulty,
+        cells: serializeBoardCells(board),
+        mistakes,
+        elapsedMs: elapsedMsOf(timer),
+        savedAt: Date.now(),
+      };
+      putSavedGame(snapshot);
+    },
+
+    completeGame: () => {
+      const { board } = get();
+      clearSavedGame(board.variant.id);
     },
   }));
 }

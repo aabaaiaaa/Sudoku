@@ -84,7 +84,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts` passes.
 
 ### TASK-013: Engine — technique solver: hidden singles
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-012
 - **Description**: Add `src/engine/solver/techniques/hidden-single.ts` — for each house (row/col/box), find a digit that can go in only one cell of that house. Return metadata with the house name. Test with fixtures for row, col, and box hidden singles.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts` passes.
@@ -150,13 +150,13 @@ Conventions:
 - **Verification**: `npx vitest run src/store/settings.test.ts` passes.
 
 ### TASK-024: Store — save-game persistence (one per variant)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-022
 - **Description**: Extend the game store with persistence of in-progress games keyed by variant under `sudoku.save.v1`. On `newGame` for a variant, overwrite that variant's save. On completion, clear the save. Expose `hasSavedGame(variant)` and `resumeSavedGame(variant)`. Include a schema `version` field; on mismatch, discard the save. Tests for save/resume/clear and version-mismatch discard.
 - **Verification**: `npx vitest run src/store/save.test.ts` passes.
 
 ### TASK-025: Theme system — base infrastructure + light/dark
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002, TASK-023
 - **Description**: Create `src/themes/index.ts` registering theme definitions (CSS custom property maps). Create `src/themes/light.css` and `src/themes/dark.css` using `[data-theme="light"]` / `[data-theme="dark"]` selectors setting variables like `--bg`, `--fg`, `--cell-bg`, `--cell-given`, `--cell-selected`, `--cell-peer`, `--cell-conflict`, `--border`, `--accent`. Import themes in `main.tsx`. Create `src/themes/ThemeProvider.tsx` (or a small hook) that applies `data-theme` on `<html>` from the settings store, listening to system changes when follow-system is on. Test via component test that theme attribute updates.
 - **Verification**: `npx vitest run src/themes/ThemeProvider.test.tsx` passes.
@@ -186,7 +186,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/NumberPad.test.tsx` passes.
 
 ### TASK-030: Component — Keyboard input handler
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-029
 - **Description**: Create `src/components/KeyboardHandler.tsx` (renders nothing; attaches window listeners). Maps: arrows → move selection, 1-N → placeDigit or toggleNote, `N` → toggle notes mode, Backspace/Delete → erase, Escape → deselect, Space → pause/resume. Test with `userEvent` firing keys and asserting store actions.
 - **Verification**: `npx vitest run src/components/KeyboardHandler.test.tsx` passes.
@@ -216,7 +216,7 @@ Conventions:
 - **Verification**: `npx vitest run src/screens/Game.test.tsx` passes.
 
 ### TASK-035: Screen — Stats
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-022
 - **Description**: Create `src/screens/Stats.tsx` showing a table per variant with columns for each difficulty and rows for each stat (games, best time, streaks, average, mistakes). Reads from stats store. Includes a Reset button with a confirm step that clears stats.
 - **Verification**: `npx vitest run src/screens/Stats.test.tsx` passes.

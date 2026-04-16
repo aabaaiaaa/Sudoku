@@ -1,0 +1,99 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { render, fireEvent } from '@testing-library/react';
+import { createStatsStore, entryKey } from '../store/stats';
+import { Stats } from './Stats';
+
+describe('Stats screen', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('renders a table for each registered variant', () => {
+    const store = createStatsStore();
+    const { getByTestId } = render(<Stats store={store} />);
+
+    expect(getByTestId('stats-variant-classic')).toBeTruthy();
+    expect(getByTestId('stats-variant-mini')).toBeTruthy();
+    expect(getByTestId('stats-variant-six')).toBeTruthy();
+  });
+
+  it('displays formatted stats for a populated entry and dashes for empty ones', () => {
+    const store = createStatsStore();
+    store.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'easy',
+      timeMs: 65_000,
+      mistakes: 2,
+      now: new Date('2026-04-15'),
+    });
+
+    const { getByTestId } = render(<Stats store={store} />);
+
+    expect(getByTestId('stats-cell-classic-easy-games').textContent).toBe('1');
+    expect(getByTestId('stats-cell-classic-easy-best').textContent).toBe('01:05');
+    expect(getByTestId('stats-cell-classic-easy-current').textContent).toBe('1');
+    expect(getByTestId('stats-cell-classic-easy-longest').textContent).toBe('1');
+    expect(getByTestId('stats-cell-classic-easy-avg').textContent).toBe('01:05');
+    expect(getByTestId('stats-cell-classic-easy-mistakes').textContent).toBe('2');
+
+    // Empty cells show an em dash.
+    const dash = '\u2014';
+    expect(getByTestId('stats-cell-classic-medium-games').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-hard-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-mini-easy-games').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-six-expert-avg').textContent).toBe(dash);
+  });
+
+  it('resets stats after click-then-confirm', () => {
+    const store = createStatsStore();
+    store.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'easy',
+      timeMs: 65_000,
+      mistakes: 2,
+      now: new Date('2026-04-15'),
+    });
+
+    const { getByTestId } = render(<Stats store={store} />);
+
+    expect(store.getState().entries[entryKey('classic', 'easy')]).toBeDefined();
+
+    fireEvent.click(getByTestId('stats-reset'));
+    fireEvent.click(getByTestId('stats-reset-confirm'));
+
+    expect(store.getState().entries).toEqual({});
+
+    const dash = '\u2014';
+    expect(getByTestId('stats-cell-classic-easy-games').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-easy-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-easy-avg').textContent).toBe(dash);
+  });
+
+  it('cancelling the reset leaves stats untouched', () => {
+    const store = createStatsStore();
+    store.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'easy',
+      timeMs: 65_000,
+      mistakes: 2,
+      now: new Date('2026-04-15'),
+    });
+
+    const before = store.getState().entries[entryKey('classic', 'easy')];
+    expect(before).toBeDefined();
+
+    const { getByTestId } = render(<Stats store={store} />);
+
+    fireEvent.click(getByTestId('stats-reset'));
+    fireEvent.click(getByTestId('stats-reset-cancel'));
+
+    const after = store.getState().entries[entryKey('classic', 'easy')];
+    expect(after).toEqual(before);
+
+    // Back to initial button state.
+    expect(getByTestId('stats-reset')).toBeTruthy();
+    // Displayed stats still show populated values.
+    expect(getByTestId('stats-cell-classic-easy-games').textContent).toBe('1');
+    expect(getByTestId('stats-cell-classic-easy-best').textContent).toBe('01:05');
+  });
+});

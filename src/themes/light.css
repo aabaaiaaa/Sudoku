@@ -1,0 +1,11 @@
+[data-theme='light'] {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --cell-bg: #ffffff;
+  --cell-given: #1a1a1a;
+  --cell-selected: #cfe3ff;
+  --cell-peer: #eef3fa;
+  --cell-conflict: #ffd7d7;
+  --border: #c4c4c4;
+  --accent: #2563eb;
+}
