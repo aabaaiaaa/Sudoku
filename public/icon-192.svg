@@ -1,4 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <rect width="192" height="192" fill="#0f172a"/>
-  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="96" font-weight="bold" fill="#ffffff">S</text>
+  <rect width="192" height="192" rx="24" fill="#0f172a"/>
+  <g stroke="#e2e8f0" stroke-width="2" fill="none">
+    <rect x="24" y="24" width="144" height="144" rx="4" stroke-width="4"/>
+    <line x1="24" y1="72" x2="168" y2="72" stroke-width="4"/>
+    <line x1="24" y1="120" x2="168" y2="120" stroke-width="4"/>
+    <line x1="72" y1="24" x2="72" y2="168" stroke-width="4"/>
+    <line x1="120" y1="24" x2="120" y2="168" stroke-width="4"/>
+    <line x1="24" y1="48" x2="168" y2="48"/>
+    <line x1="24" y1="96" x2="168" y2="96"/>
+    <line x1="24" y1="144" x2="168" y2="144"/>
+    <line x1="48" y1="24" x2="48" y2="168"/>
+    <line x1="96" y1="24" x2="96" y2="168"/>
+    <line x1="144" y1="24" x2="144" y2="168"/>
+  </g>
+  <g font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#38bdf8" text-anchor="middle">
+    <text x="36" y="43">5</text>
+    <text x="108" y="91">7</text>
+    <text x="156" y="139">3</text>
+    <text x="84" y="163">9</text>
+  </g>
 </svg>

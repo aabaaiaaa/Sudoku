@@ -42,7 +42,7 @@ Conventions:
 - **Verification**: `npm run build` completes and `dist/manifest.webmanifest` plus `dist/sw.js` exist.
 
 ### TASK-006: Engine — core types
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-003
 - **Description**: Create `src/engine/types.ts` defining `Digit`, `Cell` (value | null, notes: Set<Digit>, given: boolean), `Board` (2D array of Cell plus variant reference), `Variant` (id, size, boxWidth, boxHeight, digits), `Move`, `Position`. No logic — pure types and small factory helpers.
 - **Verification**: `npx tsc --noEmit src/engine/types.ts` completes without errors.
@@ -240,13 +240,13 @@ Conventions:
 - **Verification**: `npm run build` completes without errors and navigation smoke test `npx vitest run src/App.test.tsx` passes.
 
 ### TASK-039: PWA icons and manifest polish
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-005
 - **Description**: Replace placeholder icons with simple but distinct Sudoku-themed SVG/PNG icons sized 192, 512, and maskable 512. Update the manifest name, short_name, description, theme_color to match a base theme. Add `apple-touch-icon` and iOS meta tags.
 - **Verification**: `npm run build` completes and `dist/manifest.webmanifest` contains the final name plus 192 and 512 icon entries.
 
 ### TASK-040: Mobile viewport and safe-area insets
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002
 - **Description**: In `index.html`, add `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">`. In CSS, use `env(safe-area-inset-*)` padding on the main layout container. Verify Tailwind classes don't conflict.
 - **Verification**: `npm run build` completes and the built `index.html` contains the viewport-fit meta tag.
