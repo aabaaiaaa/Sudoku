@@ -78,7 +78,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/backtracking.test.ts` passes.
 
 ### TASK-012: Engine — technique solver: naked singles
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-011
 - **Description**: Create `src/engine/solver/techniques/naked-single.ts` exporting a function that scans the board, computes candidates per cell, and returns the first cell with exactly one candidate along with metadata (`{ technique, cell, digit, explanation }`). Test file with fixtures where a naked single exists and where none does.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts` passes.
@@ -138,13 +138,13 @@ Conventions:
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
 
 ### TASK-022: Store — stats slice with persistence
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Create `src/store/stats.ts` tracking per-`(variant, difficulty)`: games completed, best time, streak (current/longest, tracked via last-played date), average solve time, total mistakes. Use Zustand `persist` middleware writing to `localStorage` under key `sudoku.stats.v1`. Action `recordCompletion({variant, difficulty, timeMs, mistakes})`. Tests: best time updates only when faster; streak increments on consecutive days and resets on gap.
 - **Verification**: `npx vitest run src/store/stats.test.ts` passes.
 
 ### TASK-023: Store — settings slice with persistence
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Create `src/store/settings.ts` with `theme: 'light' | 'dark' | 'notepad' | 'space'` and `followSystem: boolean`. Zustand `persist` middleware, key `sudoku.settings.v1`. Action `setTheme(theme)` turns off follow-system; `setFollowSystem(true)` recomputes theme from `matchMedia('(prefers-color-scheme: dark)')`. Tests for each behavior.
 - **Verification**: `npx vitest run src/store/settings.test.ts` passes.
@@ -180,7 +180,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/Cell.test.tsx` passes.
 
 ### TASK-029: Component — Number pad
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Create `src/components/NumberPad.tsx` rendering 1..N digit buttons (N from active variant), an Erase button, and a Notes toggle. Clicking a digit calls `placeDigit` or `toggleNote` based on `notesMode`. `data-testid="pad-digit-{n}"`, `data-testid="pad-erase"`, `data-testid="pad-notes"`. Test: clicking digit dispatches correct store action.
 - **Verification**: `npx vitest run src/components/NumberPad.test.tsx` passes.
@@ -192,7 +192,7 @@ Conventions:
 - **Verification**: `npx vitest run src/components/KeyboardHandler.test.tsx` passes.
 
 ### TASK-031: Component — Timer with visibility auto-pause
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Create `src/components/Timer.tsx` showing elapsed time computed from store timestamps (not interval counters) and a pause/resume button. Subscribe to `document.visibilitychange`: pause on hidden, resume on visible (unless manually paused). Test: fire visibilitychange events and assert paused state; assert manual pause overrides visibility resume.
 - **Verification**: `npx vitest run src/components/Timer.test.tsx` passes.
