@@ -48,7 +48,7 @@ Conventions:
 - **Verification**: `npx tsc --noEmit src/engine/types.ts` completes without errors.
 
 ### TASK-007: Engine — variant registry with Classic 9×9
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Create `src/engine/variants/index.ts` with a variant registry map. Add `src/engine/variants/classic.ts` defining the 9×9 variant (size 9, boxWidth 3, boxHeight 3, digits 1-9).
 - **Verification**: `npx tsc --noEmit src/engine/variants/classic.ts src/engine/variants/index.ts` completes without errors.
