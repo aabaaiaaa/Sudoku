@@ -66,7 +66,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/peers.test.ts` passes.
 
 ### TASK-010: Engine — board utilities
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-009
 - **Description**: Create `src/engine/board.ts` with `emptyBoard(variant)`, `cloneBoard`, `serialize`/`deserialize` (compact string form), `isComplete`, `findConflicts(board)` returning positions violating Sudoku rules. Add `src/engine/board.test.ts` covering each function.
 - **Verification**: `npx vitest run src/engine/board.test.ts` passes.
