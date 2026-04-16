@@ -7,6 +7,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,ico,woff,woff2,ttf,otf}'],
+        navigateFallback: 'index.html',
+      },
       manifest: {
         name: 'Sudoku PWA',
         short_name: 'Sudoku',

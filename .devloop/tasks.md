@@ -252,13 +252,13 @@ Conventions:
 - **Verification**: `npm run build` completes and the built `index.html` contains the viewport-fit meta tag.
 
 ### TASK-041: Offline precache configuration
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-005, TASK-038
 - **Description**: Extend the `vite-plugin-pwa` config with Workbox `globPatterns` covering JS, CSS, HTML, and fonts, and a navigation fallback to `index.html`. Build and inspect the generated service worker to confirm the app shell is precached.
 - **Verification**: `npm run build` completes and `dist/sw.js` contains references to the precache manifest (grep for `precacheAndRoute` or equivalent).
 
 ### TASK-042: E2E — new game → place digits → win
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-034, TASK-037
 - **Description**: Add `tests/e2e/new-game.spec.ts`. Seed the game store (via an exposed test hook or by navigating through UI) with a solvable near-complete puzzle, then use the number pad to place the final digits and assert the win modal appears with a non-zero time. Use `data-testid` selectors introduced in earlier tasks.
 - **Verification**: `npx playwright test tests/e2e/new-game.spec.ts` passes.
