@@ -264,13 +264,13 @@ Conventions:
 - **Verification**: `npx playwright test tests/e2e/new-game.spec.ts` passes.
 
 ### TASK-043: E2E — pencil marks, auto-removal, mistake highlighting
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-042
 - **Description**: Add `tests/e2e/notes-and-conflicts.spec.ts`. Toggle notes mode, add pencil marks, place a digit in a peer and assert that digit is removed from peers' notes. Place a conflicting digit and assert the conflict class is applied to both cells.
 - **Verification**: `npx playwright test tests/e2e/notes-and-conflicts.spec.ts` passes.
 
 ### TASK-044: E2E — pause, resume, visibility auto-pause
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-042
 - **Description**: Add `tests/e2e/timer.spec.ts`. Verify the timer advances, manual pause stops it and hides the board, resume restores the board, and simulating `visibilitychange` via `page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))` with `document.hidden = true` pauses it.
 - **Verification**: `npx playwright test tests/e2e/timer.spec.ts` passes.
