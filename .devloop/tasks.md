@@ -102,7 +102,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts` passes.
 
 ### TASK-016: Engine — technique solver: X-wing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-015
 - **Description**: Add `src/engine/solver/techniques/x-wing.ts` detecting X-wing patterns (two rows or cols where a digit is confined to the same two columns/rows). Test with a classic X-wing fixture.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts` passes.
@@ -282,7 +282,7 @@ Conventions:
 - **Verification**: `npx playwright test tests/e2e/resume.spec.ts` passes.
 
 ### TASK-046: E2E — theme switch persists
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-036
 - **Description**: Add `tests/e2e/theme.spec.ts`. Navigate to Settings, select Notepad, assert `document.documentElement` has `data-theme="notepad"`. Reload the page and assert the attribute is still `notepad`.
 - **Verification**: `npx playwright test tests/e2e/theme.spec.ts` passes.
