@@ -1,7 +1,7 @@
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import type { Cell, Digit, Position, Variant } from '../engine/types';
-import { findConflicts } from '../engine/board';
+import { completedDigits, findConflicts } from '../engine/board';
 
 interface BoardProps {
   store?: typeof gameStore;
@@ -15,6 +15,8 @@ interface CellViewProps {
   variant: Variant;
   selected: boolean;
   conflict: boolean;
+  completed: boolean;
+  highlighted: boolean;
   onClick: () => void;
 }
 
@@ -37,14 +39,28 @@ function cellBorderStyle(row: number, col: number, variant: Variant): React.CSSP
   };
 }
 
-function CellView({ cell, row, col, variant, selected, conflict, onClick }: CellViewProps) {
+function CellView({
+  cell,
+  row,
+  col,
+  variant,
+  selected,
+  conflict,
+  completed,
+  highlighted,
+  onClick,
+}: CellViewProps) {
   const bg = conflict
     ? 'var(--cell-conflict)'
     : selected
       ? 'var(--cell-selected)'
-      : cell.given
-        ? 'var(--cell-given-bg, var(--cell-bg))'
-        : 'var(--cell-bg)';
+      : highlighted
+        ? 'var(--cell-highlight)'
+        : completed
+          ? 'var(--cell-completed)'
+          : cell.given
+            ? 'var(--cell-given-bg, var(--cell-bg))'
+            : 'var(--cell-bg)';
   const fg = cell.given ? 'var(--cell-given)' : 'var(--accent)';
   const conflictClass = conflict ? 'conflict' : '';
 
@@ -97,6 +113,7 @@ function NotesGrid({ notes, variant }: NotesGridProps) {
 export function Board({ store = gameStore, onSelectCell }: BoardProps) {
   const board = useStore(store, (s) => s.board);
   const selection = useStore(store, (s) => s.selection);
+  const highlightedDigit = useStore(store, (s) => s.highlightedDigit);
   const select = useStore(store, (s) => s.select);
 
   const variant = board.variant;
@@ -104,6 +121,7 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
   const conflictKeys = new Set(
     findConflicts(board).map((p) => `${p.row},${p.col}`),
   );
+  const completed = completedDigits(board);
 
   const handleSelect = (pos: Position) => {
     if (onSelectCell) {
@@ -128,6 +146,16 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
       {board.cells.map((row, r) =>
         row.map((cell, c) => {
           const isSelected = selection?.row === r && selection?.col === c;
+          const isHighlighted =
+            !isSelected &&
+            cell.value != null &&
+            highlightedDigit != null &&
+            cell.value === highlightedDigit;
+          const isCompleted =
+            !isSelected &&
+            !isHighlighted &&
+            cell.value != null &&
+            completed.has(cell.value);
           return (
             <CellView
               key={`${r}-${c}`}
@@ -137,6 +165,8 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
               variant={variant}
               selected={isSelected}
               conflict={conflictKeys.has(`${r},${c}`)}
+              completed={isCompleted}
+              highlighted={isHighlighted}
               onClick={() => handleSelect({ row: r, col: c })}
             />
           );

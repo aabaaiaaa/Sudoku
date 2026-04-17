@@ -125,7 +125,7 @@ export function WinModal({
             onClick={() => onHome?.()}
             className="btn"
           >
-            Home
+            🏠 Home
           </button>
           <button
             type="button"
@@ -133,7 +133,7 @@ export function WinModal({
             onClick={() => onNewGame?.()}
             className="btn btn-primary"
           >
-            New Game
+            ➕ New Game
           </button>
         </div>
       </div>

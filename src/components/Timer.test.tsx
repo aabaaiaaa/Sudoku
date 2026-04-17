@@ -64,7 +64,7 @@ describe('Timer', () => {
     const store = createGameStore('classic');
     act(() => {
       store.setState({
-        timer: { startTs: null, accumulatedMs: 65000, paused: true },
+        timer: { startTs: null, accumulatedMs: 65000, paused: true, manuallyPaused: false },
       });
     });
     render(<Timer store={store} />);

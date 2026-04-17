@@ -6,6 +6,8 @@
   --cell-selected: #24306b;
   --cell-peer: #1a1f48;
   --cell-conflict: #5b1a3a;
+  --cell-completed: #1b3a4f;
+  --cell-highlight: #3d2f5e;
   --border: #2a2f5c;
   --accent: #a78bfa;
   background-image:

@@ -6,6 +6,8 @@
   --cell-selected: #cfe3ff;
   --cell-peer: #eef3fa;
   --cell-conflict: #ffd7d7;
+  --cell-completed: #e6f4ea;
+  --cell-highlight: #fff3bf;
   --border: #c4c4c4;
   --accent: #2563eb;
 }

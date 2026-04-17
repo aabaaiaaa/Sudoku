@@ -29,11 +29,12 @@ export function Game({ store = gameStore, onBack }: GameProps) {
     if (v) newGame(v, difficulty);
   };
 
-  // Hide the board while paused *after* the timer has actually run so the
-  // player can't peek while the clock is stopped. The initial pre-start state
-  // (accumulatedMs === 0 and startTs === null) keeps the board visible.
+  // Show the board behind a blur overlay while paused (after the clock has
+  // run at least once). The pre-start state (first game, untouched) keeps
+  // the board crisp.
+  const resume = useStore(store, (s) => s.resume);
   const hasRun = timer.accumulatedMs > 0 || timer.startTs != null;
-  const hideBoard = timer.paused && hasRun;
+  const showPauseOverlay = timer.paused && hasRun;
 
   return (
     <div className="p-4 space-y-4 max-w-md mx-auto">
@@ -51,8 +52,46 @@ export function Game({ store = gameStore, onBack }: GameProps) {
         <Timer store={store} />
       </div>
 
-      <div hidden={hideBoard}>
-        <Board store={store} />
+      <div className="relative">
+        <div
+          data-testid="board-wrapper"
+          style={{
+            filter: showPauseOverlay ? 'blur(8px)' : undefined,
+            pointerEvents: showPauseOverlay ? 'none' : undefined,
+            transition: 'filter 150ms',
+          }}
+          aria-hidden={showPauseOverlay}
+        >
+          <Board store={store} />
+        </div>
+        {showPauseOverlay && (
+          <div
+            data-testid="pause-overlay"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-4"
+            style={{
+              background: 'rgba(0,0,0,0.15)',
+              borderRadius: '0.5rem',
+            }}
+          >
+            <div
+              className="card px-4 py-3"
+              style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
+            >
+              <div className="font-semibold mb-1">⏸ Paused</div>
+              <div className="text-sm opacity-80 mb-3">
+                Tap Resume to continue
+              </div>
+              <button
+                type="button"
+                data-testid="pause-resume"
+                onClick={() => resume()}
+                className="btn btn-primary w-full"
+              >
+                ▶ Resume
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <NumberPad store={store} />

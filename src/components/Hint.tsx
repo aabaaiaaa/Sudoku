@@ -87,7 +87,7 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
         onClick={handleClick}
         className="btn self-start"
       >
-        Hint
+        💡 Hint
       </button>
       {state.kind === 'hit' && (
         <div

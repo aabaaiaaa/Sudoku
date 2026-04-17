@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 
@@ -22,8 +22,9 @@ export function Timer({ store = gameStore }: TimerProps) {
   const timer = useStore(store, (s) => s.timer);
   const pause = useStore(store, (s) => s.pause);
   const resume = useStore(store, (s) => s.resume);
+  const pauseFromVisibility = useStore(store, (s) => s.pauseFromVisibility);
+  const resumeFromVisibility = useStore(store, (s) => s.resumeFromVisibility);
 
-  const manualPausedRef = useRef<boolean>(timer.paused);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -39,38 +40,31 @@ export function Timer({ store = gameStore }: TimerProps) {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') {
-        pause();
+        pauseFromVisibility();
       } else if (document.visibilityState === 'visible') {
-        if (!manualPausedRef.current) {
-          resume();
-        }
+        resumeFromVisibility();
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [pause, resume]);
+  }, [pauseFromVisibility, resumeFromVisibility]);
 
   const elapsed =
     timer.accumulatedMs +
     (timer.paused || timer.startTs == null ? 0 : Date.now() - timer.startTs);
 
   const handleToggle = () => {
-    if (timer.paused) {
-      manualPausedRef.current = false;
-      resume();
-    } else {
-      manualPausedRef.current = true;
-      pause();
-    }
+    if (timer.paused) resume();
+    else pause();
   };
 
   return (
     <div className="timer">
       <span data-testid="timer-display">{formatElapsed(elapsed)}</span>
       <button type="button" data-testid="timer-toggle" onClick={handleToggle}>
-        {timer.paused ? 'Resume' : 'Pause'}
+        {timer.paused ? '▶ Resume' : '⏸ Pause'}
       </button>
     </div>
   );

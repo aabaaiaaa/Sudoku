@@ -3,6 +3,7 @@ import { Home } from './screens/Home';
 import { Game } from './screens/Game';
 import { Stats } from './screens/Stats';
 import { Settings } from './screens/Settings';
+import { usePwaUpdate } from './pwa/useUpdate';
 
 type Screen = 'home' | 'game' | 'stats' | 'settings';
 
@@ -56,9 +57,32 @@ export default function App() {
   }
 
   const showTabBar = screen !== 'game';
+  const { needsRefresh, reload } = usePwaUpdate();
 
   return (
     <div className="min-h-screen pb-16 sm:pb-0">
+      {needsRefresh && (
+        <div
+          data-testid="update-banner"
+          className="fixed top-0 inset-x-0 flex items-center justify-between gap-3 px-4 py-2 text-sm z-50"
+          style={{
+            background: 'var(--accent)',
+            color: 'var(--bg)',
+          }}
+          role="status"
+        >
+          <span>✨ A new version is available.</span>
+          <button
+            type="button"
+            data-testid="update-reload"
+            onClick={reload}
+            className="px-3 py-1 rounded-md font-medium"
+            style={{ background: 'var(--bg)', color: 'var(--accent)' }}
+          >
+            Reload
+          </button>
+        </div>
+      )}
       {content}
       {showTabBar && (
         <nav
@@ -75,7 +99,7 @@ export default function App() {
             type="button"
             data-testid="tab-home"
             onClick={() => navigate('home')}
-            className="flex-1 py-3"
+            className="tab-button flex-1 py-3"
             aria-current={screen === 'home' ? 'page' : undefined}
           >
             Home
@@ -84,7 +108,7 @@ export default function App() {
             type="button"
             data-testid="tab-stats"
             onClick={() => navigate('stats')}
-            className="flex-1 py-3"
+            className="tab-button flex-1 py-3"
             aria-current={screen === 'stats' ? 'page' : undefined}
           >
             Stats
@@ -93,7 +117,7 @@ export default function App() {
             type="button"
             data-testid="tab-settings"
             onClick={() => navigate('settings')}
-            className="flex-1 py-3"
+            className="tab-button flex-1 py-3"
             aria-current={screen === 'settings' ? 'page' : undefined}
           >
             Settings

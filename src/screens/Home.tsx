@@ -141,7 +141,7 @@ export function Home({
           onClick={handleNewGame}
           className="btn btn-primary"
         >
-          New Game
+          ➕ New Game
         </button>
       </div>
 

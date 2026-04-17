@@ -94,6 +94,28 @@ export function isComplete(board: Board): boolean {
   return findConflicts(board).length === 0;
 }
 
+/**
+ * Returns the set of digits that have been fully placed on the board
+ * (count === variant.size — one per row). Used to grey out number-pad
+ * buttons and tint completed cells.
+ */
+export function completedDigits(board: Board): Set<Digit> {
+  const { variant, cells } = board;
+  const counts = new Map<Digit, number>();
+  for (const row of cells) {
+    for (const cell of row) {
+      if (cell.value != null) {
+        counts.set(cell.value, (counts.get(cell.value) ?? 0) + 1);
+      }
+    }
+  }
+  const completed = new Set<Digit>();
+  for (const [digit, count] of counts) {
+    if (count >= variant.size) completed.add(digit);
+  }
+  return completed;
+}
+
 export function findConflicts(board: Board): Position[] {
   const { variant, cells } = board;
   const keys = new Set<string>();

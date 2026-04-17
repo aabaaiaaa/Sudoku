@@ -38,7 +38,7 @@ function makeCompletedStore(opts: {
   const store = createGameStore(miniVariant);
   store.setState({
     board: solution,
-    timer: { startTs: null, accumulatedMs: opts.accumulatedMs, paused: true },
+    timer: { startTs: null, accumulatedMs: opts.accumulatedMs, paused: true, manuallyPaused: false },
     mistakes: opts.mistakes,
     difficulty: opts.difficulty,
   });

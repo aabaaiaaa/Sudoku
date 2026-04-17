@@ -19,6 +19,12 @@ export interface TimerState {
   startTs: number | null;
   accumulatedMs: number;
   paused: boolean;
+  /**
+   * True when the last pause was triggered by the user (via the Pause button
+   * or the pause overlay). Used by the visibility handler to decide whether
+   * to auto-resume on tab focus — a user-paused game stays paused.
+   */
+  manuallyPaused: boolean;
 }
 
 export interface GameState {
@@ -33,6 +39,11 @@ export interface GameState {
    * consult any other source of truth.
    */
   difficulty: string;
+  /**
+   * When non-null, the Board tints every cell containing this digit to help
+   * the player scan for it. Toggled by tapping a filled cell.
+   */
+  highlightedDigit: Digit | null;
 }
 
 export interface GameActions {
@@ -50,6 +61,10 @@ export interface GameActions {
   toggleNotesMode: () => void;
   pause: () => void;
   resume: () => void;
+  /** Visibility-driven pause that preserves the user's manual-pause intent. */
+  pauseFromVisibility: () => void;
+  /** Visibility-driven resume — no-op when the user manually paused. */
+  resumeFromVisibility: () => void;
 
   /** True iff a save exists in localStorage for the given variant. */
   hasSavedGame: (variant: string) => boolean;
@@ -82,7 +97,7 @@ function resolveVariant(variant: Variant | string): Variant {
 }
 
 function initialTimer(): TimerState {
-  return { startTs: null, accumulatedMs: 0, paused: true };
+  return { startTs: null, accumulatedMs: 0, paused: true, manuallyPaused: false };
 }
 
 function initialState(variant: Variant, difficulty = 'easy'): GameState {
@@ -93,6 +108,7 @@ function initialState(variant: Variant, difficulty = 'easy'): GameState {
     mistakes: 0,
     timer: initialTimer(),
     difficulty,
+    highlightedDigit: null,
   };
 }
 
@@ -107,11 +123,14 @@ function autoStartTimer(
 ): void {
   const { timer } = get();
   if (timer.startTs != null) return;
+  // Don't auto-start a game the user has manually paused.
+  if (timer.manuallyPaused) return;
   set({
     timer: {
       startTs: Date.now(),
       accumulatedMs: timer.accumulatedMs,
       paused: false,
+      manuallyPaused: false,
     },
   });
 }
@@ -191,7 +210,18 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
     },
 
     select: (pos) => {
-      set({ selection: pos });
+      // Tapping a filled cell toggles the digit-highlight tint. Tapping an
+      // empty cell leaves any active highlight alone so the player can
+      // navigate without losing their scan target.
+      const { board, highlightedDigit } = get();
+      let nextHighlight = highlightedDigit;
+      if (pos) {
+        const cell = board.cells[pos.row][pos.col];
+        if (cell.value != null) {
+          nextHighlight = cell.value === highlightedDigit ? null : cell.value;
+        }
+      }
+      set({ selection: pos, highlightedDigit: nextHighlight });
       autoStartTimer(get, set);
     },
 
@@ -284,7 +314,13 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
 
     pause: () => {
       const { timer } = get();
-      if (timer.paused) return;
+      if (timer.paused) {
+        // Mid-transition: still mark as user-initiated for the ref to pick up.
+        if (!timer.manuallyPaused) {
+          set({ timer: { ...timer, manuallyPaused: true } });
+        }
+        return;
+      }
       const now = Date.now();
       const elapsed = timer.startTs == null ? 0 : now - timer.startTs;
       set({
@@ -292,6 +328,7 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
           startTs: null,
           accumulatedMs: timer.accumulatedMs + elapsed,
           paused: true,
+          manuallyPaused: true,
         },
       });
     },
@@ -304,6 +341,36 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
           startTs: Date.now(),
           accumulatedMs: timer.accumulatedMs,
           paused: false,
+          manuallyPaused: false,
+        },
+      });
+    },
+
+    pauseFromVisibility: () => {
+      const { timer } = get();
+      if (timer.paused) return;
+      const now = Date.now();
+      const elapsed = timer.startTs == null ? 0 : now - timer.startTs;
+      set({
+        timer: {
+          startTs: null,
+          accumulatedMs: timer.accumulatedMs + elapsed,
+          paused: true,
+          manuallyPaused: timer.manuallyPaused,
+        },
+      });
+    },
+
+    resumeFromVisibility: () => {
+      const { timer } = get();
+      if (!timer.paused) return;
+      if (timer.manuallyPaused) return;
+      set({
+        timer: {
+          startTs: Date.now(),
+          accumulatedMs: timer.accumulatedMs,
+          paused: false,
+          manuallyPaused: false,
         },
       });
     },
@@ -327,8 +394,10 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
           startTs: null,
           accumulatedMs: saved.elapsedMs,
           paused: true,
+          manuallyPaused: false,
         },
         difficulty: saved.difficulty,
+        highlightedDigit: null,
       });
       return true;
     },

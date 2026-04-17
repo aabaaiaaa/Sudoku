@@ -20,17 +20,32 @@ progress, stats, and settings all live in `localStorage`.
   cell's notes.
 - **Mistake highlighting:** conflicts are flagged but never blocked; mistake
   count is tracked for stats only.
-- **Timer with smart pause:** manual pause hides the board; auto-pauses when
-  the tab is hidden and resumes on focus. Elapsed time is computed from
-  timestamps so it's immune to interval drift during long pauses.
+- **Digit completion indicator:** when every instance of a digit is placed,
+  the corresponding number-pad button dims and disables, and every cell
+  holding that digit gets a subtle "complete" tint.
+- **Tap-to-highlight:** tapping a filled cell tints every cell containing
+  the same digit so you can scan the board for one value at a time. Tap
+  again (or tap a different digit) to switch or clear the highlight.
+- **Timer with smart pause:** the timer starts on your first interaction
+  with a new game. Manual pause blurs the board behind a resume card
+  (layout stays intact); the timer auto-pauses when the tab is hidden and
+  auto-resumes on focus unless you paused manually. Elapsed time is
+  computed from timestamps so it's immune to interval drift during long
+  pauses.
 - **One saved game per variant:** resume cards on the home screen show
   difficulty and elapsed time; clicking resumes exactly where you left off.
 - **Per-variant × difficulty stats:** games completed, best time, current /
   longest streak, average solve time, total mistakes.
-- **Four themes:** Light, Dark, Notepad (paper/graphite), and Space
-  (cosmic). Plus a "Follow system" toggle for Light ↔ Dark.
-- **Installable PWA:** works offline after first load on iOS Safari, Chrome
-  on Android, and desktop Chrome.
+- **Four themes with live previews:** Light, Dark, Notepad (paper /
+  graphite), and Space (cosmic). Settings shows a miniature sample board
+  under each option in its real theme colors. A "Follow system" toggle
+  flips Light ↔ Dark based on `prefers-color-scheme`.
+- **Installable PWA with update prompts:** works offline after first load
+  on iOS Safari, Chrome on Android, and desktop Chrome. When a new version
+  is available, a banner appears at the top of the screen with a Reload
+  button to activate the update.
+- **Version display:** the current app version is shown at the bottom of
+  Settings.
 - **Keyboard-first on desktop:** arrow keys to move, 1–N to place, `N` to
   toggle notes, Backspace/Delete to erase, Space to pause, Escape to
   deselect.
@@ -75,7 +90,7 @@ src/
     types.ts          # Cell, Board, Variant, Move, Position
     variants/         # classic, mini, six — registered in index.ts
     peers.ts          # row/col/box peer sets
-    board.ts          # board utilities, serialize, findConflicts
+    board.ts          # board utils: serialize, findConflicts, completedDigits
     solver/
       backtracking.ts # solve + countSolutions (uniqueness check)
       techniques/     # naked single, hidden single, subsets, ...
@@ -84,7 +99,8 @@ src/
   components/         # Board, Cell, NumberPad, Timer, Hint, WinModal, ...
   screens/            # Home, Game, Stats, Settings
   themes/             # light/dark/notepad/space + ThemeProvider
-  App.tsx, main.tsx
+  pwa/                # useUpdate hook + virtual:pwa-register test stub
+  App.tsx, main.tsx, vite-env.d.ts
 tests/
   e2e/                # Playwright specs
 ```
@@ -108,12 +124,15 @@ selector. Adding a new theme is a matter of:
 
 1. Create `src/themes/mytheme.css` with a `[data-theme="mytheme"] { … }`
    block defining `--bg`, `--fg`, `--cell-bg`, `--cell-given`,
-   `--cell-selected`, `--cell-peer`, `--cell-conflict`, `--border`, and
-   `--accent`.
+   `--cell-selected`, `--cell-peer`, `--cell-conflict`, `--cell-completed`,
+   `--cell-highlight`, `--border`, and `--accent`.
 2. Import it from `src/main.tsx`.
-3. Register it in `src/themes/index.ts` and add it to the Settings picker.
+3. Register it in `src/themes/index.ts` and add it to the Settings picker
+   (`themeOrder` in `src/screens/Settings.tsx`).
 
 No component changes required — all surfaces consume the CSS variables.
+The mini preview in Settings renders itself under `data-theme="mytheme"`
+and picks up the new values automatically.
 
 ## Deployment
 
