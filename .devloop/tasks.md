@@ -147,7 +147,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/skyscraper.test.ts`
 
 ### TASK-020: Two-String Kite
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-019
 - **Description**: Add `two-string-kite.ts`: like Skyscraper but the strong links are in different orientations (one row, one column) sharing a box. Eliminate the digit from the cell seeing both endpoints. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/two-string-kite.test.ts`
