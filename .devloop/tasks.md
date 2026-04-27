@@ -123,7 +123,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/w-wing.test.ts`
 
 ### TASK-016: Simple Coloring
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `simple-coloring.ts`: for a chosen digit, build the strong-link graph (cells where the digit appears in only two cells of a house). Two-color the graph; if any house contains two same-colored cells, that color is invalid → eliminate the digit from those cells. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/simple-coloring.test.ts`
