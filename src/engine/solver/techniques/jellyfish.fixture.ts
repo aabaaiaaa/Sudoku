@@ -1,0 +1,95 @@
+import type { Digit, Position } from '../../types';
+
+export interface TechniqueFixture {
+  variant: 'classic' | 'six' | 'mini';
+  /**
+   * Serialized board: row-major, one character per cell. Digits 1-9 are
+   * givens; '.' or '0' marks an empty cell. Whitespace is ignored.
+   */
+  board: string;
+  /** Cells highlighted in the help screen's "highlight pattern" step. */
+  patternCells: Position[];
+  deduction: {
+    eliminations?: Array<{ pos: Position; digits: Digit[] }>;
+    placement?: { pos: Position; digit: Digit };
+  };
+  /** Plain-language "When to look for it" description. */
+  description: string;
+}
+
+/**
+ * Jellyfish fixture (Classic 9x9), row orientation.
+ *
+ * Rows 1, 3, 7, and 9 (zero-indexed: 0, 2, 6, 8) each have five givens that
+ * leave columns 1, 3, 7, and 9 (zero-indexed: 0, 2, 6, 8) empty. The givens
+ * are chosen so that digit 1 is the only digit whose candidate columns in all
+ * four rows are exactly {0, 2, 6, 8}. Therefore digit 1 can be eliminated from
+ * columns 0, 2, 6, and 8 in every other row.
+ *
+ *   . 2 . 3 4 5 . 6 .
+ *   . . . . . . . . .
+ *   . 3 . 6 7 8 . 2 .
+ *   . . . . . . . . .
+ *   . . . . . . . . .
+ *   . . . . . . . . .
+ *   . 4 . 5 6 7 . 8 .
+ *   . . . . . . . . .
+ *   . 5 . 8 9 2 . 4 .
+ */
+export const fixture: TechniqueFixture = {
+  variant: 'classic',
+  board:
+    '.2.345.6.' +
+    '.........' +
+    '.3.678.2.' +
+    '.........' +
+    '.........' +
+    '.........' +
+    '.4.567.8.' +
+    '.........' +
+    '.5.892.4.',
+  patternCells: [
+    { row: 0, col: 0 },
+    { row: 0, col: 2 },
+    { row: 0, col: 6 },
+    { row: 0, col: 8 },
+    { row: 2, col: 0 },
+    { row: 2, col: 2 },
+    { row: 2, col: 6 },
+    { row: 2, col: 8 },
+    { row: 6, col: 0 },
+    { row: 6, col: 2 },
+    { row: 6, col: 6 },
+    { row: 6, col: 8 },
+    { row: 8, col: 0 },
+    { row: 8, col: 2 },
+    { row: 8, col: 6 },
+    { row: 8, col: 8 },
+  ],
+  deduction: {
+    eliminations: [
+      { pos: { row: 1, col: 0 }, digits: [1] },
+      { pos: { row: 1, col: 2 }, digits: [1] },
+      { pos: { row: 1, col: 6 }, digits: [1] },
+      { pos: { row: 1, col: 8 }, digits: [1] },
+      { pos: { row: 3, col: 0 }, digits: [1] },
+      { pos: { row: 3, col: 2 }, digits: [1] },
+      { pos: { row: 3, col: 6 }, digits: [1] },
+      { pos: { row: 3, col: 8 }, digits: [1] },
+      { pos: { row: 4, col: 0 }, digits: [1] },
+      { pos: { row: 4, col: 2 }, digits: [1] },
+      { pos: { row: 4, col: 6 }, digits: [1] },
+      { pos: { row: 4, col: 8 }, digits: [1] },
+      { pos: { row: 5, col: 0 }, digits: [1] },
+      { pos: { row: 5, col: 2 }, digits: [1] },
+      { pos: { row: 5, col: 6 }, digits: [1] },
+      { pos: { row: 5, col: 8 }, digits: [1] },
+      { pos: { row: 7, col: 0 }, digits: [1] },
+      { pos: { row: 7, col: 2 }, digits: [1] },
+      { pos: { row: 7, col: 6 }, digits: [1] },
+      { pos: { row: 7, col: 8 }, digits: [1] },
+    ],
+  },
+  description:
+    'In four rows (or columns), if a digit’s candidate cells lie in the same four columns (or rows), those four lines form a jellyfish. The digit must occupy one cell in each of the four crossing lines, so it can be eliminated from those four lines in every other row (or column).',
+};

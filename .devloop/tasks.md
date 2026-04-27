@@ -99,7 +99,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/swordfish.test.ts`
 
 ### TASK-012: Jellyfish
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-011
 - **Description**: Add `jellyfish.ts`: 4-row/4-column generalisation of Swordfish. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/jellyfish.test.ts`
