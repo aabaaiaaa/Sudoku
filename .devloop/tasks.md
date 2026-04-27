@@ -87,7 +87,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-quad.test.ts`
 
 ### TASK-010: Hidden Quad
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008
 - **Description**: Add `hidden-quad.ts`: four digits confined to four cells in a house. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-quad.test.ts`
