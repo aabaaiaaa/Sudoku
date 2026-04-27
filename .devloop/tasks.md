@@ -1,288 +1,459 @@
-# Sudoku PWA — Tasks
+# Sudoku PWA — Iteration 2 Tasks: Difficulty Overhaul
 
-See `.devloop/requirements.md` for full context. All tasks assume Windows/bash;
-paths use forward slashes relative to repo root.
+See `.devloop/requirements.md` for full context. The previous iteration's
+tasks (v0.1.0, TASK-001..046) are archived under
+`.devloop/archive/iteration-1/`. Task numbering restarts at TASK-001 for this
+iteration.
 
 Conventions:
 - Engine code is pure TS (no React) under `src/engine/`.
 - Unit tests live next to the file under test (`foo.ts` + `foo.test.ts`).
-- Playwright specs live under `tests/e2e/`.
-- `data-testid` attributes are added on any UI element referenced by E2E tests.
+- Each new solving technique includes its implementation, unit test, and a
+  fixture file (`<name>.fixture.ts`) used by both the test and the help
+  screen. Fixture format per requirements §8.4.
+- Technique tasks each add their mapping to `TECHNIQUE_TIER` and their id to
+  `TechniqueId` in `rate.ts`, but do NOT wire the finder into rate's internal
+  solver chain — that happens in TASK-035. This keeps individual tests green
+  even before the rater is fully wired.
+- Implementations may share helpers (e.g. extending `naked-subset.ts` for
+  quads, or factoring out fish detection) where the logic naturally
+  generalises. Match the existing code style in `src/engine/solver/`.
 
 ---
 
-### TASK-001: Initialize Vite + React + TypeScript project
+## Phase 1: Foundation
+
+### TASK-001: Expand Difficulty union and DIFFICULTY_ORDER
 - **Status**: done
 - **Dependencies**: none
-- **Description**: Scaffold a Vite + React + TS project at the repo root. Create `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/main.tsx`, `src/App.tsx`. Install `react`, `react-dom`, `typescript`, `vite`, `@vitejs/plugin-react`, and type packages. Ensure `npm run dev` and `npm run build` scripts exist.
-- **Verification**: `npm run build` completes without errors.
+- **Description**: In `src/engine/generator/rate.ts`, expand the `Difficulty` type to `'Easy' | 'Medium' | 'Hard' | 'Expert' | 'Master' | 'Diabolical' | 'Demonic' | 'Nightmare'`. Update `DIFFICULTY_ORDER` to match. Existing `tierRank` stays correct because it uses indexOf. Update `RateResult.difficulty` references.
+- **Verification**: `npx tsc --noEmit -p tsconfig.json`
 
-### TASK-002: Add Tailwind CSS
-- **Status**: done
+### TASK-002: Update CLUE_BOUNDS for new tiers
+- **Status**: pending
 - **Dependencies**: TASK-001
-- **Description**: Install `tailwindcss`, `postcss`, `autoprefixer`. Generate `tailwind.config.js` and `postcss.config.js`. Add Tailwind directives to `src/index.css` and import it from `main.tsx`. Add a visible test class on `App.tsx` (e.g. a styled heading) to confirm it applies.
-- **Verification**: `npm run build` completes and the output CSS in `dist/` contains Tailwind utility classes (grep for `bg-` or similar in built CSS).
+- **Description**: In `rate.ts`, expand `CLUE_BOUNDS` to include all 8 tiers per variant. Mini only needs Easy/Medium/Hard (cap is Hard). Six needs Easy through Diabolical. Classic needs all 8. Use sensible advisory windows (e.g. classic: Master 26-31, Diabolical 24-28, Demonic 22-26, Nightmare 20-24). These are advisory only — strict tier matching is the primary filter.
+- **Verification**: `npx tsc --noEmit -p tsconfig.json`
 
-### TASK-003: Configure Vitest with a smoke test
-- **Status**: done
+### TASK-003: Variant tier-cap helper
+- **Status**: pending
 - **Dependencies**: TASK-001
-- **Description**: Install `vitest`, `@vitest/ui`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`. Add `vitest.config.ts` (or extend `vite.config.ts`) with jsdom env. Add `test` script running `vitest run`. Create `src/smoke.test.ts` with a trivial assertion.
-- **Verification**: `npx vitest run src/smoke.test.ts` passes.
+- **Description**: Create `src/engine/generator/variant-tiers.ts` exporting `availableTiers(variant: Variant): readonly Difficulty[]` returning the tiers shown for that variant per requirements §4.1. Add `variant-tiers.test.ts` covering each variant returns the expected tier list.
+- **Verification**: `npx vitest run src/engine/generator/variant-tiers.test.ts`
 
-### TASK-004: Configure Playwright with a smoke test
-- **Status**: done
+### TASK-004: Vite define for __APP_VERSION__
+- **Status**: pending
+- **Dependencies**: none
+- **Description**: In `vite.config.ts`, read `package.json#version` (e.g. via `JSON.parse(fs.readFileSync('package.json'))`) and add a `define` block exposing `__APP_VERSION__: JSON.stringify(pkg.version)`. Declare the global in `src/vite-env.d.ts` so TS recognises it.
+- **Verification**: `npm run build` completes; `grep -r "0\\.2\\.0" dist/assets/*.js` finds the version (after TASK-005 bumps it).
+
+### TASK-005: Bump app version to 0.2.0
+- **Status**: pending
+- **Dependencies**: none
+- **Description**: Bump `package.json` version from `0.1.0` to `0.2.0`. Also update the version shown in `src/components/UpdatePrompt.tsx` if it's hard-coded there; otherwise leave for build-time injection.
+- **Verification**: `node -p "require('./package.json').version"` outputs `0.2.0`.
+
+### TASK-006: Rebuild TECHNIQUE_TIER for existing techniques
+- **Status**: pending
 - **Dependencies**: TASK-001
-- **Description**: Install `@playwright/test` and run `npx playwright install chromium`. Add `playwright.config.ts` pointing at the Vite dev server (webServer config). Create `tests/e2e/smoke.spec.ts` that navigates to `/` and asserts the page loads.
-- **Verification**: `npx playwright test tests/e2e/smoke.spec.ts` passes.
+- **Description**: In `rate.ts`, REWRITE `TECHNIQUE_TIER` to the new mapping for existing techniques per requirements §5.2: naked-single→Easy, hidden-single→Medium, pointing→Hard, box-line-reduction→Hard, naked-pair→Expert, naked-triple→Expert, x-wing→Master. Update existing `rate.test.ts` fixtures so puzzles previously rated Hard via naked-pair are now rated Expert, etc. New technique entries are added by their own tasks.
+- **Verification**: `npx vitest run src/engine/generator/rate.test.ts`
 
-### TASK-005: Add vite-plugin-pwa with a minimal manifest
-- **Status**: done
-- **Dependencies**: TASK-001
-- **Description**: Install `vite-plugin-pwa`. Configure it in `vite.config.ts` with `registerType: 'autoUpdate'`, a minimal `manifest` (name, short_name, theme_color, display: 'standalone', placeholder icons). Create a `public/` folder with placeholder SVG icons referenced by the manifest.
-- **Verification**: `npm run build` completes and `dist/manifest.webmanifest` plus `dist/sw.js` exist.
+---
 
-### TASK-006: Engine — core types
-- **Status**: done
-- **Dependencies**: TASK-003
-- **Description**: Create `src/engine/types.ts` defining `Digit`, `Cell` (value | null, notes: Set<Digit>, given: boolean), `Board` (2D array of Cell plus variant reference), `Variant` (id, size, boxWidth, boxHeight, digits), `Move`, `Position`. No logic — pure types and small factory helpers.
-- **Verification**: `npx tsc --noEmit src/engine/types.ts` completes without errors.
+## Phase 2: New solver techniques
 
-### TASK-007: Engine — variant registry with Classic 9×9
-- **Status**: done
+Each technique task implements the finder, a `<name>.fixture.ts`, and a
+`<name>.test.ts`. Each task also adds its `TechniqueId` and `TECHNIQUE_TIER`
+entry. Wiring into the rater chain and `techniques/index.ts` is deferred to
+TASK-035 and TASK-036.
+
+### TASK-007: Hidden Pair
+- **Status**: pending
 - **Dependencies**: TASK-006
-- **Description**: Create `src/engine/variants/index.ts` with a variant registry map. Add `src/engine/variants/classic.ts` defining the 9×9 variant (size 9, boxWidth 3, boxHeight 3, digits 1-9).
-- **Verification**: `npx tsc --noEmit src/engine/variants/classic.ts src/engine/variants/index.ts` completes without errors.
+- **Description**: Add `src/engine/solver/techniques/hidden-pair.ts`: in any house, two digits whose only candidate cells in the house are the same two cells form a Hidden Pair — eliminate all other candidates from those two cells. May share helpers with `naked-subset.ts`. Fixture + positive/negative tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/hidden-pair.test.ts`
 
-### TASK-008: Engine — Mini 4×4 and Six 6×6 variants
-- **Status**: done
+### TASK-008: Hidden Triple
+- **Status**: pending
 - **Dependencies**: TASK-007
-- **Description**: Add `src/engine/variants/mini.ts` (4×4, 2×2 boxes, digits 1-4) and `src/engine/variants/six.ts` (6×6, 2 rows × 3 cols per box, digits 1-6). Register both in the variant registry.
-- **Verification**: `npx tsc --noEmit src/engine/variants/mini.ts src/engine/variants/six.ts` completes without errors.
+- **Description**: Add `hidden-triple.ts`: three digits confined to the same three cells in a house. Eliminate other candidates from those cells. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/hidden-triple.test.ts`
 
-### TASK-009: Engine — peer computation
-- **Status**: done
-- **Dependencies**: TASK-007
-- **Description**: Create `src/engine/peers.ts` with `rowPeers`, `colPeers`, `boxPeers`, and combined `peers(variant, pos)` returning the set of peer positions for a cell. Write `src/engine/peers.test.ts` covering all three variants and a corner/center spot check.
-- **Verification**: `npx vitest run src/engine/peers.test.ts` passes.
+### TASK-009: Naked Quad
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `naked-quad.ts` (or extend `naked-subset.ts` to support size 4). Four cells in a house whose union of candidates is exactly four digits → eliminate those digits from the house's other cells. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/naked-quad.test.ts`
 
-### TASK-010: Engine — board utilities
-- **Status**: done
-- **Dependencies**: TASK-009
-- **Description**: Create `src/engine/board.ts` with `emptyBoard(variant)`, `cloneBoard`, `serialize`/`deserialize` (compact string form), `isComplete`, `findConflicts(board)` returning positions violating Sudoku rules. Add `src/engine/board.test.ts` covering each function.
-- **Verification**: `npx vitest run src/engine/board.test.ts` passes.
+### TASK-010: Hidden Quad
+- **Status**: pending
+- **Dependencies**: TASK-008
+- **Description**: Add `hidden-quad.ts`: four digits confined to four cells in a house. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/hidden-quad.test.ts`
 
-### TASK-011: Engine — backtracking solver with uniqueness check
-- **Status**: done
-- **Dependencies**: TASK-010
-- **Description**: Create `src/engine/solver/backtracking.ts` exporting `solve(board)` and `countSolutions(board, cap = 2)` (stops once 2 solutions found; used for uniqueness). Add `src/engine/solver/backtracking.test.ts` with known-solution fixtures for Classic, Mini, and Six, plus a uniqueness test.
-- **Verification**: `npx vitest run src/engine/solver/backtracking.test.ts` passes.
+### TASK-011: Swordfish
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `swordfish.ts`: three rows where a digit's candidate cells are confined to the same three columns → eliminate that digit from those columns in other rows. Mirror for column-orientation. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/swordfish.test.ts`
 
-### TASK-012: Engine — technique solver: naked singles
-- **Status**: done
+### TASK-012: Jellyfish
+- **Status**: pending
 - **Dependencies**: TASK-011
-- **Description**: Create `src/engine/solver/techniques/naked-single.ts` exporting a function that scans the board, computes candidates per cell, and returns the first cell with exactly one candidate along with metadata (`{ technique, cell, digit, explanation }`). Test file with fixtures where a naked single exists and where none does.
-- **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts` passes.
+- **Description**: Add `jellyfish.ts`: 4-row/4-column generalisation of Swordfish. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/jellyfish.test.ts`
 
-### TASK-013: Engine — technique solver: hidden singles
-- **Status**: done
-- **Dependencies**: TASK-012
-- **Description**: Add `src/engine/solver/techniques/hidden-single.ts` — for each house (row/col/box), find a digit that can go in only one cell of that house. Return metadata with the house name. Test with fixtures for row, col, and box hidden singles.
-- **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts` passes.
+### TASK-013: XY-Wing
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `xy-wing.ts`: a pivot bivalue cell (XY) and two pincer bivalue cells (XZ, YZ) where each pincer shares a house with the pivot but the pincers don't share. Eliminate Z from cells that see both pincers. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/xy-wing.test.ts`
 
-### TASK-014: Engine — technique solver: naked pairs/triples
-- **Status**: done
+### TASK-014: XYZ-Wing
+- **Status**: pending
 - **Dependencies**: TASK-013
-- **Description**: Add `src/engine/solver/techniques/naked-subset.ts` detecting naked pairs and naked triples in any house and returning candidate eliminations. Test with fixtures for a naked pair eliminating candidates in the same row.
-- **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts` passes.
+- **Description**: Add `xyz-wing.ts`: pivot is trivalue (XYZ), two pincers are bivalues (XZ, YZ) that see the pivot. Eliminate Z from cells that see all three. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/xyz-wing.test.ts`
 
-### TASK-015: Engine — technique solver: pointing pairs / box-line reduction
-- **Status**: done
-- **Dependencies**: TASK-014
-- **Description**: Add `src/engine/solver/techniques/intersection.ts` detecting pointing pairs (candidates confined to a box-line intersection, eliminating from the rest of the line) and box-line reduction (the inverse). Test each direction with a fixture.
-- **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts` passes.
+### TASK-015: W-Wing
+- **Status**: pending
+- **Dependencies**: TASK-013
+- **Description**: Add `w-wing.ts`: two bivalue cells with the same digits (XY, XY) connected by a strong link on Y. Eliminate X from cells that see both bivalue cells. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/w-wing.test.ts`
 
-### TASK-016: Engine — technique solver: X-wing
-- **Status**: done
-- **Dependencies**: TASK-015
-- **Description**: Add `src/engine/solver/techniques/x-wing.ts` detecting X-wing patterns (two rows or cols where a digit is confined to the same two columns/rows). Test with a classic X-wing fixture.
-- **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts` passes.
+### TASK-016: Simple Coloring
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `simple-coloring.ts`: for a chosen digit, build the strong-link graph (cells where the digit appears in only two cells of a house). Two-color the graph; if any house contains two same-colored cells, that color is invalid → eliminate the digit from those cells. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/simple-coloring.test.ts`
 
-### TASK-017: Engine — technique solver aggregator
-- **Status**: done
+### TASK-017: X-Cycle
+- **Status**: pending
 - **Dependencies**: TASK-016
-- **Description**: Create `src/engine/solver/techniques/index.ts` exporting `nextStep(board)` that applies techniques in increasing difficulty order and returns the first one that makes progress (or null). Export the technique list in order. Test that naked singles fire before hidden singles, etc.
-- **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts` passes.
+- **Description**: Add `x-cycle.ts`: a cycle of strong/weak links for one digit. Continuous cycles eliminate from cells seeing both endpoints of weak links; discontinuous cycles place or eliminate at the discontinuity. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/x-cycle.test.ts`
 
-### TASK-018: Engine — puzzle generator (Classic 9×9)
-- **Status**: done
-- **Dependencies**: TASK-017
-- **Description**: Create `src/engine/generator/generate.ts`. Strategy: fill a full valid solution (randomized backtracking), then remove cells one at a time while `countSolutions === 1`, stopping when further removal would break uniqueness or a clue-count floor is reached. Test that generated puzzles are unique and solvable for Classic, Mini, and Six.
-- **Verification**: `npx vitest run src/engine/generator/generate.test.ts` passes.
+### TASK-018: Empty Rectangle
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `empty-rectangle.ts`: in a box, a digit's candidates are confined to one row and one column intersecting at an "empty rectangle" cell; combined with a strong link in another house, eliminate at the intersection. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/empty-rectangle.test.ts`
 
-### TASK-019: Engine — difficulty rater
-- **Status**: done
-- **Dependencies**: TASK-018
-- **Description**: Create `src/engine/generator/rate.ts` that runs the technique solver on a puzzle and returns the hardest technique required, mapped to `Easy | Medium | Hard | Expert`. Include clue-count bounds per variant (per requirements doc §5). Test with hand-crafted puzzles of each tier for Classic.
-- **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
+### TASK-019: Skyscraper
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `skyscraper.ts`: two rows (or two columns) where a digit appears exactly twice each, and one column (row) is shared. The other two cells form the "roof"; eliminate the digit from cells that see both roof cells. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/skyscraper.test.ts`
 
-### TASK-020: Engine — difficulty-targeted generator
-- **Status**: done
+### TASK-020: Two-String Kite
+- **Status**: pending
 - **Dependencies**: TASK-019
-- **Description**: Add `generateForDifficulty(variant, difficulty)` that repeatedly generates + rates until it produces a puzzle at the requested tier or hits a retry cap; on cap exhaustion, returns the closest tier produced. Test that it returns a puzzle rated at the requested tier for each of the 4 tiers on Classic.
-- **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
+- **Description**: Add `two-string-kite.ts`: like Skyscraper but the strong links are in different orientations (one row, one column) sharing a box. Eliminate the digit from the cell seeing both endpoints. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/two-string-kite.test.ts`
 
-### TASK-021: Store — game slice (Zustand)
-- **Status**: done
-- **Dependencies**: TASK-003, TASK-010
-- **Description**: Install `zustand`. Create `src/store/game.ts` with state: `board`, `selection`, `notesMode`, `mistakes`, `timer` (startTs, accumulatedMs, paused). Actions: `newGame(variant, difficulty)`, `select(pos)`, `placeDigit(d)`, `toggleNote(d)`, `erase()`, `toggleNotesMode()`, `pause()`, `resume()`. No persistence yet. Tests for `placeDigit` auto-removing pencil marks from peers and incrementing mistakes on conflict.
-- **Verification**: `npx vitest run src/store/game.test.ts` passes.
+### TASK-021: Unique Rectangle (Types 1, 2, 4)
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `unique-rectangle.ts` covering Types 1, 2, and 4. The pattern: four cells in a rectangle spanning two boxes, each containing the same two candidates X,Y. If allowed, the puzzle would have multiple solutions, so the configuration is impossible. Per type, eliminate or restrict candidates accordingly. Fixture (one per type, all in the file) + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/unique-rectangle.test.ts`
 
-### TASK-022: Store — stats slice with persistence
-- **Status**: done
+### TASK-022: BUG+1
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `bug.ts`: detect Bivalue Universal Grave +1 — every unsolved cell except one has exactly two candidates. The "+1" cell must be the digit that would otherwise appear three times in some house, otherwise the puzzle would have multiple solutions. Place that digit. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/bug.test.ts`
+
+### TASK-023: XY-Chain
+- **Status**: pending
+- **Dependencies**: TASK-013
+- **Description**: Add `xy-chain.ts`: extension of XY-Wing to longer chains. A sequence of bivalue cells where consecutive cells share a digit and a house, starting and ending with the same digit Z. Eliminate Z from cells that see both endpoints. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/xy-chain.test.ts`
+
+### TASK-024: Multi-Coloring
+- **Status**: pending
+- **Dependencies**: TASK-016
+- **Description**: Add `multi-coloring.ts`: build coloring chains for a digit and identify when two color clusters interact such that one color from each cluster is forced false, leading to eliminations on cells seeing both. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/multi-coloring.test.ts`
+
+### TASK-025: ALS-XZ
+- **Status**: pending
+- **Dependencies**: TASK-006
+- **Description**: Add `als-xz.ts`: two Almost Locked Sets (ALS) sharing a "restricted common" digit X. Any digit Z common to both ALS that is not the restricted common can be eliminated from cells seeing all Z-candidates in both ALS. Implement an ALS detector helper (used here and possibly in later tasks). Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/als-xz.test.ts`
+
+### TASK-026: WXYZ-Wing
+- **Status**: pending
+- **Dependencies**: TASK-014
+- **Description**: Add `wxyz-wing.ts`: 4-cell extension of XYZ-Wing where four cells share four candidates W,X,Y,Z and eliminate Z from cells that see all four. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/wxyz-wing.test.ts`
+
+### TASK-027: Hidden Rectangle
+- **Status**: pending
 - **Dependencies**: TASK-021
-- **Description**: Create `src/store/stats.ts` tracking per-`(variant, difficulty)`: games completed, best time, streak (current/longest, tracked via last-played date), average solve time, total mistakes. Use Zustand `persist` middleware writing to `localStorage` under key `sudoku.stats.v1`. Action `recordCompletion({variant, difficulty, timeMs, mistakes})`. Tests: best time updates only when faster; streak increments on consecutive days and resets on gap.
-- **Verification**: `npx vitest run src/store/stats.test.ts` passes.
+- **Description**: Add `hidden-rectangle.ts`: a uniqueness pattern where a rectangle of bivalue corners would create two solutions; one corner having extra candidates lets you eliminate one of the bivalue digits from that corner. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/hidden-rectangle.test.ts`
 
-### TASK-023: Store — settings slice with persistence
-- **Status**: done
+### TASK-028: Avoidable Rectangle
+- **Status**: pending
 - **Dependencies**: TASK-021
-- **Description**: Create `src/store/settings.ts` with `theme: 'light' | 'dark' | 'notepad' | 'space'` and `followSystem: boolean`. Zustand `persist` middleware, key `sudoku.settings.v1`. Action `setTheme(theme)` turns off follow-system; `setFollowSystem(true)` recomputes theme from `matchMedia('(prefers-color-scheme: dark)')`. Tests for each behavior.
-- **Verification**: `npx vitest run src/store/settings.test.ts` passes.
+- **Description**: Add `avoidable-rectangle.ts`: uniqueness pattern using already-placed digits. If two non-given placed digits and one bivalue cell complete a rectangle, the bivalue cell must take the digit that avoids creating the deadly pattern. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/avoidable-rectangle.test.ts`
 
-### TASK-024: Store — save-game persistence (one per variant)
-- **Status**: done
-- **Dependencies**: TASK-022
-- **Description**: Extend the game store with persistence of in-progress games keyed by variant under `sudoku.save.v1`. On `newGame` for a variant, overwrite that variant's save. On completion, clear the save. Expose `hasSavedGame(variant)` and `resumeSavedGame(variant)`. Include a schema `version` field; on mismatch, discard the save. Tests for save/resume/clear and version-mismatch discard.
-- **Verification**: `npx vitest run src/store/save.test.ts` passes.
+### TASK-029: Nice Loop (continuous)
+- **Status**: pending
+- **Dependencies**: TASK-017
+- **Description**: Add `nice-loop.ts` implementing continuous nice loops (alternating strong/weak inferences forming a closed cycle). Eliminations come from weak links involving cells outside the cycle. Implement the cycle detection plus elimination logic. Fixture + tests for the continuous case.
+- **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "continuous"`
 
-### TASK-025: Theme system — base infrastructure + light/dark
-- **Status**: done
-- **Dependencies**: TASK-002, TASK-023
-- **Description**: Create `src/themes/index.ts` registering theme definitions (CSS custom property maps). Create `src/themes/light.css` and `src/themes/dark.css` using `[data-theme="light"]` / `[data-theme="dark"]` selectors setting variables like `--bg`, `--fg`, `--cell-bg`, `--cell-given`, `--cell-selected`, `--cell-peer`, `--cell-conflict`, `--border`, `--accent`. Import themes in `main.tsx`. Create `src/themes/ThemeProvider.tsx` (or a small hook) that applies `data-theme` on `<html>` from the settings store, listening to system changes when follow-system is on. Test via component test that theme attribute updates.
-- **Verification**: `npx vitest run src/themes/ThemeProvider.test.tsx` passes.
-
-### TASK-026: Themes — Notepad and Space
-- **Status**: done
-- **Dependencies**: TASK-025
-- **Description**: Add `src/themes/notepad.css` (paper/graphite aesthetic: warm off-white bg, pencil-grey player ink, inked black given clues, ruled-paper accent) and `src/themes/space.css` (deep indigo bg, luminous digits, subtle starfield accent via radial gradient). Register both in the theme registry. Add a visual smoke test that each theme sets the `data-theme` attribute correctly.
-- **Verification**: `npx vitest run src/themes/ThemeProvider.test.tsx` passes (same test file, extended with new theme cases).
-
-### TASK-027: Component — Board renderer
-- **Status**: done
-- **Dependencies**: TASK-021, TASK-025
-- **Description**: Create `src/components/Board.tsx` rendering an N×N grid parameterized by variant. Uses thicker borders at box boundaries. Reads current board + selection from the game store and emits `onSelectCell(pos)`. Include `data-testid="sudoku-board"` and per-cell `data-testid="cell-r{row}-c{col}"`. Snapshot/render test renders a Classic empty board with 81 cells.
-- **Verification**: `npx vitest run src/components/Board.test.tsx` passes.
-
-### TASK-028: Component — Cell
-- **Status**: done
-- **Dependencies**: TASK-027
-- **Description**: Create `src/components/Cell.tsx` rendering digit (or pencil-marks grid when empty), with styling for given, selected, peer-highlighted, same-digit-highlighted, and conflict states driven by props. Test: renders digit, renders 1-9 pencil marks when empty, applies conflict class when `isConflict` is true.
-- **Verification**: `npx vitest run src/components/Cell.test.tsx` passes.
-
-### TASK-029: Component — Number pad
-- **Status**: done
-- **Dependencies**: TASK-021
-- **Description**: Create `src/components/NumberPad.tsx` rendering 1..N digit buttons (N from active variant), an Erase button, and a Notes toggle. Clicking a digit calls `placeDigit` or `toggleNote` based on `notesMode`. `data-testid="pad-digit-{n}"`, `data-testid="pad-erase"`, `data-testid="pad-notes"`. Test: clicking digit dispatches correct store action.
-- **Verification**: `npx vitest run src/components/NumberPad.test.tsx` passes.
-
-### TASK-030: Component — Keyboard input handler
-- **Status**: done
+### TASK-030: Nice Loop (discontinuous)
+- **Status**: pending
 - **Dependencies**: TASK-029
-- **Description**: Create `src/components/KeyboardHandler.tsx` (renders nothing; attaches window listeners). Maps: arrows → move selection, 1-N → placeDigit or toggleNote, `N` → toggle notes mode, Backspace/Delete → erase, Escape → deselect, Space → pause/resume. Test with `userEvent` firing keys and asserting store actions.
-- **Verification**: `npx vitest run src/components/KeyboardHandler.test.tsx` passes.
+- **Description**: Extend `nice-loop.ts` to also detect discontinuous nice loops (two weak or two strong links meeting at one node). At the discontinuity, the digit is forced or eliminated. Add fixture + test for the discontinuous case.
+- **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "discontinuous"`
 
-### TASK-031: Component — Timer with visibility auto-pause
-- **Status**: done
-- **Dependencies**: TASK-021
-- **Description**: Create `src/components/Timer.tsx` showing elapsed time computed from store timestamps (not interval counters) and a pause/resume button. Subscribe to `document.visibilitychange`: pause on hidden, resume on visible (unless manually paused). Test: fire visibilitychange events and assert paused state; assert manual pause overrides visibility resume.
-- **Verification**: `npx vitest run src/components/Timer.test.tsx` passes.
+### TASK-031: Grouped X-Cycle
+- **Status**: pending
+- **Dependencies**: TASK-017
+- **Description**: Add `grouped-x-cycle.ts`: extension of X-Cycle where some "nodes" are groups of cells (two or three cells in the same row/col within a box) treated as a unit. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/grouped-x-cycle.test.ts`
 
-### TASK-032: Component — Hint
-- **Status**: done
-- **Dependencies**: TASK-017, TASK-027
-- **Description**: Create `src/components/Hint.tsx` with a button that calls `nextStep(board)` and, on result, highlights the relevant cell(s) and shows the technique name + explanation in a small panel. Does not fill the digit. Shows a friendly "no available hint" message when `nextStep` returns null. Test: button click surfaces the hint panel with expected text for a naked-single fixture.
-- **Verification**: `npx vitest run src/components/Hint.test.tsx` passes.
+### TASK-032: 3D Medusa
+- **Status**: pending
+- **Dependencies**: TASK-024
+- **Description**: Add `medusa-3d.ts`: extends coloring across multiple digits. Color bivalue cells and bivalue houses simultaneously; conflicts within a color invalidate it. Eliminate accordingly. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts`
 
-### TASK-033: Screen — Home
-- **Status**: done
-- **Dependencies**: TASK-023, TASK-024
-- **Description**: Create `src/screens/Home.tsx`: variant picker (Classic / Mini / Six), difficulty picker (Easy / Medium / Hard / Expert), a "New Game" button, and a "Resume" card per variant that has a saved game (showing difficulty and elapsed time). Clicking Resume loads that save into the game store. Clicking New Game with an existing save in that variant prompts a confirm.
-- **Verification**: `npx vitest run src/screens/Home.test.tsx` passes.
+### TASK-033: Death Blossom
+- **Status**: pending
+- **Dependencies**: TASK-025
+- **Description**: Add `death-blossom.ts`: a "stem" cell with N candidates, each linked to an ALS where placing that candidate would force a digit Z out of the ALS. Z is eliminated from cells seeing all Z-candidates across the petal ALSes. Reuses ALS detector from TASK-025. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/death-blossom.test.ts`
 
-### TASK-034: Screen — Game layout
-- **Status**: done
-- **Dependencies**: TASK-027, TASK-029, TASK-030, TASK-031, TASK-032
-- **Description**: Create `src/screens/Game.tsx` composing Board, NumberPad, Timer, Hint, KeyboardHandler, and a back-to-home button. Mobile-first layout (board above pad, constrained on desktop). Smoke test renders without crashing when a game is active.
-- **Verification**: `npx vitest run src/screens/Game.test.tsx` passes.
+### TASK-034: Forcing Chains
+- **Status**: pending
+- **Dependencies**: TASK-023
+- **Description**: Add `forcing-chains.ts`: pick a cell with N candidates; for each candidate, follow logical implications. If all branches eliminate the same digit elsewhere or place the same digit in the same cell, that elimination/placement is forced. Cap chain depth to a reasonable limit (e.g. 50 implications) to bound runtime. Fixture + tests.
+- **Verification**: `npx vitest run src/engine/solver/techniques/forcing-chains.test.ts`
 
-### TASK-035: Screen — Stats
-- **Status**: done
-- **Dependencies**: TASK-022
-- **Description**: Create `src/screens/Stats.tsx` showing a table per variant with columns for each difficulty and rows for each stat (games, best time, streaks, average, mistakes). Reads from stats store. Includes a Reset button with a confirm step that clears stats.
-- **Verification**: `npx vitest run src/screens/Stats.test.tsx` passes.
+---
 
-### TASK-036: Screen — Settings
-- **Status**: done
-- **Dependencies**: TASK-025, TASK-026
-- **Description**: Create `src/screens/Settings.tsx` with a theme selector (Light / Dark / Notepad / Space) and a "Follow system" toggle. Wires to the settings store. Test: selecting a non-auto theme clears follow-system; toggling follow-system picks the system theme.
-- **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes.
+## Phase 3: Solver and rater integration
 
-### TASK-037: Win modal + stats recording
-- **Status**: done
-- **Dependencies**: TASK-022, TASK-034
-- **Description**: Create `src/components/WinModal.tsx` that opens when `isComplete(board)` becomes true, showing final time and mistakes and offering "New Game" / "Home". On mount, calls `stats.recordCompletion` and clears the in-progress save for that variant. Test: simulate completion, assert recordCompletion invoked once and save cleared.
-- **Verification**: `npx vitest run src/components/WinModal.test.tsx` passes.
+### TASK-035: Wire new techniques into rate.ts internal solver
+- **Status**: pending
+- **Dependencies**: TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-022, TASK-023, TASK-024, TASK-025, TASK-026, TASK-027, TASK-028, TASK-029, TASK-030, TASK-031, TASK-032, TASK-033, TASK-034
+- **Description**: Extend the `rate()` function's solver loop in `rate.ts` to call each new finder in increasing-difficulty order (Hidden Pair → Hidden Triple → Naked Quad → Hidden Quad → Swordfish → ... → Forcing Chains). Each branch calls `noteTechnique(id)` and either places a digit via `placeDigit` or applies eliminations via `applyEliminations`. Solver still restarts at Naked Single on any progress.
+- **Verification**: `npx vitest run src/engine/generator/rate.test.ts`
 
-### TASK-038: Routing / navigation
-- **Status**: done
-- **Dependencies**: TASK-033, TASK-034, TASK-035, TASK-036
-- **Description**: Wire top-level navigation between Home, Game, Stats, Settings. Either a tiny router (e.g. `react-router-dom`) or a hash-based screen switcher — choose the smaller option. Add a persistent bottom tab bar on mobile for Home/Stats/Settings; the Game screen is its own full-screen view.
-- **Verification**: `npm run build` completes without errors and navigation smoke test `npx vitest run src/App.test.tsx` passes.
+### TASK-036: Register new techniques in techniques/index.ts
+- **Status**: pending
+- **Dependencies**: TASK-035
+- **Description**: Update `src/engine/solver/techniques/index.ts` to import all new techniques and add them to the `nextStep` cascade in difficulty order. Update the exported technique-list array (used elsewhere) accordingly. Update `index.test.ts` to assert that nextStep applies them in correct order.
+- **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts`
 
-### TASK-039: PWA icons and manifest polish
-- **Status**: done
-- **Dependencies**: TASK-005
-- **Description**: Replace placeholder icons with simple but distinct Sudoku-themed SVG/PNG icons sized 192, 512, and maskable 512. Update the manifest name, short_name, description, theme_color to match a base theme. Add `apple-touch-icon` and iOS meta tags.
-- **Verification**: `npm run build` completes and `dist/manifest.webmanifest` contains the final name plus 192 and 512 icon entries.
+### TASK-037: Add rate.test.ts fixtures for new tiers
+- **Status**: pending
+- **Dependencies**: TASK-035
+- **Description**: Extend `rate.test.ts` with hand-authored Classic 9×9 puzzles for each new tier (Master, Diabolical, Demonic, Nightmare). Each fixture should be solvable using a technique from that tier as its hardest step, and not solvable with anything easier. Assert `rate(p).difficulty === expectedTier`.
+- **Verification**: `npx vitest run src/engine/generator/rate.test.ts -t "Master|Diabolical|Demonic|Nightmare"`
 
-### TASK-040: Mobile viewport and safe-area insets
-- **Status**: done
-- **Dependencies**: TASK-002
-- **Description**: In `index.html`, add `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">`. In CSS, use `env(safe-area-inset-*)` padding on the main layout container. Verify Tailwind classes don't conflict.
-- **Verification**: `npm run build` completes and the built `index.html` contains the viewport-fit meta tag.
+---
 
-### TASK-041: Offline precache configuration
-- **Status**: done
-- **Dependencies**: TASK-005, TASK-038
-- **Description**: Extend the `vite-plugin-pwa` config with Workbox `globPatterns` covering JS, CSS, HTML, and fonts, and a navigation fallback to `index.html`. Build and inspect the generated service worker to confirm the app shell is precached.
-- **Verification**: `npm run build` completes and `dist/sw.js` contains references to the precache manifest (grep for `precacheAndRoute` or equivalent).
+## Phase 4: Generator changes
 
-### TASK-042: E2E — new game → place digits → win
-- **Status**: done
-- **Dependencies**: TASK-034, TASK-037
-- **Description**: Add `tests/e2e/new-game.spec.ts`. Seed the game store (via an exposed test hook or by navigating through UI) with a solvable near-complete puzzle, then use the number pad to place the final digits and assert the win modal appears with a non-zero time. Use `data-testid` selectors introduced in earlier tasks.
-- **Verification**: `npx playwright test tests/e2e/new-game.spec.ts` passes.
+### TASK-038: Strict tier rule in generate-for-difficulty
+- **Status**: pending
+- **Dependencies**: TASK-035
+- **Description**: In `src/engine/generator/generate-for-difficulty.ts`, change the acceptance test so generated puzzles are accepted only when `rate(p).difficulty === target` (exact match). Reject and retry otherwise.
+- **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "exact tier"`
 
-### TASK-043: E2E — pencil marks, auto-removal, mistake highlighting
-- **Status**: done
+### TASK-039: Retry cap and hard timeout
+- **Status**: pending
+- **Dependencies**: TASK-038
+- **Description**: Update `generateForDifficulty` to enforce a maximum of 50 attempts AND a 60-second wall-clock timeout (whichever first). On budget exhaustion, return a structured `GenerationFailed` result containing closest tier produced (if any), attempt count, and elapsed time. Update tests to use a short timeout for the failure case.
+- **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "timeout|attempts"`
+
+### TASK-040: Progress callback support
+- **Status**: pending
+- **Dependencies**: TASK-039
+- **Description**: Extend `generateForDifficulty` (or a new `generateForDifficultyWithProgress`) to accept an optional `onProgress({ attempt, max })` callback called after each rejected attempt. Used by the worker wrapper for progress events.
+- **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "progress"`
+
+---
+
+## Phase 5: Web Worker
+
+### TASK-041: Generator Web Worker entry point
+- **Status**: pending
+- **Dependencies**: TASK-040
+- **Description**: Create `src/workers/generator.worker.ts` exporting a worker that handles `{ type: 'generate', variantId, difficulty }` messages. Resolves the variant via the variant registry, calls `generateForDifficulty` with a progress callback that posts `{ type: 'progress', attempt, max }` messages, and posts a terminal `{ type: 'done', puzzle, rating }` or `{ type: 'failed', closestRating, attempts, elapsedMs }`. Handle one request at a time.
+- **Verification**: `npx tsc --noEmit src/workers/generator.worker.ts`
+
+### TASK-042: Generator worker client wrapper
+- **Status**: pending
+- **Dependencies**: TASK-041
+- **Description**: Create `src/workers/generator-client.ts` exporting `generateInWorker(variant, difficulty)` returning `{ promise: Promise<GenResult>, cancel: () => void, onProgress: (cb) => void }`. Internally instantiates the worker, wires up the messaging, supports cancel via `worker.terminate()`. Add `generator-client.test.ts` using a fake worker (mocked Worker class with a queue of messages).
+- **Verification**: `npx vitest run src/workers/generator-client.test.ts`
+
+### TASK-043: Game store async newGame integration
+- **Status**: pending
 - **Dependencies**: TASK-042
-- **Description**: Add `tests/e2e/notes-and-conflicts.spec.ts`. Toggle notes mode, add pencil marks, place a digit in a peer and assert that digit is removed from peers' notes. Place a conflicting digit and assert the conflict class is applied to both cells.
-- **Verification**: `npx playwright test tests/e2e/notes-and-conflicts.spec.ts` passes.
+- **Description**: Make `newGame(variant, difficulty)` in `src/store/game.ts` async. Set `loading: true`, call `generateInWorker`, on `done` populate the board and set `loading: false`. On `failed`, set `loading: false` and surface `generationFailure` state for the UI to render. Add a `cancelGeneration()` action that calls the worker's cancel and clears loading. Update existing tests of `newGame` to await the action.
+- **Verification**: `npx vitest run src/store/game.test.ts`
 
-### TASK-044: E2E — pause, resume, visibility auto-pause
-- **Status**: done
-- **Dependencies**: TASK-042
-- **Description**: Add `tests/e2e/timer.spec.ts`. Verify the timer advances, manual pause stops it and hides the board, resume restores the board, and simulating `visibilitychange` via `page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))` with `document.hidden = true` pauses it.
-- **Verification**: `npx playwright test tests/e2e/timer.spec.ts` passes.
+---
 
-### TASK-045: E2E — resume saved game after reload
-- **Status**: done
-- **Dependencies**: TASK-024, TASK-033
-- **Description**: Add `tests/e2e/resume.spec.ts`. Start a new Classic game, place a few digits, reload the page, confirm a Resume card appears on Home with the correct variant, click it, and assert the board state is restored.
-- **Verification**: `npx playwright test tests/e2e/resume.spec.ts` passes.
+## Phase 6: Loading UX
 
-### TASK-046: E2E — theme switch persists
-- **Status**: done
+### TASK-044: Loading overlay component
+- **Status**: pending
+- **Dependencies**: TASK-043
+- **Description**: Create `src/components/LoadingOverlay.tsx` rendering a full-screen overlay with the same blurred-grid styling as the existing pause overlay (reuse those styles or extract a shared `BlurOverlay` component). Centers a CSS spinner. Accepts `visible: boolean` prop. No text.
+- **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx`
+
+### TASK-045: 200ms debounce wiring
+- **Status**: pending
+- **Dependencies**: TASK-044
+- **Description**: In `src/screens/Game.tsx`, render `<LoadingOverlay>` driven by the game store's `loading` flag, but only after a 200ms debounce so quick generations don't flash an overlay. Use a small hook `useDebouncedFlag(value, ms)`.
+- **Verification**: `npx vitest run src/screens/Game.test.tsx -t "loading"`
+
+### TASK-046: Cancel button + 10s threshold
+- **Status**: pending
+- **Dependencies**: TASK-045
+- **Description**: Extend `LoadingOverlay` (or compose a sibling component) so that after 10 seconds of continuous visibility, a Cancel button and the note "Higher difficulties can take longer to generate." fade in below the spinner. Cancel calls `cancelGeneration()` and navigates to Home. Test asserts the button is hidden initially and visible after 10s (using fake timers).
+- **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx -t "cancel|10s"`
+
+### TASK-047: Generation-failure fallback dialog
+- **Status**: pending
+- **Dependencies**: TASK-043
+- **Description**: Create `src/components/GenerationFailedDialog.tsx` that renders when game store's `generationFailure` is set. Heading mentions the target tier (e.g. "Couldn't find a Demonic puzzle in time."), body text explains briefly, three actions: Try again (re-runs same target), Try [next-easier-tier] (only if one exists), Cancel (returns to Home). Wire into `Game.tsx`.
+- **Verification**: `npx vitest run src/components/GenerationFailedDialog.test.tsx`
+
+---
+
+## Phase 7: Variant-aware difficulty picker
+
+### TASK-048: Home difficulty picker per variant
+- **Status**: pending
+- **Dependencies**: TASK-003
+- **Description**: Update `src/screens/Home.tsx` to use `availableTiers(variant)` to render only the difficulty buttons supported by the currently-selected variant. Switching variants updates the visible tier set; if the previously-selected tier is no longer available, fall back to the highest available. Update `Home.test.tsx` to cover Mini/Six/Classic showing the right tier counts.
+- **Verification**: `npx vitest run src/screens/Home.test.tsx`
+
+### TASK-049: Difficulty badge styling for new tiers
+- **Status**: pending
+- **Dependencies**: TASK-001
+- **Description**: Add visual styles for the 4 new tier badges (Master, Diabolical, Demonic, Nightmare) wherever the difficulty is shown (Home resume cards, Game header, Stats screen, WinModal). Use a colour ramp that visually escalates (e.g. deepening reds/purples through Nightmare). Update any snapshot or visual-regression tests.
+- **Verification**: `npx vitest run src/components/DifficultyBadge.test.tsx` (create if it doesn't exist)
+
+### TASK-050: Stats screen 8-tier layout
+- **Status**: pending
+- **Dependencies**: TASK-001, TASK-003
+- **Description**: Update `src/screens/Stats.tsx` to render columns/rows for all available tiers per variant (use `availableTiers(variant)`). Mini shows 3 columns, Six 6, Classic 8. Empty cells (no completions yet) render gracefully. Update tests.
+- **Verification**: `npx vitest run src/screens/Stats.test.tsx`
+
+---
+
+## Phase 8: Save versioning
+
+### TASK-051: Bump save schema to v2 with appVersion stamp
+- **Status**: pending
+- **Dependencies**: TASK-004
+- **Description**: In `src/store/save.ts`, change the persistence key from `sudoku.save.v1` to `sudoku.save.v2`. Extend the persisted state shape to include `appVersion: string` populated from `__APP_VERSION__` at write time. Existing v1 entries are silently dropped on first load (existing schema-mismatch behaviour). Update `save.test.ts` for the new key and the appVersion stamp.
+- **Verification**: `npx vitest run src/store/save.test.ts`
+
+### TASK-052: Bump stats schema to v2 with appVersion stamp
+- **Status**: pending
+- **Dependencies**: TASK-004
+- **Description**: Same treatment for `src/store/stats.ts` — `sudoku.stats.v1` → `sudoku.stats.v2`, add `appVersion` stamp. Initialise tier-keyed records to include the new tier names so the Stats screen has stable shape. Update `stats.test.ts`.
+- **Verification**: `npx vitest run src/store/stats.test.ts`
+
+### TASK-053: Settings schema appVersion stamp
+- **Status**: pending
+- **Dependencies**: TASK-004
+- **Description**: For consistency, also bump `sudoku.settings.v1` to v2 with an `appVersion` stamp. Old settings discarded on schema mismatch (acceptable — user just re-picks theme). Update `settings.test.ts`.
+- **Verification**: `npx vitest run src/store/settings.test.ts`
+
+---
+
+## Phase 9: Techniques help section
+
+### TASK-054: Techniques screen index
+- **Status**: pending
 - **Dependencies**: TASK-036
-- **Description**: Add `tests/e2e/theme.spec.ts`. Navigate to Settings, select Notepad, assert `document.documentElement` has `data-theme="notepad"`. Reload the page and assert the attribute is still `notepad`.
-- **Verification**: `npx playwright test tests/e2e/theme.spec.ts` passes.
+- **Description**: Create `src/screens/Techniques.tsx` rendering an index of all 34 techniques grouped by tier. Each row shows technique name + tier badge and links to a detail page. Pull the technique list from a single source of truth (e.g. a `TECHNIQUE_CATALOG` constant under `src/engine/solver/techniques/catalog.ts` mapping technique id → display name + tier). Add `Techniques.test.tsx` asserting all 34 are rendered.
+- **Verification**: `npx vitest run src/screens/Techniques.test.tsx`
+
+### TASK-055: Technique detail page component
+- **Status**: pending
+- **Dependencies**: TASK-054
+- **Description**: Create `src/screens/TechniqueDetail.tsx` rendering the detail page for a single technique (selected via route param). Loads the fixture, shows description, tier badge, and embeds the `Board` component with the fixture's board state. Three walkthrough buttons (Highlight pattern / Show deduction / Apply) and a Reset button. Walkthrough state is local (not in the game store). Test the three steps advance correctly.
+- **Verification**: `npx vitest run src/screens/TechniqueDetail.test.tsx`
+
+### TASK-056: Technique catalog wiring
+- **Status**: pending
+- **Dependencies**: TASK-054
+- **Description**: In `src/engine/solver/techniques/catalog.ts`, define `TECHNIQUE_CATALOG: Record<TechniqueId, { displayName: string; tier: Difficulty; fixture: TechniqueFixture; description: string }>` importing each technique's fixture file. This is the single source of truth used by the index, the detail page, and the hint Learn-more link. Add a test that asserts every TechniqueId in `TECHNIQUE_TIER` has a catalog entry.
+- **Verification**: `npx vitest run src/engine/solver/techniques/catalog.test.ts`
+
+### TASK-057: Bottom tab bar Learn entry
+- **Status**: pending
+- **Dependencies**: TASK-054
+- **Description**: Add a "Learn" entry to the bottom tab bar / navigation alongside Home, Stats, Settings. Wires routing to `Techniques.tsx`. Update navigation tests if any.
+- **Verification**: `npx vitest run src/App.test.tsx -t "Learn"`
+
+### TASK-058: Hint "Learn more" link
+- **Status**: pending
+- **Dependencies**: TASK-056, TASK-057
+- **Description**: Update `src/components/Hint.tsx` so when a hint is shown, a "Learn more about [technique name] →" link appears below the explanation. Clicking navigates to the matching technique's detail page (using the route from TASK-057). Update `Hint.test.tsx` to assert the link is present and navigates to the right route.
+- **Verification**: `npx vitest run src/components/Hint.test.tsx -t "learn more"`
+
+---
+
+## Phase 10: E2E tests
+
+### TASK-059: E2E — generate Demonic, observe spinner and cancel
+- **Status**: pending
+- **Dependencies**: TASK-046, TASK-048
+- **Description**: Add `tests/e2e/difficulty-loading.spec.ts`. Navigate to Home, pick Classic + Demonic, click New Game. Assert the loading overlay appears (blurred grid + spinner). Wait at least 10 seconds (or reduce thresholds in test config) and assert the Cancel button appears. Click Cancel and assert return to Home. Use generous Playwright timeouts since the test waits on real generation.
+- **Verification**: `npx playwright test tests/e2e/difficulty-loading.spec.ts`
+
+### TASK-060: E2E — Learn tab walkthrough
+- **Status**: pending
+- **Dependencies**: TASK-055, TASK-057
+- **Description**: Add `tests/e2e/techniques-help.spec.ts`. Navigate to the Learn tab, click into Hidden Single, step through the three walkthrough buttons, click Reset, return to the index. Assert each walkthrough step changes the visible board state.
+- **Verification**: `npx playwright test tests/e2e/techniques-help.spec.ts`
+
+### TASK-061: E2E — Hint Learn-more navigates correctly
+- **Status**: pending
+- **Dependencies**: TASK-058
+- **Description**: Add `tests/e2e/hint-learn-more.spec.ts`. Start a Classic Easy game (fast generation), click the Hint button, click "Learn more about Naked Single →", assert the URL/screen reflects the Naked Single detail page.
+- **Verification**: `npx playwright test tests/e2e/hint-learn-more.spec.ts`
+
+### TASK-062: E2E — Difficulty picker hides infeasible tiers
+- **Status**: pending
+- **Dependencies**: TASK-048
+- **Description**: Add `tests/e2e/variant-tier-caps.spec.ts`. Switch variant on Home and assert the visible difficulty buttons match the variant cap (Mini: 3, Six: 6, Classic: 8). No "Master+" button visible on Mini.
+- **Verification**: `npx playwright test tests/e2e/variant-tier-caps.spec.ts`
+
+---
+
+## Phase 11: Final verification
+
+### TASK-063: Full unit-test sweep
+- **Status**: pending
+- **Dependencies**: TASK-058
+- **Description**: Run the full Vitest suite to confirm no regressions across foundation, techniques, generator, store, and components. Fix any issues surfaced.
+- **Verification**: `npx vitest run`
+
+### TASK-064: Full build + type check
+- **Status**: pending
+- **Dependencies**: TASK-063
+- **Description**: Run `tsc --noEmit` over the whole project and `npm run build`. Confirm no type errors and a clean production build. Inspect the bundle size — the Web Worker should be a separate chunk.
+- **Verification**: `npm run build`
+
+### TASK-065: Full E2E sweep
+- **Status**: pending
+- **Dependencies**: TASK-062, TASK-064
+- **Description**: Run the full Playwright suite (existing v1 specs + new ones) to confirm no regressions.
+- **Verification**: `npx playwright test`

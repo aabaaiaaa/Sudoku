@@ -1,266 +1,439 @@
-# Sudoku PWA — Requirements
+# Sudoku PWA — Iteration 2 Requirements: Difficulty Overhaul
 
-A mobile-friendly, installable Sudoku web app that plays well on iOS Safari and
-Chrome on Android, and remains fully usable on desktop Chrome with keyboard
-controls. Everything runs client-side; there is no backend, no account system,
-and no network dependency during gameplay.
+This iteration overhauls the difficulty system, adds a comprehensive techniques
+help section, makes puzzle generation responsive via a Web Worker, and bumps the
+persistence schema to support future migrations.
 
-## 1. Goals
+The v0.1.0 baseline (variants, themes, PWA, save/stats/settings stores, board
+and gameplay components) is unchanged except where called out. The previous
+iteration's requirements are archived at `.devloop/archive/iteration-1/`.
 
-- Deliver a polished, offline-capable Sudoku game as a Progressive Web App.
-- Support multiple grid variants and four difficulty tiers.
-- Feel native on mobile (touch-first) while remaining first-class on desktop.
-- Keep all state local to the browser — puzzles, progress, stats, and settings.
-- Be extensible: themes and variants should be straightforward to add later.
+## 1. Motivation
 
-## 2. Non-goals
+The shipped difficulty system is broken in two ways:
 
-- No user accounts, authentication, or cloud sync.
-- No multiplayer, leaderboards, or social features.
-- No ads or monetization.
-- No backend, database, or server-side puzzle generation.
-- No accessibility work beyond what comes naturally from semantic HTML and
-  reasonable contrast (explicitly out of scope per the user).
-- Killer Sudoku is intentionally excluded from v1.
+1. **Expert is too easy.** Most puzzles labelled Expert can be solved with
+   nothing harder than a Hidden Single. The user reports very little perceived
+   difference between Easy and Expert.
+2. **The rater conflates "hard" with "unsolvable by our techniques".** The
+   solver implements only seven techniques; any puzzle requiring something
+   beyond X-Wing falls back to a generic "Expert" label, regardless of whether
+   it actually requires advanced reasoning.
 
-## 3. Target platforms
+The fix is to (a) implement a much deeper technique library, (b) require strict
+tier matching during generation (a puzzle's tier is determined by the hardest
+technique it actually needs), and (c) split the difficulty space across eight
+tiers — one per "generation" of solving technique — so each tier introduces
+exactly one new family of reasoning the player must learn.
 
-- **Primary:** iOS Safari and Chrome on Android, installed as a PWA.
-- **Secondary:** Chrome on desktop (and modern desktop browsers broadly) with
-  keyboard navigation.
-- Layout is mobile-first; desktop gets a centered, width-constrained layout.
+## 2. Goals
 
-## 4. Variants
+- Make each difficulty tier feel meaningfully harder than the last.
+- Guarantee that a puzzle's tier reflects the hardest reasoning it requires.
+- Teach players advanced techniques in-app, with interactive examples.
+- Keep the UI responsive during long generations (top-tier puzzles may take
+  many seconds and many rejected attempts to find).
+- Preserve room for future save migrations by stamping new persisted records
+  with the app version that wrote them.
 
-Three variants ship in v1:
+## 3. Non-goals
 
-| Variant    | Grid  | Boxes         | Digit set |
-|------------|-------|---------------|-----------|
-| Classic    | 9×9   | 3×3 (nine)    | 1-9       |
-| Mini       | 4×4   | 2×2 (four)    | 1-4       |
-| Six        | 6×6   | 2×3 (six)     | 1-6       |
+- No multiplayer, leaderboards, accounts, or sync (still out of scope from v1).
+- No automated migration of v1 saved state — old saves are silently dropped.
+- No new variants. Mini and Six remain; Killer remains out of scope.
+- No solver coverage of every published technique. We implement a curated set
+  spanning generations 1-8; rarer or near-equivalent techniques (e.g. Sue de
+  Coq, Death Blossom, multi-sector Locked Sets) are out of scope for this
+  iteration.
 
-The engine (grid type, solver, generator, renderer, number pad) must be
-parameterized over variant so new variants can be added by registering their
-dimensions, box shape, and digit set. Killer is out of scope for v1 but should
-not be designed out — leave room for cage overlays later.
+## 4. Tier system
 
-## 5. Difficulty levels
+Eight tiers, named in the Classic escalation style. Each tier corresponds to
+a "generation" — the family of technique whose presence as the *hardest
+required* step defines that tier.
 
-Four difficulty tiers: **Easy**, **Medium**, **Hard**, **Expert**.
+| #  | Tier        | Generation             | Hardest required technique(s)                              |
+|----|-------------|------------------------|------------------------------------------------------------|
+| 1  | Easy        | Singles                | Naked Single only                                          |
+| 2  | Medium      | Singles                | Hidden Single                                              |
+| 3  | Hard        | Locked candidates      | Pointing Pair, Box-Line Reduction                          |
+| 4  | Expert      | Subsets                | Naked/Hidden Pair, Naked/Hidden Triple, Naked/Hidden Quad  |
+| 5  | Master      | Fish                   | X-Wing, Swordfish, Jellyfish                               |
+| 6  | Diabolical  | Wings, chains, single-digit chains | XY-Wing, XYZ-Wing, W-Wing, Simple Coloring, X-Cycle, Empty Rectangle, Skyscraper, Two-String Kite |
+| 7  | Demonic     | Advanced inferences    | Unique Rectangle (Types 1/2/4), BUG+1, XY-Chain, Multi-Coloring, ALS-XZ, WXYZ-Wing, Hidden Rectangle, Avoidable Rectangle |
+| 8  | Nightmare   | Exotica                | Nice Loop (continuous + discontinuous), Grouped X-Cycle, 3D Medusa, Death Blossom, Forcing Chains |
 
-Difficulty is defined by the hardest solving technique required to solve the
-puzzle logically (no guessing), with clue-count acting as a secondary bound so
-tiers feel distinct at a glance. Proposed rules for Classic 9×9:
+The `Difficulty` type and `DIFFICULTY_ORDER` constant in
+`src/engine/generator/rate.ts` must be expanded to include all eight tiers in
+order from Easy through Nightmare.
 
-| Tier   | Hardest required technique                | Target clue count |
-|--------|-------------------------------------------|-------------------|
-| Easy   | Naked singles only                        | 38-45             |
-| Medium | Hidden singles                            | 32-37             |
-| Hard   | Naked/hidden pairs, pointing pairs        | 28-31             |
-| Expert | Box/line reduction, X-wing (or harder)    | 24-27             |
+### 4.1 Variant caps
 
-For Mini (4×4) and Six (6×6) the same tiering concept applies but with
-variant-appropriate clue counts. The generator rates each puzzle by running the
-technique solver and records the rating alongside the puzzle. Puzzles must
-have a unique solution.
+Smaller grids cannot mathematically require advanced techniques. The UI hides
+infeasible tiers per variant so the picker only shows what the generator can
+realistically produce.
 
-## 6. Core gameplay
+| Variant         | Tiers shown                    | Cap reason                                      |
+|-----------------|--------------------------------|-------------------------------------------------|
+| Classic (9×9)   | Easy → Nightmare (all 8)       | Full tier range supported.                      |
+| Six (6×6)       | Easy → Diabolical (6)          | Wings/chains possible; Demonic+ statistically unreachable. |
+| Mini (4×4)      | Easy → Hard (3)                | Box size 2×2 makes subsets and fish degenerate. |
 
-### 6.1 Board interaction
+`CLUE_BOUNDS` in `rate.ts` must be extended with entries for the new tiers per
+variant. The bounds are advisory; strict tier matching (§6) is the primary
+filter.
 
-- Tap (or click) a cell to select it. Selected cell, its row/column/box peers,
-  and any cells containing the same digit are visually highlighted.
-- Enter digits via the on-screen number pad (primary input) or the keyboard
-  (desktop). Given clues (from the starting puzzle) cannot be edited.
-- A "notes" / pencil-mark toggle switches the number pad between entering a
-  solved digit and toggling a candidate note.
-- Placing a digit in a cell automatically removes that digit from the pencil
-  marks of every peer cell (row, column, box).
-- An "erase" action clears the current cell's entered digit and notes.
+## 5. Solver — new technique implementations
 
-### 6.2 Keyboard (desktop)
+The existing solver implements seven techniques (naked single, hidden single,
+naked pair, naked triple, pointing, box-line reduction, X-wing). This
+iteration adds **twenty-seven** more, each in its own file under
+`src/engine/solver/techniques/` with a unit test using a hand-authored
+fixture.
 
-- **Arrow keys:** move selection.
-- **1-9 (or 1-N for variant):** place digit in normal mode, toggle note in
-  note mode.
-- **N:** toggle note mode.
-- **Backspace / Delete:** erase cell.
-- **Escape:** deselect.
-- **Space:** pause/resume.
+### 5.1 New techniques and tier mapping
 
-### 6.3 Mistake highlighting
+| Technique             | File                                                   | Tier        |
+|-----------------------|--------------------------------------------------------|-------------|
+| Hidden Pair           | `techniques/hidden-pair.ts`                            | Expert      |
+| Hidden Triple         | `techniques/hidden-triple.ts`                          | Expert      |
+| Naked Quad            | `techniques/naked-quad.ts`                             | Expert      |
+| Hidden Quad           | `techniques/hidden-quad.ts`                            | Expert      |
+| Swordfish             | `techniques/swordfish.ts`                              | Master      |
+| Jellyfish             | `techniques/jellyfish.ts`                              | Master      |
+| XY-Wing               | `techniques/xy-wing.ts`                                | Diabolical  |
+| XYZ-Wing              | `techniques/xyz-wing.ts`                               | Diabolical  |
+| W-Wing                | `techniques/w-wing.ts`                                 | Diabolical  |
+| Simple Coloring       | `techniques/simple-coloring.ts`                        | Diabolical  |
+| X-Cycle               | `techniques/x-cycle.ts`                                | Diabolical  |
+| Empty Rectangle       | `techniques/empty-rectangle.ts`                        | Diabolical  |
+| Skyscraper            | `techniques/skyscraper.ts`                             | Diabolical  |
+| Two-String Kite       | `techniques/two-string-kite.ts`                        | Diabolical  |
+| Unique Rectangle      | `techniques/unique-rectangle.ts` (Types 1, 2, 4)       | Demonic     |
+| BUG+1                 | `techniques/bug.ts`                                    | Demonic     |
+| XY-Chain              | `techniques/xy-chain.ts`                               | Demonic     |
+| Multi-Coloring        | `techniques/multi-coloring.ts`                         | Demonic     |
+| ALS-XZ                | `techniques/als-xz.ts`                                 | Demonic     |
+| WXYZ-Wing             | `techniques/wxyz-wing.ts`                              | Demonic     |
+| Hidden Rectangle      | `techniques/hidden-rectangle.ts`                       | Demonic     |
+| Avoidable Rectangle   | `techniques/avoidable-rectangle.ts`                    | Demonic     |
+| Nice Loop             | `techniques/nice-loop.ts` (continuous + discontinuous) | Nightmare   |
+| Grouped X-Cycle       | `techniques/grouped-x-cycle.ts`                        | Nightmare   |
+| 3D Medusa             | `techniques/medusa-3d.ts`                              | Nightmare   |
+| Death Blossom         | `techniques/death-blossom.ts`                          | Nightmare   |
+| Forcing Chains        | `techniques/forcing-chains.ts`                         | Nightmare   |
 
-When the player places a digit that conflicts with a peer (duplicate in row,
-column, or box), the conflicting cells are highlighted in a warning color.
-Entry is still allowed — the highlight is advisory, not blocking. There is no
-mistake cap and no game-over state; a mistake count is tracked for stats only.
+Each technique exports a finder function that operates on a candidate grid
+(matching the existing pattern in `rate.ts`) and returns either eliminations
+or a placement plus metadata (`{ technique, eliminations | placement,
+explanation }`). Each technique's test file has at least one positive fixture
+(pattern present, expected eliminations) and one negative fixture (pattern
+absent, returns null).
 
-### 6.4 Hints
+### 5.2 Rater integration
 
-A **Hint** button runs the technique solver against the current board state
-and surfaces the next logical step:
+The candidate-grid solver inside `rate.ts` (currently inlined) must be extended
+to call each new finder in increasing-difficulty order. On any progress, the
+solver restarts at Naked Single — so the hardest technique that actually fired
+is the puzzle's tier.
 
-- Highlights the relevant cell(s) and/or house.
-- Names the technique in plain language (e.g. "Hidden single in column 4",
-  "Naked pair in row 7 eliminates 2/5 from R7C1").
-- Does not fill in the answer automatically — the player still places the
-  digit.
+The `TECHNIQUE_TIER` mapping in `rate.ts` must be **rebuilt**, not just
+extended — several existing techniques move to different tiers under the new
+system:
 
-If the current board cannot be advanced by the implemented techniques (because
-the player has entered a mistake or the engine doesn't know a harder
-technique), the hint surfaces a helpful message rather than a solution.
+| Technique             | v0.1.0 tier | New tier   |
+|-----------------------|-------------|------------|
+| Naked Single          | Easy        | Easy       |
+| Hidden Single         | Medium      | Medium     |
+| Naked Pair            | Hard        | Expert     |
+| Naked Triple          | Hard        | Expert     |
+| Pointing Pair         | Hard        | Hard       |
+| Box-Line Reduction    | Expert      | Hard       |
+| X-Wing                | Expert      | Master     |
 
-### 6.5 Timer and pause
+The new mapping (existing + 27 new entries) covers all 34 techniques. The
+`Difficulty` union type expands to:
 
-- A timer starts on the first interaction with a new game and pauses on
-  completion.
-- A manual **Pause** button hides the board behind an overlay and freezes the
-  timer; resuming restores the board.
-- The timer auto-pauses when the page is hidden (tab switched, app backgrounded)
-  via the `visibilitychange` event, and resumes on focus.
-
-### 6.6 Win state
-
-When the board is completely and correctly filled, the game enters a win
-state: a modal congratulates the player, shows the final time and mistake
-count, and offers "New Game" and "Back to Home". Stats are updated.
-
-## 7. Save, stats, and settings
-
-All persistence is local (browser `localStorage`). No server calls.
-
-### 7.1 In-progress save
-
-- Exactly one in-progress game per variant is saved.
-- Starting a new game of a variant replaces any previous unfinished save for
-  that variant (with a confirmation prompt).
-- On launch, the home screen surfaces a "Resume" card per variant that has a
-  saved game, showing difficulty and elapsed time.
-
-### 7.2 Stats (per variant × difficulty)
-
-- Games completed
-- Best time
-- Current streak and longest streak (consecutive days with at least one
-  completion)
-- Average solve time (rolling)
-- Total mistakes made
-
-Stats survive page reloads and app reinstalls (within the same browser
-profile). A **Reset stats** button lives in settings with a confirmation step.
-
-### 7.3 Settings
-
-- **Theme:** Light, Dark, Notepad, Space. Plus a "Follow system" toggle that,
-  when on, switches between Light and Dark based on `prefers-color-scheme`.
-  Selecting a non-auto theme turns the toggle off.
-- Future settings (difficulty default, sound, etc.) can slot in here.
-
-## 8. Themes
-
-Themes are implemented as sets of CSS custom properties on a root element and
-selected by a `data-theme` attribute. Four themes ship in v1:
-
-- **Light** — clean, neutral, high contrast. Default when system is light.
-- **Dark** — deep neutrals, softened contrast for night play.
-- **Notepad** — paper / graphite aesthetic. Warm off-white background,
-  ruled-paper feel, graphite-pencil ink for player digits, inked given clues.
-- **Space** — cosmic aesthetic. Deep indigo / near-black background, subtle
-  starfield or nebula accent, luminous digits.
-
-The theme system must make adding a fifth theme a matter of adding one CSS
-variable set plus a registry entry — no component changes.
-
-## 9. PWA / offline
-
-- Installable on iOS and Android (manifest with name, icons, theme color,
-  display mode `standalone`).
-- Service worker (via `vite-plugin-pwa`) pre-caches the built app shell so the
-  game is fully playable offline after first load.
-- Safe-area insets respected for iOS notches and home indicator.
-- Viewport configured to prevent unwanted zooming during digit entry.
-
-## 10. Technical stack
-
-- **Language:** TypeScript
-- **Framework:** React 18
-- **Build:** Vite with `vite-plugin-pwa`
-- **Styling:** Tailwind CSS, theme variables via CSS custom properties
-- **State:** Zustand, with persistence middleware writing to `localStorage`
-- **Package manager:** npm
-- **Unit tests:** Vitest (for engine, solver, generator, stores)
-- **E2E tests:** Playwright (for gameplay flows, PWA, offline)
-- **Deploy:** static host (Vercel / Netlify / GitHub Pages) — chosen later
-
-## 11. Architecture outline
-
-Suggested folder layout (non-binding, to be refined during implementation):
-
-```
-src/
-  engine/             # pure puzzle logic, no React
-    types.ts          # Cell, Board, Variant, Move types
-    variants/         # variant registry (classic, mini, six)
-    solver/           # backtracking solver + technique solver
-    generator/        # puzzle generation + difficulty rating
-  store/              # Zustand stores: game, stats, settings
-  components/         # Board, Cell, NumberPad, Timer, Hint, Modal, ...
-  screens/            # Home, Game, Stats, Settings
-  themes/             # theme definitions (CSS variable maps)
-  pwa/                # manifest, icons, service worker config
-  App.tsx
-  main.tsx
-tests/
-  unit/               # Vitest
-  e2e/                # Playwright
+```ts
+export type Difficulty =
+  | 'Easy' | 'Medium' | 'Hard' | 'Expert'
+  | 'Master' | 'Diabolical' | 'Demonic' | 'Nightmare';
 ```
 
-The engine layer has no React dependency so it can be fully unit-tested and
-reused across variants.
+`hardestTechnique` and `techniquesUsed` in `RateResult` retain their current
+shapes; only the tier mapping grows.
+
+### 5.3 Public hint solver
+
+The public `nextStep` exported by `src/engine/solver/techniques/index.ts` must
+also include all new techniques in difficulty order so the **Hint** button can
+surface them. Currently `nextStep` recomputes candidates per call; this remains
+true, but the technique chain is extended.
+
+For chain-style techniques (XY-Chain, Nice Loop, etc.) where the eliminations
+matter more than a single placement, the hint metadata must include enough
+information for the help-section walkthrough to render the deduction (the
+relevant cells, the chain links, and the cell(s) where candidates are
+eliminated).
+
+## 6. Strict tiering and generator changes
+
+### 6.1 Strict tier rule
+
+`generateForDifficulty(variant, target)` must accept a generated puzzle only
+when `rate(puzzle).difficulty === target`. Any other rating — easier or harder
+— is rejected and the generator retries.
+
+This is the central behavioural change that makes the tier label trustworthy.
+It replaces today's behaviour, which only checks clue count and accepts
+whatever tier the puzzle happens to rate at.
+
+### 6.2 Retry policy
+
+- **Maximum attempts**: 50 per call.
+- **Hard timeout**: 60 seconds wall clock.
+- Whichever limit is hit first ends generation in failure.
+
+On failure the generator returns a structured `GenerationFailed` result with
+the closest tier produced (if any) plus the attempt count and elapsed time.
+The UI surfaces a fallback dialog (§7.3) rather than silently falling back.
+
+### 6.3 Web Worker
+
+Generation moves to a Web Worker:
+
+- New file `src/workers/generator.worker.ts` exporting a worker that handles
+  `{ type: 'generate', variant, difficulty }` messages.
+- Worker emits progress events `{ type: 'progress', attempt, max }` after each
+  rejected attempt and a terminal `{ type: 'done', puzzle, rating }` or
+  `{ type: 'failed', closestRating, attempts, elapsedMs }`.
+- Worker is `terminate()`-able. Cancel from the main thread terminates
+  immediately.
+- A small Promise wrapper in `src/store/game.ts` (or a new
+  `src/workers/generator-client.ts`) exposes:
+  ```ts
+  function generateInWorker(variant, difficulty): {
+    promise: Promise<Puzzle | GenerationFailed>;
+    cancel: () => void;
+    onProgress: (cb: (p: { attempt: number; max: number }) => void) => void;
+  };
+  ```
+
+The Web Worker is a hard requirement — without it, top-tier generation freezes
+the UI and the cancel button cannot be clicked.
+
+### 6.4 Game store integration
+
+The `newGame(variant, difficulty)` action in `src/store/game.ts` becomes async.
+It sets a `loading: true` flag, calls `generateInWorker`, and resolves the
+board into the store on success or surfaces the failure dialog on failure.
+Existing tests of the game store must be updated to await the action.
+
+## 7. Loading UX
+
+### 7.1 Spinner overlay
+
+- After **200 ms** of generation (debounced — quick generations should not
+  flash an overlay), the game store's `loading` flag triggers a full-screen
+  overlay rendered in `src/screens/Game.tsx`.
+- Visual: blurred grid behind (reusing the existing pause-overlay treatment)
+  with a centered spinner. No text.
+- Spinner is a simple animated SVG/CSS spinner; no progress percentage.
+
+### 7.2 Cancel button (10 second threshold)
+
+- After **10 seconds** of continuous generation, fade in:
+  - A **Cancel** button below the spinner.
+  - A small note: *"Higher difficulties can take longer to generate."*
+- Clicking Cancel terminates the worker and returns to Home.
+
+### 7.3 Hard-timeout fallback dialog
+
+When the worker reports `failed` (50 attempts or 60 seconds), the spinner
+overlay is replaced by a modal dialog with:
+
+- Heading: e.g. *"Couldn't find a Demonic puzzle in time."*
+- Body explaining the situation briefly.
+- Three actions:
+  - **Try again** — re-runs `generateInWorker` for the same target.
+  - **Try [next-easier-tier]** — re-runs for the tier directly below.
+  - **Cancel** — returns to Home.
+
+If no easier tier exists (target was Easy), only **Try again** and **Cancel**
+are shown.
+
+## 8. Techniques help section
+
+A new screen teaches every implemented technique with an interactive example.
+
+### 8.1 Navigation
+
+Bottom tab bar gains a **Learn** entry alongside Home / Stats / Settings. The
+Learn tab is the entry point to the techniques index.
+
+### 8.2 Index page
+
+`src/screens/Techniques.tsx`:
+
+- Lists all 34 techniques (7 existing + 27 new) grouped by generation.
+- Each row shows technique name + tier badge.
+- Tapping a row opens the detail page.
+
+### 8.3 Detail page
+
+`src/screens/TechniqueDetail.tsx` (or a sub-route):
+
+- Technique name, tier badge, plain-language *"When to look for it"*
+  description.
+- **Live mini-board** rendered with the existing `Board` component, preloaded
+  with a hand-authored fixture demonstrating the technique. The board uses
+  the variant most appropriate for the technique (usually Classic 9×9, but
+  Mini for the early techniques where space allows).
+- **Three-step walkthrough buttons** in order:
+  1. **Highlight pattern** — colors the relevant cells/houses on the live
+     board.
+  2. **Show deduction** — visualises the eliminations or forced placement
+     (highlighted candidates struck through, or the placement cell glowing).
+  3. **Apply** — applies the deduction to the board.
+- A **Reset** button returns the board to the original fixture state.
+
+### 8.4 Fixtures
+
+Each technique has a hand-authored fixture stored alongside its solver code as
+`techniques/<name>.fixture.ts`. The fixture exports:
+
+```ts
+export const fixture = {
+  variant: 'classic' | 'six' | 'mini',
+  board: string,            // serialized board
+  patternCells: Position[], // cells to highlight in step 1
+  deduction: {
+    eliminations?: Array<{ pos: Position; digits: Digit[] }>;
+    placement?: { pos: Position; digit: Digit };
+  };
+  description: string,      // "When to look for it"
+};
+```
+
+Fixtures are imported by both the technique's unit test and the help screen,
+so the test verifies the fixture is real (the technique actually fires on it).
+
+### 8.5 Hint integration
+
+The existing **Hint** panel (`src/components/Hint.tsx`) gains a
+*"Learn more about [technique name] →"* link below the technique explanation.
+The link navigates to the detail page for that technique. A player who
+encounters an unfamiliar technique mid-game can immediately read about it.
+
+## 9. Save versioning
+
+### 9.1 Schema bump
+
+- `localStorage` key `sudoku.save.v1` → `sudoku.save.v2`.
+- `localStorage` key `sudoku.stats.v1` → `sudoku.stats.v2`.
+- v1 entries silently dropped on first load (continues existing behaviour for
+  schema mismatch).
+- No migration code is added in this iteration.
+
+### 9.2 appVersion stamp
+
+Every persisted record (saves and stats) gains an `appVersion: string` field
+written at save time. The value is read from `package.json#version` via Vite's
+`define` config:
+
+```ts
+// vite.config.ts
+define: {
+  __APP_VERSION__: JSON.stringify(pkg.version),
+}
+```
+
+Future iterations can use `appVersion` to make migration decisions. This
+iteration does not consume the field.
+
+## 10. Existing code to update
+
+Non-exhaustive list of files this iteration touches beyond the new ones:
+
+- `src/engine/generator/rate.ts` — extended technique chain + tier mapping +
+  Difficulty union.
+- `src/engine/generator/generate-for-difficulty.ts` — strict tier rule, retry
+  cap, hard timeout, structured failure result.
+- `src/engine/solver/techniques/index.ts` — register all new techniques in
+  difficulty order, expose them via `nextStep`.
+- `src/store/game.ts` — async `newGame`, `loading` flag, worker integration.
+- `src/store/save.ts` — schema bump, `appVersion` stamp.
+- `src/store/stats.ts` — schema bump, `appVersion` stamp, new tier keys.
+- `src/screens/Home.tsx` — variant-aware difficulty picker (cap shown tiers
+  per variant).
+- `src/screens/Game.tsx` — loading overlay + cancel button + fallback dialog.
+- `src/components/Hint.tsx` — *Learn more* link to help detail page.
+- App routing / bottom tab bar — add **Learn** tab.
+- `vite.config.ts` — `define` for `__APP_VERSION__`.
+- `package.json` — bump version (e.g. 0.1.0 → 0.2.0) so the new appVersion
+  stamp is meaningful.
+
+## 11. Testing strategy
+
+- **Unit (Vitest)**:
+  - One test file per new technique under
+    `src/engine/solver/techniques/<name>.test.ts` with positive and negative
+    fixtures.
+  - `rate.test.ts` extended with hand-authored puzzles of each new tier
+    (Master, Diabolical, Demonic, Nightmare) for Classic.
+  - `generate-for-difficulty.test.ts` extended to verify strict tiering and
+    the structured failure result on retry-cap exhaustion (use a low cap in
+    test config).
+  - Worker client wrapper tested with a fake worker (post-message-driven).
+- **Component (Vitest + Testing Library)**:
+  - `Techniques.test.tsx` — index renders all techniques grouped by tier.
+  - `TechniqueDetail.test.tsx` — three-step walkthrough advances on click;
+    Reset restores the fixture.
+  - Loading overlay test — overlay appears after 200ms; cancel button appears
+    after 10s; clicking Cancel terminates the worker.
+- **E2E (Playwright)**:
+  - `tests/e2e/difficulty.spec.ts` — pick a Demonic puzzle, observe spinner,
+    observe cancel button after wait, and assert the puzzle eventually loads
+    with the expected difficulty badge.
+  - `tests/e2e/techniques-help.spec.ts` — open the Learn tab, navigate into
+    a technique, step through the walkthrough, return to the index.
+  - `tests/e2e/hint-learn-more.spec.ts` — start a game, click Hint, click
+    *Learn more*, assert it navigates to the matching technique page.
 
 ## 12. Edge cases and failure modes
 
-- **Puzzle generator hangs or loops:** generator must have a retry cap and
-  fall back to a safe pre-seeded pattern if it can't produce a puzzle in the
-  target difficulty within N attempts.
-- **Corrupted localStorage:** read/validate saved state; on schema mismatch or
-  parse failure, drop the save and start fresh rather than crashing.
-- **Save schema evolves:** include a `version` field on persisted state; stores
-  should migrate or discard older versions gracefully.
-- **Timer drift during long pauses:** compute elapsed time from timestamps
-  rather than interval counters.
-- **Tab hidden mid-move:** auto-pause must not clobber pending input; resume
-  restores the exact prior selection.
-- **Theme mid-game:** changing theme never alters game state.
-- **Hint with no available technique:** surface a clear message, don't spin.
-- **Zoom / pinch on mobile:** disabled for gameplay surfaces so accidental
-  zooms don't break layout; still allowed on modal content if needed.
+- **Worker generation fails (50 attempts):** fallback dialog with "Try again",
+  "Try [easier]", "Cancel".
+- **User clicks Cancel during generation:** worker terminated; UI returns to
+  Home; `loading` flag cleared.
+- **Page hidden mid-generation:** worker continues (the Worker thread isn't
+  paused by `visibilitychange` for non-throttled workers; UI catches up on
+  resume). No special handling required.
+- **Difficulty selected for variant where tier is unsupported:** UI never
+  exposes that combination (variant cap enforced in the picker).
+- **Hint surfaces a technique not yet in help section:** impossible by design
+  — every technique implemented has a help page and fixture. Tests verify
+  the registry sets match.
+- **Old v1 save discovered:** silently discarded as today.
+- **Unknown `appVersion` in save:** load normally for now; future iterations
+  may branch on this.
+- **Solver chain encounters a puzzle it can't solve at all (theoretical):**
+  rated `Nightmare`; logs a warning to the console with the puzzle for triage.
 
-## 13. Testing strategy
+## 13. Success criteria
 
-- **Unit (Vitest):** engine types, peer computation, backtracking solver
-  correctness and uniqueness, each solving technique, generator produces
-  unique-solution puzzles at the target difficulty, difficulty rater,
-  store reducers, persistence migration.
-- **E2E (Playwright):** start a new game, place digits via number pad and
-  keyboard, toggle notes, mistake highlighting, hint surfaces a technique,
-  pause/resume, win flow updates stats, resume an in-progress save after
-  reload, theme switch persists, offline load after install.
-
-## 14. Success criteria ("done")
-
-- All three variants playable end-to-end on mobile and desktop.
-- Generator produces puzzles with unique solutions in under ~2 seconds for
-  Classic; faster for Mini and Six.
-- Puzzles are correctly rated into Easy / Medium / Hard / Expert.
-- Pencil marks auto-clear from peers on digit entry.
-- Mistake highlighting works; mistake count recorded.
-- Hints name the technique and highlight cells without filling the answer.
-- Timer pauses correctly on manual pause and on tab hide.
-- One in-progress save per variant persists across reloads.
-- Stats persist and update correctly on completion.
-- All four themes selectable; follow-system toggle works on first load and
-  live.
-- App installs as a PWA on iOS and Android and loads offline.
-- Vitest and Playwright suites pass in CI.
+- Selecting Easy through Nightmare on Classic produces puzzles whose hardest
+  required technique exactly matches the tier.
+- Selecting an Expert puzzle requires at least a Naked/Hidden Pair to solve
+  logically — never solvable with only singles.
+- Selecting a Demonic puzzle on Classic eventually generates within 60s in
+  ≥95% of attempts.
+- Loading overlay appears only when generation exceeds 200ms.
+- Cancel button appears at 10s and successfully terminates the worker.
+- All 34 techniques are represented in the **Learn** section with interactive
+  walkthroughs.
+- Clicking *Learn more* in the Hint panel navigates to the matching technique
+  page.
+- Existing v1 saves are silently discarded; new saves contain `appVersion`.
+- No regressions in v0.1.0 functionality (existing E2E suite still passes).
+- All new and updated unit tests pass; targeted E2E tests pass.

@@ -9,13 +9,25 @@ import type { TechniqueId } from '../solver/techniques';
  * deductions (no guessing). Clue-count acts as a secondary bound — see
  * `CLUE_BOUNDS` below.
  */
-export type Difficulty = 'Easy' | 'Medium' | 'Hard' | 'Expert';
+export type Difficulty =
+  | 'Easy'
+  | 'Medium'
+  | 'Hard'
+  | 'Expert'
+  | 'Master'
+  | 'Diabolical'
+  | 'Demonic'
+  | 'Nightmare';
 
 export const DIFFICULTY_ORDER: readonly Difficulty[] = [
   'Easy',
   'Medium',
   'Hard',
   'Expert',
+  'Master',
+  'Diabolical',
+  'Demonic',
+  'Nightmare',
 ];
 
 /**
