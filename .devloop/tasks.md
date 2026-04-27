@@ -30,7 +30,7 @@ Conventions:
 - **Verification**: `npx tsc --noEmit -p tsconfig.json`
 
 ### TASK-002: Update CLUE_BOUNDS for new tiers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: In `rate.ts`, expand `CLUE_BOUNDS` to include all 8 tiers per variant. Mini only needs Easy/Medium/Hard (cap is Hard). Six needs Easy through Diabolical. Classic needs all 8. Use sensible advisory windows (e.g. classic: Master 26-31, Diabolical 24-28, Demonic 22-26, Nightmare 20-24). These are advisory only — strict tier matching is the primary filter.
 - **Verification**: `npx tsc --noEmit -p tsconfig.json`

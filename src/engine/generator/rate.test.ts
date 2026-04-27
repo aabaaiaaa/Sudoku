@@ -66,10 +66,12 @@ describe('CLUE_BOUNDS', () => {
     }
   });
 
-  it('has a min <= max range for every tier of every variant', () => {
+  it('has a min <= max range for every defined tier of every variant', () => {
     for (const id of Object.keys(CLUE_BOUNDS)) {
       for (const d of DIFFICULTY_ORDER) {
-        const [min, max] = CLUE_BOUNDS[id][d];
+        const window = CLUE_BOUNDS[id][d];
+        if (window == null) continue;
+        const [min, max] = window;
         expect(min).toBeLessThanOrEqual(max);
       }
     }
@@ -82,12 +84,28 @@ describe('CLUE_BOUNDS', () => {
     expect(CLUE_BOUNDS.classic.Expert).toEqual([24, 27]);
   });
 
+  it('defines the variant-specific tier ranges per the requirements doc', () => {
+    // Classic supports the full Easy → Nightmare range.
+    for (const d of DIFFICULTY_ORDER) {
+      expect(CLUE_BOUNDS.classic[d]).toBeDefined();
+    }
+    // Six caps at Diabolical (no Demonic / Nightmare entries).
+    expect(CLUE_BOUNDS.six.Diabolical).toBeDefined();
+    expect(CLUE_BOUNDS.six.Demonic).toBeUndefined();
+    expect(CLUE_BOUNDS.six.Nightmare).toBeUndefined();
+    // Mini caps at Hard.
+    expect(CLUE_BOUNDS.mini.Hard).toBeDefined();
+    expect(CLUE_BOUNDS.mini.Expert).toBeUndefined();
+  });
+
   it('classic tier bounds are strictly ordered — easier tiers have more clues', () => {
     const b = CLUE_BOUNDS.classic;
-    // Min clues decrease as difficulty increases.
-    expect(b.Easy[0]).toBeGreaterThan(b.Medium[0]);
-    expect(b.Medium[0]).toBeGreaterThan(b.Hard[0]);
-    expect(b.Hard[0]).toBeGreaterThan(b.Expert[0]);
+    // Min clues decrease as difficulty increases through Expert. Tiers above
+    // Expert (Master+) can overlap because clue count and technique difficulty
+    // do not strictly correlate at the high end.
+    expect(b.Easy![0]).toBeGreaterThan(b.Medium![0]);
+    expect(b.Medium![0]).toBeGreaterThan(b.Hard![0]);
+    expect(b.Hard![0]).toBeGreaterThan(b.Expert![0]);
   });
 });
 

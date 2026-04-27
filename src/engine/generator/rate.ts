@@ -45,30 +45,42 @@ const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
 };
 
 /**
- * Clue-count bounds per variant per difficulty tier. These are target windows
- * used as a secondary difficulty signal (per requirements §5). Format:
- * `[minClues, maxClues]` inclusive.
+ * Clue-count bounds per variant per difficulty tier. These are advisory
+ * windows used as a secondary signal — the primary filter is strict tier
+ * matching against the rated technique chain. Format: `[minClues, maxClues]`
+ * inclusive. Variants only define entries for tiers their grid size can
+ * realistically support; the UI hides infeasible tiers per variant.
  */
-export const CLUE_BOUNDS: Record<string, Record<Difficulty, [number, number]>> = {
+export const CLUE_BOUNDS: Record<
+  string,
+  Partial<Record<Difficulty, [number, number]>>
+> = {
   classic: {
     Easy: [38, 45],
     Medium: [32, 37],
     Hard: [28, 31],
     Expert: [24, 27],
+    Master: [26, 31],
+    Diabolical: [24, 28],
+    Demonic: [22, 26],
+    Nightmare: [20, 24],
   },
-  // Mini = 4x4 = 16 cells total. Scale down from classic proportionally.
+  // Mini = 4x4 = 16 cells total. Subsets and fish degenerate at this size, so
+  // the cap is Hard — higher tiers are not generatable.
   mini: {
     Easy: [12, 14],
     Medium: [10, 11],
     Hard: [8, 9],
-    Expert: [6, 7],
   },
-  // Six = 6x6 = 36 cells total. Intermediate scaling.
+  // Six = 6x6 = 36 cells total. Wings/chains are possible up to Diabolical;
+  // Demonic+ patterns are statistically unreachable on this grid.
   six: {
     Easy: [22, 26],
     Medium: [18, 21],
     Hard: [15, 17],
     Expert: [12, 14],
+    Master: [13, 16],
+    Diabolical: [11, 14],
   },
 };
 
