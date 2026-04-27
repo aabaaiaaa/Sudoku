@@ -36,7 +36,7 @@ Conventions:
 - **Verification**: `npx tsc --noEmit -p tsconfig.json`
 
 ### TASK-003: Variant tier-cap helper
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Create `src/engine/generator/variant-tiers.ts` exporting `availableTiers(variant: Variant): readonly Difficulty[]` returning the tiers shown for that variant per requirements §4.1. Add `variant-tiers.test.ts` covering each variant returns the expected tier list.
 - **Verification**: `npx vitest run src/engine/generator/variant-tiers.test.ts`
