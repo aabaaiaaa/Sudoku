@@ -105,7 +105,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/jellyfish.test.ts`
 
 ### TASK-013: XY-Wing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `xy-wing.ts`: a pivot bivalue cell (XY) and two pincer bivalue cells (XZ, YZ) where each pincer shares a house with the pivot but the pincers don't share. Eliminate Z from cells that see both pincers. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-wing.test.ts`
