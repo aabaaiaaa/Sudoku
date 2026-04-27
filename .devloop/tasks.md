@@ -141,7 +141,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/empty-rectangle.test.ts`
 
 ### TASK-019: Skyscraper
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `skyscraper.ts`: two rows (or two columns) where a digit appears exactly twice each, and one column (row) is shared. The other two cells form the "roof"; eliminate the digit from cells that see both roof cells. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/skyscraper.test.ts`
