@@ -111,7 +111,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-wing.test.ts`
 
 ### TASK-014: XYZ-Wing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-013
 - **Description**: Add `xyz-wing.ts`: pivot is trivalue (XYZ), two pincers are bivalues (XZ, YZ) that see the pivot. Eliminate Z from cells that see all three. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xyz-wing.test.ts`
