@@ -69,7 +69,7 @@ entry. Wiring into the rater chain and `techniques/index.ts` is deferred to
 TASK-035 and TASK-036.
 
 ### TASK-007: Hidden Pair
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `src/engine/solver/techniques/hidden-pair.ts`: in any house, two digits whose only candidate cells in the house are the same two cells form a Hidden Pair — eliminate all other candidates from those two cells. May share helpers with `naked-subset.ts`. Fixture + positive/negative tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-pair.test.ts`

@@ -20,7 +20,8 @@ export type TechniqueId =
   | 'naked-triple'
   | 'pointing'
   | 'box-line-reduction'
-  | 'x-wing';
+  | 'x-wing'
+  | 'hidden-pair';
 
 export type TechniqueResult =
   | NakedSingleResult

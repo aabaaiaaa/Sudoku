@@ -41,6 +41,7 @@ const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
   'box-line-reduction': 'Hard',
   'naked-pair': 'Expert',
   'naked-triple': 'Expert',
+  'hidden-pair': 'Expert',
   'x-wing': 'Master',
 };
 
