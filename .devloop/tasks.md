@@ -117,7 +117,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xyz-wing.test.ts`
 
 ### TASK-015: W-Wing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-013
 - **Description**: Add `w-wing.ts`: two bivalue cells with the same digits (XY, XY) connected by a strong link on Y. Eliminate X from cells that see both bivalue cells. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/w-wing.test.ts`
