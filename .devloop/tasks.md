@@ -129,7 +129,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/simple-coloring.test.ts`
 
 ### TASK-017: X-Cycle
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-016
 - **Description**: Add `x-cycle.ts`: a cycle of strong/weak links for one digit. Continuous cycles eliminate from cells seeing both endpoints of weak links; discontinuous cycles place or eliminate at the discontinuity. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-cycle.test.ts`
