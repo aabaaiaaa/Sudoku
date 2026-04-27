@@ -1,7 +1,7 @@
 import { peers } from '../../peers';
 import type { Board, Digit, Position } from '../../types';
 
-export type NakedSubsetSize = 2 | 3;
+export type NakedSubsetSize = 2 | 3 | 4;
 
 export interface NakedSubsetElimination {
   cell: Position;
@@ -9,7 +9,7 @@ export interface NakedSubsetElimination {
 }
 
 export interface NakedSubsetResult {
-  technique: 'naked-pair' | 'naked-triple';
+  technique: 'naked-pair' | 'naked-triple' | 'naked-quad';
   size: NakedSubsetSize;
   house: 'row' | 'col' | 'box';
   houseIndex: number;
@@ -145,7 +145,9 @@ function findNakedSubsetOfSize(
 
       const digits = sortDigits(union);
       const cells = combo.map((e) => e.pos);
-      const technique: NakedSubsetResult['technique'] = size === 2 ? 'naked-pair' : 'naked-triple';
+      const technique: NakedSubsetResult['technique'] =
+        size === 2 ? 'naked-pair' : size === 3 ? 'naked-triple' : 'naked-quad';
+      const subsetWord = size === 2 ? 'pair' : size === 3 ? 'triple' : 'quad';
       const cellList = cells.map(cellLabel).join(', ');
       const digitList = digits.join(',');
       return {
@@ -156,7 +158,7 @@ function findNakedSubsetOfSize(
         cells,
         digits,
         eliminations,
-        explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} form a naked ${size === 2 ? 'pair' : 'triple'} on {${digitList}}`,
+        explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} form a naked ${subsetWord} on {${digitList}}`,
       };
     }
   }
@@ -190,13 +192,20 @@ export function findNakedTriple(board: Board): NakedSubsetResult | null {
   return findNakedSubsetOfSize(board, grid, 3);
 }
 
+export function findNakedQuad(board: Board): NakedSubsetResult | null {
+  const grid = buildCandidatesGrid(board);
+  return findNakedSubsetOfSize(board, grid, 4);
+}
+
 /**
- * Find the first naked subset (pair preferred, then triple) on the board.
- * Returns the technique result with eliminations, or null if none found.
+ * Find the first naked subset (pair preferred, then triple, then quad) on the
+ * board. Returns the technique result with eliminations, or null if none found.
  */
 export function findNakedSubset(board: Board): NakedSubsetResult | null {
   const grid = buildCandidatesGrid(board);
   return (
-    findNakedSubsetOfSize(board, grid, 2) ?? findNakedSubsetOfSize(board, grid, 3)
+    findNakedSubsetOfSize(board, grid, 2) ??
+    findNakedSubsetOfSize(board, grid, 3) ??
+    findNakedSubsetOfSize(board, grid, 4)
   );
 }

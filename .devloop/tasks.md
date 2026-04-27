@@ -81,7 +81,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-triple.test.ts`
 
 ### TASK-009: Naked Quad
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `naked-quad.ts` (or extend `naked-subset.ts` to support size 4). Four cells in a house whose union of candidates is exactly four digits → eliminate those digits from the house's other cells. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-quad.test.ts`
