@@ -48,7 +48,7 @@ Conventions:
 - **Verification**: `npm run build` completes; `grep -r "0\\.2\\.0" dist/assets/*.js` finds the version (after TASK-005 bumps it).
 
 ### TASK-005: Bump app version to 0.2.0
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Bump `package.json` version from `0.1.0` to `0.2.0`. Also update the version shown in `src/components/UpdatePrompt.tsx` if it's hard-coded there; otherwise leave for build-time injection.
 - **Verification**: `node -p "require('./package.json').version"` outputs `0.2.0`.
