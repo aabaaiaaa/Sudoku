@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 65
-- **Completed**: 20
-- **Remaining**: 45
-- **Last Updated**: 2026-04-27T22:02:34.213Z
+- **Completed**: 21
+- **Remaining**: 44
+- **Last Updated**: 2026-04-27T22:37:44.717Z
 
 ## Iteration Log
 
@@ -187,4 +187,13 @@
 - **Exit Status**: success
 - **Tokens**: 2,008,006 total (30 in, 68,817 out, 310,729 cache-create, 1,628,430 cache-read)
 - **Cost**: $4.4768
+
+### Iteration 21 - 2026-04-27T22:37:44.714Z
+- **Task Attempted**: TASK-021
+- **Task Completed**: TASK-021
+- **Summary**: Completed Unique Rectangle (Types 1, 2, 4)
+- **Duration**: 35m 8s
+- **Exit Status**: success
+- **Tokens**: 4,974,270 total (52 in, 166,568 out, 438,917 cache-create, 4,368,733 cache-read)
+- **Cost**: $9.0921
 

@@ -153,7 +153,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/two-string-kite.test.ts`
 
 ### TASK-021: Unique Rectangle (Types 1, 2, 4)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `unique-rectangle.ts` covering Types 1, 2, and 4. The pattern: four cells in a rectangle spanning two boxes, each containing the same two candidates X,Y. If allowed, the puzzle would have multiple solutions, so the configuration is impossible. Per type, eliminate or restrict candidates accordingly. Fixture (one per type, all in the file) + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/unique-rectangle.test.ts`
