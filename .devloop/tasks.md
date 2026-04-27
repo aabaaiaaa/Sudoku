@@ -93,7 +93,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-quad.test.ts`
 
 ### TASK-011: Swordfish
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `swordfish.ts`: three rows where a digit's candidate cells are confined to the same three columns → eliminate that digit from those columns in other rows. Mirror for column-orientation. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/swordfish.test.ts`
