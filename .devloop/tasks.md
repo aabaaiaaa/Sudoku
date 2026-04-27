@@ -54,7 +54,7 @@ Conventions:
 - **Verification**: `node -p "require('./package.json').version"` outputs `0.2.0`.
 
 ### TASK-006: Rebuild TECHNIQUE_TIER for existing techniques
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: In `rate.ts`, REWRITE `TECHNIQUE_TIER` to the new mapping for existing techniques per requirements §5.2: naked-single→Easy, hidden-single→Medium, pointing→Hard, box-line-reduction→Hard, naked-pair→Expert, naked-triple→Expert, x-wing→Master. Update existing `rate.test.ts` fixtures so puzzles previously rated Hard via naked-pair are now rated Expert, etc. New technique entries are added by their own tasks.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts`

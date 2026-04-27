@@ -37,11 +37,11 @@ export const DIFFICULTY_ORDER: readonly Difficulty[] = [
 const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
   'naked-single': 'Easy',
   'hidden-single': 'Medium',
-  'naked-pair': 'Hard',
-  'naked-triple': 'Hard',
   pointing: 'Hard',
-  'box-line-reduction': 'Expert',
-  'x-wing': 'Expert',
+  'box-line-reduction': 'Hard',
+  'naked-pair': 'Expert',
+  'naked-triple': 'Expert',
+  'x-wing': 'Master',
 };
 
 /**

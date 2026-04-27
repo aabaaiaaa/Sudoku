@@ -190,13 +190,13 @@ describe('rate — Classic Hard (intersections required)', () => {
   });
 });
 
-describe('rate — Classic Expert (X-wing or harder)', () => {
-  it('rates a well-known X-wing puzzle at Expert', () => {
+describe('rate — Classic Master (X-wing required)', () => {
+  it('rates a well-known X-wing puzzle at Master (or Expert if chain halts)', () => {
     // Classic X-wing fixture from sudopedia. This puzzle cannot be solved by
-    // singles or pairs alone — an X-wing on digit 1 is required. Basic
-    // singles alone do not reach the solution, so the rater should report
-    // Expert whether it applies X-wing successfully or halts before
-    // completion.
+    // singles or pairs alone — an X-wing on digit 1 is required. Under the
+    // tier remap, x-wing → Master. If the technique chain solves the puzzle
+    // with X-wing as the hardest step, the rating is Master; if the chain
+    // halts before completion, the rater falls back to Expert.
     const puzzle = parseClassic(
       '.41729.3.' +
         '760..4.12' +
@@ -209,7 +209,7 @@ describe('rate — Classic Expert (X-wing or harder)', () => {
         '1.376.24.',
     );
     const result = rate(puzzle);
-    expect(result.difficulty).toBe('Expert');
+    expect(['Master', 'Expert']).toContain(result.difficulty);
   });
 });
 

@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 4,
+  "lastIteration": 5,
   "startedAt": "2026-04-27T18:06:58.636Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-005",
-    "taskTitle": "Bump app version to 0.2.0",
-    "iterationNumber": 5,
-    "startedAt": "2026-04-27T18:18:22.682Z"
+    "taskId": "TASK-006",
+    "taskTitle": "Rebuild TECHNIQUE_TIER for existing techniques",
+    "iterationNumber": 6,
+    "startedAt": "2026-04-27T18:19:43.406Z"
   }
 }
