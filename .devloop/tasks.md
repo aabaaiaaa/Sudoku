@@ -135,7 +135,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-cycle.test.ts`
 
 ### TASK-018: Empty Rectangle
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `empty-rectangle.ts`: in a box, a digit's candidates are confined to one row and one column intersecting at an "empty rectangle" cell; combined with a strong link in another house, eliminate at the intersection. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/empty-rectangle.test.ts`
