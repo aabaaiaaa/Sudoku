@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 2,
+  "lastIteration": 3,
   "startedAt": "2026-04-27T18:06:58.636Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-003",
-    "taskTitle": "Variant tier-cap helper",
-    "iterationNumber": 3,
-    "startedAt": "2026-04-27T18:12:43.321Z"
+    "taskId": "TASK-004",
+    "taskTitle": "Vite define for __APP_VERSION__",
+    "iterationNumber": 4,
+    "startedAt": "2026-04-27T18:16:10.436Z"
   }
 }

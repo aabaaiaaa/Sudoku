@@ -42,7 +42,7 @@ Conventions:
 - **Verification**: `npx vitest run src/engine/generator/variant-tiers.test.ts`
 
 ### TASK-004: Vite define for __APP_VERSION__
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `vite.config.ts`, read `package.json#version` (e.g. via `JSON.parse(fs.readFileSync('package.json'))`) and add a `define` block exposing `__APP_VERSION__: JSON.stringify(pkg.version)`. Declare the global in `src/vite-env.d.ts` so TS recognises it.
 - **Verification**: `npm run build` completes; `grep -r "0\\.2\\.0" dist/assets/*.js` finds the version (after TASK-005 bumps it).
