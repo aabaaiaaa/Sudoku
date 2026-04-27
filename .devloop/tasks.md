@@ -75,7 +75,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-pair.test.ts`
 
 ### TASK-008: Hidden Triple
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007
 - **Description**: Add `hidden-triple.ts`: three digits confined to the same three cells in a house. Eliminate other candidates from those cells. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-triple.test.ts`

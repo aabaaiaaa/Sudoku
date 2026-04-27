@@ -42,6 +42,7 @@ const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
   'naked-pair': 'Expert',
   'naked-triple': 'Expert',
   'hidden-pair': 'Expert',
+  'hidden-triple': 'Expert',
   'x-wing': 'Master',
 };
 

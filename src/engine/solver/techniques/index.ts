@@ -21,7 +21,8 @@ export type TechniqueId =
   | 'pointing'
   | 'box-line-reduction'
   | 'x-wing'
-  | 'hidden-pair';
+  | 'hidden-pair'
+  | 'hidden-triple';
 
 export type TechniqueResult =
   | NakedSingleResult
