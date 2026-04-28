@@ -413,7 +413,7 @@ TASK-035 and TASK-036.
 ## Phase 10: E2E tests
 
 ### TASK-059: E2E — generate Demonic, observe spinner and cancel
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-046, TASK-048
 - **Description**: Add `tests/e2e/difficulty-loading.spec.ts`. Navigate to Home, pick Classic + Demonic, click New Game. Assert the loading overlay appears (blurred grid + spinner). Wait at least 10 seconds (or reduce thresholds in test config) and assert the Cancel button appears. Click Cancel and assert return to Home. Use generous Playwright timeouts since the test waits on real generation.
 - **Verification**: `npx playwright test tests/e2e/difficulty-loading.spec.ts`
