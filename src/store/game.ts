@@ -3,8 +3,11 @@ import { peers } from '../engine/peers';
 import type { Board, Cell, Digit, Position, Variant } from '../engine/types';
 import { createEmptyBoard } from '../engine/types';
 import { getVariant } from '../engine/variants';
-import { generateForDifficulty } from '../engine/generator/generate-for-difficulty';
-import type { Difficulty } from '../engine/generator/rate';
+import type { Difficulty, RateResult } from '../engine/generator/rate';
+import {
+  generateInWorker,
+  type GeneratorHandle,
+} from '../workers/generator-client';
 import {
   clearSavedGame,
   deserializeNotes,
@@ -27,6 +30,25 @@ export interface TimerState {
   manuallyPaused: boolean;
 }
 
+/**
+ * Structured failure surfaced when the generator worker exhausts its budget
+ * (requirements §6.2, §7.3). Drives the fallback dialog that offers
+ * Try-again / Try-easier-tier / Cancel actions.
+ */
+export interface GenerationFailure {
+  /** The tier that was being generated when the failure occurred. */
+  difficulty: Difficulty;
+  /**
+   * Rating of the closest puzzle produced (by tier-rank distance to target),
+   * or `null` when no attempt completed before the budget was exhausted.
+   */
+  closestRating: RateResult | null;
+  /** Number of generation attempts before giving up. */
+  attempts: number;
+  /** Wall-clock time elapsed when failure was reported. */
+  elapsedMs: number;
+}
+
 export interface GameState {
   board: Board;
   selection: Position | null;
@@ -44,16 +66,36 @@ export interface GameState {
    * the player scan for it. Toggled by tapping a filled cell.
    */
   highlightedDigit: Digit | null;
+  /**
+   * True while a generation request is in flight. The Game screen uses this
+   * (debounced 200 ms, see requirements §7.1) to render the loading overlay.
+   */
+  loading: boolean;
+  /**
+   * Set when the worker reports `failed` or `error`. The Game screen renders
+   * the §7.3 fallback dialog when this is non-null. Cleared on the next
+   * successful `newGame` and on `cancelGeneration`.
+   */
+  generationFailure: GenerationFailure | null;
 }
 
 export interface GameActions {
   /**
-   * Start a new empty game for the given variant. Accepts either a Variant
-   * object or a variant id string. Difficulty is accepted for future use but
-   * is currently unused (generation happens in a later task). Resets
-   * selection, notesMode, mistakes and timer.
+   * Start a new game for the given variant + difficulty. Resets selection,
+   * notesMode, mistakes and timer synchronously, flips `loading` on, then
+   * spawns a generator worker (requirements §6.4). Resolves once the worker
+   * reports a terminal result: on success the new puzzle is committed and a
+   * save snapshot is written; on failure `generationFailure` is set for the
+   * UI to render the fallback dialog. A concurrent `newGame` or
+   * `cancelGeneration` call cancels the in-flight worker.
    */
-  newGame: (variant: Variant | string, difficulty?: string) => void;
+  newGame: (variant: Variant | string, difficulty?: string) => Promise<void>;
+  /**
+   * Cancel the in-flight generation (if any) and clear `loading`. Used by
+   * the §7.2 Cancel button on the loading overlay. Safe to call when no
+   * generation is in flight.
+   */
+  cancelGeneration: () => void;
   select: (pos: Position | null) => void;
   placeDigit: (d: Digit) => void;
   toggleNote: (d: Digit) => void;
@@ -109,8 +151,29 @@ function initialState(variant: Variant, difficulty = 'easy'): GameState {
     timer: initialTimer(),
     difficulty,
     highlightedDigit: null,
+    loading: false,
+    generationFailure: null,
   };
 }
+
+/**
+ * Abstraction over the worker-spawning function so tests can supply a stub
+ * (requirements §6.3 — the wrapper is verified separately in
+ * `generator-client.test.ts`). Production code uses {@link generateInWorker}
+ * via {@link defaultGeneratorFactory}.
+ */
+export type GeneratorFactory = (
+  variant: Variant,
+  difficulty: Difficulty,
+) => GeneratorHandle;
+
+export interface CreateGameStoreOptions {
+  /** Override the worker-spawning function. Defaults to `generateInWorker`. */
+  generator?: GeneratorFactory;
+}
+
+const defaultGeneratorFactory: GeneratorFactory = (variant, difficulty) =>
+  generateInWorker(variant, difficulty);
 
 /**
  * Auto-start the timer on the first user interaction with a game. Only resumes
@@ -179,39 +242,93 @@ function deserializeBoardCells(variant: Variant, saved: SavedGame['cells']): Cel
   return cells;
 }
 
-export function createGameStore(initialVariant: Variant | string = 'classic') {
+export function createGameStore(
+  initialVariant: Variant | string = 'classic',
+  options: CreateGameStoreOptions = {},
+) {
   const variant = resolveVariant(initialVariant);
+  const generator = options.generator ?? defaultGeneratorFactory;
+
+  // Closure-scoped reference to the in-flight worker handle. Kept off store
+  // state so the (non-serializable) handle doesn't leak to React subscribers
+  // and so cancellation/superseding can be detected by identity comparison.
+  let activeHandle: GeneratorHandle | null = null;
 
   return createStore<GameStore>((set, get) => ({
     ...initialState(variant),
 
-    newGame: (variantInput, difficulty) => {
+    newGame: async (variantInput, difficulty) => {
+      // Cancel any currently in-flight generation so it can't race in and
+      // overwrite the new game's state when its (now-stale) settle resolves.
+      if (activeHandle) {
+        activeHandle.cancel();
+        activeHandle = null;
+      }
+
       const v = resolveVariant(variantInput);
       const diff = (difficulty ?? 'easy') as Difficulty;
       const next = initialState(v, diff);
-      try {
-        const result = generateForDifficulty(v, diff);
-        if (result.kind === 'success') {
-          next.board = result.puzzle;
-        }
-        // On structured `GenerationFailed` (budget exhausted), keep the empty
-        // board. The async/worker integration in TASK-043 surfaces a fallback
-        // dialog to the user; this synchronous path is a temporary bridge.
-      } catch {
-        // If generation throws (unknown difficulty, etc.), keep the empty board.
-      }
+      next.loading = true;
       set(next);
 
-      // Starting a new game for a variant OVERWRITES that variant's save.
-      const snapshot: SavedGame = {
-        variant: v.id,
-        difficulty: next.difficulty,
-        cells: serializeBoardCells(next.board),
-        mistakes: next.mistakes,
-        elapsedMs: elapsedMsOf(next.timer),
-        savedAt: Date.now(),
-      };
-      putSavedGame(snapshot);
+      const handle = generator(v, diff);
+      activeHandle = handle;
+
+      const result = await handle.promise;
+
+      // A newer newGame() or cancelGeneration() may have run while we awaited;
+      // in that case the handle reference will have been replaced. Drop our
+      // (stale) result so we don't clobber the now-current state.
+      if (activeHandle !== handle) return;
+      activeHandle = null;
+
+      if (result.kind === 'cancelled') {
+        // cancelGeneration() already cleared `loading`; nothing more to do.
+        return;
+      }
+
+      if (result.kind === 'success') {
+        const board = result.puzzle;
+        set({ board, loading: false, generationFailure: null });
+
+        // Starting a new game for a variant OVERWRITES that variant's save.
+        const { mistakes, timer, difficulty: d } = get();
+        const snapshot: SavedGame = {
+          variant: board.variant.id,
+          difficulty: d,
+          cells: serializeBoardCells(board),
+          mistakes,
+          elapsedMs: elapsedMsOf(timer),
+          savedAt: Date.now(),
+        };
+        putSavedGame(snapshot);
+        return;
+      }
+
+      // failed | error — surface a structured failure for the §7.3 dialog.
+      const failure: GenerationFailure =
+        result.kind === 'failed'
+          ? {
+              difficulty: diff,
+              closestRating: result.closestRating,
+              attempts: result.attempts,
+              elapsedMs: result.elapsedMs,
+            }
+          : {
+              difficulty: diff,
+              closestRating: null,
+              attempts: 0,
+              elapsedMs: 0,
+            };
+      set({ loading: false, generationFailure: failure });
+    },
+
+    cancelGeneration: () => {
+      if (activeHandle) {
+        activeHandle.cancel();
+        activeHandle = null;
+      }
+      set({ loading: false });
     },
 
     select: (pos) => {

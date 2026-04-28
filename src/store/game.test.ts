@@ -1,6 +1,31 @@
 import { describe, expect, it, vi } from 'vitest';
 import { classicVariant } from '../engine/variants';
-import { createGameStore } from './game';
+import { createGameStore, type GeneratorFactory } from './game';
+import type { GenResult, GeneratorHandle } from '../workers/generator-client';
+
+/**
+ * Generator stub that resolves immediately with the supplied result, never
+ * spinning up a real Web Worker. Defaults to `failed` so the board stays
+ * empty (matching the test fixtures' expectations) and resolution is
+ * effectively synchronous.
+ */
+function stubGenerator(
+  result: GenResult = {
+    kind: 'failed',
+    closestRating: null,
+    attempts: 0,
+    elapsedMs: 0,
+  },
+): GeneratorFactory {
+  return () => {
+    const handle: GeneratorHandle = {
+      promise: Promise.resolve(result),
+      cancel: () => {},
+      onProgress: () => {},
+    };
+    return handle;
+  };
+}
 
 describe('game store', () => {
   describe('placeDigit', () => {
@@ -93,8 +118,8 @@ describe('game store', () => {
   });
 
   describe('newGame', () => {
-    it('resets mistakes and timer', () => {
-      const store = createGameStore(classicVariant);
+    it('resets mistakes and timer', async () => {
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
 
       // Create a mistake.
       store.getState().select({ row: 0, col: 0 });
@@ -106,7 +131,7 @@ describe('game store', () => {
       // Run the timer a bit.
       store.getState().resume();
 
-      store.getState().newGame(classicVariant);
+      await store.getState().newGame(classicVariant);
       expect(store.getState().mistakes).toBe(0);
       expect(store.getState().timer.accumulatedMs).toBe(0);
       expect(store.getState().timer.startTs).toBeNull();
@@ -114,9 +139,9 @@ describe('game store', () => {
       expect(store.getState().selection).toBeNull();
     });
 
-    it('accepts a variant id string', () => {
-      const store = createGameStore(classicVariant);
-      store.getState().newGame('mini');
+    it('accepts a variant id string', async () => {
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
+      await store.getState().newGame('mini');
       expect(store.getState().board.variant.id).toBe('mini');
     });
   });

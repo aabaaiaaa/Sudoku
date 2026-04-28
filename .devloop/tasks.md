@@ -297,7 +297,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts`
 
 ### TASK-043: Game store async newGame integration
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-042
 - **Description**: Make `newGame(variant, difficulty)` in `src/store/game.ts` async. Set `loading: true`, call `generateInWorker`, on `done` populate the board and set `loading: false`. On `failed`, set `loading: false` and surface `generationFailure` state for the UI to render. Add a `cancelGeneration()` action that calls the worker's cancel and clears loading. Update existing tests of `newGame` to await the action.
 - **Verification**: `npx vitest run src/store/game.test.ts`

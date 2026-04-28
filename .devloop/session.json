@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 48,
+  "lastIteration": 49,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-042",
-    "taskTitle": "Generator worker client wrapper",
-    "iterationNumber": 49,
-    "startedAt": "2026-04-28T21:48:49.779Z"
+    "taskId": "TASK-043",
+    "taskTitle": "Game store async newGame integration",
+    "iterationNumber": 50,
+    "startedAt": "2026-04-28T21:53:33.578Z"
   }
 }
