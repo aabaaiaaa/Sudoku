@@ -285,7 +285,7 @@ TASK-035 and TASK-036.
 ## Phase 5: Web Worker
 
 ### TASK-041: Generator Web Worker entry point
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-040
 - **Description**: Create `src/workers/generator.worker.ts` exporting a worker that handles `{ type: 'generate', variantId, difficulty }` messages. Resolves the variant via the variant registry, calls `generateForDifficulty` with a progress callback that posts `{ type: 'progress', attempt, max }` messages, and posts a terminal `{ type: 'done', puzzle, rating }` or `{ type: 'failed', closestRating, attempts, elapsedMs }`. Handle one request at a time.
 - **Verification**: `npx tsc --noEmit src/workers/generator.worker.ts`
