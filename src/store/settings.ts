@@ -3,9 +3,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type Theme = 'light' | 'dark' | 'notepad' | 'space';
 
+export const SETTINGS_STORAGE_KEY = 'sudoku.settings.v2';
+export const SETTINGS_SCHEMA_VERSION = 2;
+
 export interface SettingsState {
   theme: Theme;
   followSystem: boolean;
+  appVersion: string;
 }
 
 export interface SettingsActions {
@@ -14,8 +18,6 @@ export interface SettingsActions {
 }
 
 export type SettingsStore = SettingsState & SettingsActions;
-
-const STORAGE_KEY = 'sudoku.settings.v1';
 
 function systemPrefersDark(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -30,25 +32,28 @@ export function createSettingsStore() {
       (set) => ({
         theme: 'light',
         followSystem: false,
+        appVersion: __APP_VERSION__,
 
         setTheme: (theme) => {
-          set({ theme, followSystem: false });
+          set({ theme, followSystem: false, appVersion: __APP_VERSION__ });
         },
 
         setFollowSystem: (follow) => {
           if (!follow) {
-            set({ followSystem: false });
+            set({ followSystem: false, appVersion: __APP_VERSION__ });
             return;
           }
           set({
             followSystem: true,
             theme: systemPrefersDark() ? 'dark' : 'light',
+            appVersion: __APP_VERSION__,
           });
         },
       }),
       {
-        name: STORAGE_KEY,
+        name: SETTINGS_STORAGE_KEY,
         storage: createJSONStorage(() => localStorage),
+        version: SETTINGS_SCHEMA_VERSION,
       },
     ),
   );

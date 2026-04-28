@@ -369,7 +369,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/store/stats.test.ts`
 
 ### TASK-053: Settings schema appVersion stamp
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004
 - **Description**: For consistency, also bump `sudoku.settings.v1` to v2 with an `appVersion` stamp. Old settings discarded on schema mismatch (acceptable — user just re-picks theme). Update `settings.test.ts`.
 - **Verification**: `npx vitest run src/store/settings.test.ts`
