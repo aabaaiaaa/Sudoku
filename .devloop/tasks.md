@@ -159,7 +159,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/unique-rectangle.test.ts`
 
 ### TASK-022: BUG+1
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `bug.ts`: detect Bivalue Universal Grave +1 — every unsolved cell except one has exactly two candidates. The "+1" cell must be the digit that would otherwise appear three times in some house, otherwise the puzzle would have multiple solutions. Place that digit. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/bug.test.ts`
