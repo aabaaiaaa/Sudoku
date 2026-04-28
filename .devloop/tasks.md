@@ -447,7 +447,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run`
 
 ### TASK-064: Full build + type check
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-063
 - **Description**: Run `tsc --noEmit` over the whole project and `npm run build`. Confirm no type errors and a clean production build. Inspect the bundle size — the Web Worker should be a separate chunk.
 - **Verification**: `npm run build`
