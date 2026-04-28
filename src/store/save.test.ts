@@ -129,6 +129,40 @@ describe('save store', () => {
     expect(getSavedGame('classic')).toBeNull();
   });
 
+  it('uses the v2 storage key and bumped schema version', () => {
+    expect(SAVE_STORAGE_KEY).toBe('sudoku.save.v2');
+    expect(SAVE_SCHEMA_VERSION).toBe(2);
+  });
+
+  it('silently drops legacy v1 entries on load', () => {
+    window.localStorage.setItem(
+      'sudoku.save.v1',
+      JSON.stringify({
+        version: 1,
+        saves: { classic: makeSavedGame({ variant: 'classic' }) },
+      }),
+    );
+
+    const file = loadSaveFile();
+    expect(file.saves).toEqual({});
+    expect(getSavedGame('classic')).toBeNull();
+  });
+
+  it('stamps writes with the current appVersion', () => {
+    putSavedGame(makeSavedGame({ variant: 'classic' }));
+
+    const raw = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.version).toBe(SAVE_SCHEMA_VERSION);
+    expect(typeof parsed.appVersion).toBe('string');
+    expect(parsed.appVersion.length).toBeGreaterThan(0);
+    expect(parsed.appVersion).toBe(__APP_VERSION__);
+
+    const file = loadSaveFile();
+    expect(file.appVersion).toBe(__APP_VERSION__);
+  });
+
   it('returns an empty file on parse failure without throwing', () => {
     window.localStorage.setItem(SAVE_STORAGE_KEY, 'this is {{ not json');
 

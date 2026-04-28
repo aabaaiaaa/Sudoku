@@ -357,7 +357,7 @@ TASK-035 and TASK-036.
 ## Phase 8: Save versioning
 
 ### TASK-051: Bump save schema to v2 with appVersion stamp
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004
 - **Description**: In `src/store/save.ts`, change the persistence key from `sudoku.save.v1` to `sudoku.save.v2`. Extend the persisted state shape to include `appVersion: string` populated from `__APP_VERSION__` at write time. Existing v1 entries are silently dropped on first load (existing schema-mismatch behaviour). Update `save.test.ts` for the new key and the appVersion stamp.
 - **Verification**: `npx vitest run src/store/save.test.ts`

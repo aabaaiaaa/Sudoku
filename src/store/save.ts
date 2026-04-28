@@ -1,18 +1,19 @@
 // Save-game persistence for in-progress Sudoku games.
 //
 // Keeps exactly ONE in-progress save per variant in a single localStorage
-// entry keyed by `sudoku.save.v1`. The stored payload is a JSON object with
-// a schema `version` field and a `saves` map keyed by variant id. On version
-// mismatch or parse failure, loads return an empty save file so callers can
-// treat it as "no save present".
+// entry keyed by `sudoku.save.v2`. The stored payload is a JSON object with
+// a schema `version` field, an `appVersion` stamp recording the build that
+// wrote it, and a `saves` map keyed by variant id. On version mismatch or
+// parse failure, loads return an empty save file so callers can treat it as
+// "no save present" — v1 entries from previous releases are silently dropped.
 //
 // This module is intentionally independent of the game store and React — it
 // only depends on the platform `Storage` API (which is provided by Vitest's
 // jsdom environment for tests). Cell `notes` are stored as sorted number
 // arrays on disk and reconstructed into `Set<Digit>` on load.
 
-export const SAVE_STORAGE_KEY = 'sudoku.save.v1';
-export const SAVE_SCHEMA_VERSION = 1;
+export const SAVE_STORAGE_KEY = 'sudoku.save.v2';
+export const SAVE_SCHEMA_VERSION = 2;
 
 export interface SavedCell {
   value: number | null;
@@ -31,11 +32,12 @@ export interface SavedGame {
 
 export interface SaveFile {
   version: number;
+  appVersion: string;
   saves: Record<string, SavedGame>;
 }
 
 function emptySaveFile(): SaveFile {
-  return { version: SAVE_SCHEMA_VERSION, saves: {} };
+  return { version: SAVE_SCHEMA_VERSION, appVersion: __APP_VERSION__, saves: {} };
 }
 
 function resolveStorage(storage?: Storage): Storage | null {
@@ -69,14 +71,23 @@ export function loadSaveFile(storage?: Storage): SaveFile {
   if (obj.version !== SAVE_SCHEMA_VERSION) return emptySaveFile();
   if (!obj.saves || typeof obj.saves !== 'object') return emptySaveFile();
 
-  return { version: SAVE_SCHEMA_VERSION, saves: obj.saves };
+  return {
+    version: SAVE_SCHEMA_VERSION,
+    appVersion: typeof obj.appVersion === 'string' ? obj.appVersion : __APP_VERSION__,
+    saves: obj.saves,
+  };
 }
 
-/** Writes the save file to localStorage. No-op if storage is unavailable. */
+/**
+ * Writes the save file to localStorage, stamping it with the current
+ * `__APP_VERSION__` so future migrations can branch on which build wrote it.
+ * No-op if storage is unavailable.
+ */
 export function writeSaveFile(file: SaveFile, storage?: Storage): void {
   const s = resolveStorage(storage);
   if (!s) return;
-  s.setItem(SAVE_STORAGE_KEY, JSON.stringify(file));
+  const stamped: SaveFile = { ...file, appVersion: __APP_VERSION__ };
+  s.setItem(SAVE_STORAGE_KEY, JSON.stringify(stamped));
 }
 
 /**
@@ -96,6 +107,7 @@ export function putSavedGame(game: SavedGame, storage?: Storage): void {
   const file = loadSaveFile(storage);
   const next: SaveFile = {
     version: SAVE_SCHEMA_VERSION,
+    appVersion: __APP_VERSION__,
     saves: { ...file.saves, [game.variant]: game },
   };
   writeSaveFile(next, storage);
@@ -107,7 +119,10 @@ export function clearSavedGame(variant: string, storage?: Storage): void {
   if (!(variant in file.saves)) return;
   const nextSaves: Record<string, SavedGame> = { ...file.saves };
   delete nextSaves[variant];
-  writeSaveFile({ version: SAVE_SCHEMA_VERSION, saves: nextSaves }, storage);
+  writeSaveFile(
+    { version: SAVE_SCHEMA_VERSION, appVersion: __APP_VERSION__, saves: nextSaves },
+    storage,
+  );
 }
 
 /** Returns true iff a saved game exists for the variant. */
