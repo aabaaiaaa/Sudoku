@@ -165,7 +165,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/bug.test.ts`
 
 ### TASK-023: XY-Chain
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-013
 - **Description**: Add `xy-chain.ts`: extension of XY-Wing to longer chains. A sequence of bivalue cells where consecutive cells share a digit and a house, starting and ending with the same digit Z. Eliminate Z from cells that see both endpoints. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-chain.test.ts`
