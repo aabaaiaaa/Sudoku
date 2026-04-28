@@ -263,7 +263,7 @@ TASK-035 and TASK-036.
 ## Phase 4: Generator changes
 
 ### TASK-038: Strict tier rule in generate-for-difficulty
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-035
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, change the acceptance test so generated puzzles are accepted only when `rate(p).difficulty === target` (exact match). Reject and retry otherwise.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "exact tier"`

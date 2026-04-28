@@ -58,3 +58,60 @@ describe('generateForDifficulty — fallback when target not hit', () => {
     expect(countSolutions(result.puzzle, 2)).toBe(1);
   });
 });
+
+describe('generateForDifficulty — strict exact tier rule', () => {
+  // Per requirements §6.1, generated puzzles must be accepted only when the
+  // rating exactly matches the target tier — not any easier, not any harder.
+  // The invariant: `onTarget` is true if and only if
+  // `rating.difficulty === target`. Any returned puzzle with `onTarget=true`
+  // must have a rating equal to the requested target; any returned puzzle
+  // with `onTarget=false` is a fallback and must have a non-target rating.
+
+  it(
+    'enforces exact tier match: onTarget iff rating.difficulty === target',
+    () => {
+      // Sweep a few seeds and a few targets so the test exercises both the
+      // accept path (rating matches) and the reject-then-fallback path
+      // (rating does not match within maxRetries).
+      const targets: Difficulty[] = ['Easy', 'Hard', 'Expert'];
+      const seeds = [1, 7, 42, 999_999];
+      for (const target of targets) {
+        for (const seed of seeds) {
+          const result = generateForDifficulty(classicVariant, target, {
+            seed,
+            maxRetries: 4,
+          });
+          expect(result.onTarget).toBe(result.rating.difficulty === target);
+          if (result.onTarget) {
+            expect(result.rating.difficulty).toBe(target);
+          } else {
+            expect(result.rating.difficulty).not.toBe(target);
+          }
+        }
+      }
+    },
+    120_000,
+  );
+
+  it(
+    'never silently promotes a near-miss: a single attempt that lands off-target returns onTarget=false',
+    () => {
+      // With maxRetries=1 there is exactly one generated puzzle; the strict
+      // rule means the result is onTarget only if that puzzle rates exactly
+      // at the target. Run a handful of seeds and assert the invariant for
+      // each — no silent promotion of a different tier to onTarget=true.
+      for (const seed of [11, 22, 33, 44, 55]) {
+        const result = generateForDifficulty(classicVariant, 'Expert', {
+          seed,
+          maxRetries: 1,
+        });
+        if (result.rating.difficulty !== 'Expert') {
+          expect(result.onTarget).toBe(false);
+        } else {
+          expect(result.onTarget).toBe(true);
+        }
+      }
+    },
+    60_000,
+  );
+});

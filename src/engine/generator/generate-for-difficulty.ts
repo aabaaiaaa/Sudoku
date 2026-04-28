@@ -44,12 +44,17 @@ function clueBoundsLowerForTier(
 }
 
 /**
- * Generate a puzzle and try to hit the requested difficulty tier. Repeatedly
- * calls `generate` with deterministically-derived seeds (when `seed` is
- * provided) and rates each result. Returns the first puzzle whose rating
- * matches the target tier; if no attempt matches within `maxRetries`, returns
- * the closest-rated attempt (by `DIFFICULTY_ORDER` rank distance; ties go to
- * the first encountered) with `onTarget: false`.
+ * Generate a puzzle and try to hit the requested difficulty tier.
+ *
+ * Acceptance is **strict**: a generated puzzle is accepted only when
+ * `rate(puzzle).difficulty === target` (exact match, per requirements §6.1).
+ * Any other rating — easier or harder — is rejected and the generator retries.
+ * The strict rule is what makes the tier label trustworthy; clue-count is
+ * advisory only and merely biases generation via `minClues`.
+ *
+ * If no attempt matches within `maxRetries`, returns the closest-rated attempt
+ * (by `DIFFICULTY_ORDER` rank distance; ties go to the first encountered) with
+ * `onTarget: false` so callers can distinguish a true match from a fallback.
  */
 export function generateForDifficulty(
   variant: Variant,
@@ -77,6 +82,8 @@ export function generateForDifficulty(
     const result = generate(variant, genOpts);
     const rating = rate(result.puzzle);
 
+    // Strict tier rule (requirements §6.1): accept iff the rating matches the
+    // target tier exactly. Easier or harder ratings are rejected and we retry.
     if (rating.difficulty === difficulty) {
       return { ...result, rating, onTarget: true };
     }
