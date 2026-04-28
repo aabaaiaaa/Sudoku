@@ -2,6 +2,33 @@ import { peers } from '../peers';
 import type { Board, Digit, Position, Variant } from '../types';
 import { cloneBoard } from '../types';
 import type { TechniqueId } from '../solver/techniques';
+import { findHiddenPair } from '../solver/techniques/hidden-pair';
+import { findHiddenTriple } from '../solver/techniques/hidden-triple';
+import { findNakedQuad } from '../solver/techniques/naked-quad';
+import { findHiddenQuad } from '../solver/techniques/hidden-quad';
+import { findSwordfish } from '../solver/techniques/swordfish';
+import { findJellyfish } from '../solver/techniques/jellyfish';
+import { findXyWing } from '../solver/techniques/xy-wing';
+import { findXyzWing } from '../solver/techniques/xyz-wing';
+import { findWWing } from '../solver/techniques/w-wing';
+import { findSimpleColoring } from '../solver/techniques/simple-coloring';
+import { findXCycle } from '../solver/techniques/x-cycle';
+import { findEmptyRectangle } from '../solver/techniques/empty-rectangle';
+import { findSkyscraper } from '../solver/techniques/skyscraper';
+import { findTwoStringKite } from '../solver/techniques/two-string-kite';
+import { findUniqueRectangle } from '../solver/techniques/unique-rectangle';
+import { findBugPlus1 } from '../solver/techniques/bug';
+import { findXyChain } from '../solver/techniques/xy-chain';
+import { findMultiColoring } from '../solver/techniques/multi-coloring';
+import { findAlsXz } from '../solver/techniques/als-xz';
+import { findWxyzWing } from '../solver/techniques/wxyz-wing';
+import { findHiddenRectangle } from '../solver/techniques/hidden-rectangle';
+import { findAvoidableRectangle } from '../solver/techniques/avoidable-rectangle';
+import { findNiceLoop } from '../solver/techniques/nice-loop';
+import { findGroupedXCycle } from '../solver/techniques/grouped-x-cycle';
+import { find3DMedusa } from '../solver/techniques/medusa-3d';
+import { findDeathBlossom } from '../solver/techniques/death-blossom';
+import { findForcingChains } from '../solver/techniques/forcing-chains';
 
 /**
  * Difficulty tiers, ordered from easiest to hardest. The puzzle's difficulty is
@@ -41,9 +68,34 @@ const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
   'box-line-reduction': 'Hard',
   'naked-pair': 'Expert',
   'naked-triple': 'Expert',
+  'naked-quad': 'Expert',
   'hidden-pair': 'Expert',
   'hidden-triple': 'Expert',
+  'hidden-quad': 'Expert',
   'x-wing': 'Master',
+  swordfish: 'Master',
+  jellyfish: 'Master',
+  'xy-wing': 'Diabolical',
+  'xyz-wing': 'Diabolical',
+  'w-wing': 'Diabolical',
+  'simple-coloring': 'Diabolical',
+  'x-cycle': 'Diabolical',
+  'empty-rectangle': 'Diabolical',
+  skyscraper: 'Diabolical',
+  'two-string-kite': 'Diabolical',
+  'unique-rectangle': 'Demonic',
+  'bug-plus-one': 'Demonic',
+  'xy-chain': 'Demonic',
+  'multi-coloring': 'Demonic',
+  'als-xz': 'Demonic',
+  'wxyz-wing': 'Demonic',
+  'hidden-rectangle': 'Demonic',
+  'avoidable-rectangle': 'Demonic',
+  'nice-loop': 'Nightmare',
+  'grouped-x-cycle': 'Nightmare',
+  '3d-medusa': 'Nightmare',
+  'death-blossom': 'Nightmare',
+  'forcing-chains': 'Nightmare',
 };
 
 /**
@@ -475,12 +527,28 @@ function findXWing(
 function applyEliminations(
   grid: Candidates,
   eliminations: Array<{ pos: Position; digits: Digit[] }>,
-): void {
+): boolean {
+  let changed = false;
   for (const { pos, digits } of eliminations) {
     const cand = grid[pos.row][pos.col];
     if (cand == null) continue;
-    for (const d of digits) cand.delete(d);
+    for (const d of digits) {
+      if (cand.delete(d)) changed = true;
+    }
   }
+  return changed;
+}
+
+/**
+ * Adapt the technique-module elimination shape (`{ cell, digits }`) to the
+ * shape used by `applyEliminations` (`{ pos, digits }`). The new technique
+ * finders all surface eliminations with `cell`; the rate.ts solver maintains
+ * its own grid which is keyed by `pos`.
+ */
+function adaptEliminations(
+  list: ReadonlyArray<{ cell: Position; digits: readonly Digit[] }>,
+): Array<{ pos: Position; digits: Digit[] }> {
+  return list.map(({ cell, digits }) => ({ pos: cell, digits: [...digits] }));
 }
 
 function isSolved(board: Board): boolean {
@@ -599,6 +667,276 @@ export function rate(puzzle: Board): RateResult {
       noteTechnique('x-wing');
       applyEliminations(grid, xw.eliminations);
       continue;
+    }
+
+    // ---------------------------------------------------------------------
+    // Extended technique chain. The finders below operate on the live
+    // board and recompute their own candidates, so they may target
+    // candidates the rate.ts grid has already eliminated. We only count a
+    // technique as having "fired" when its eliminations actually change
+    // the grid (or a placement is produced). Otherwise we fall through to
+    // the next technique to avoid infinite re-firing.
+    // ---------------------------------------------------------------------
+
+    const hp = findHiddenPair(board);
+    if (hp != null) {
+      const elims = adaptEliminations(hp.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('hidden-pair');
+        continue;
+      }
+    }
+
+    const ht = findHiddenTriple(board);
+    if (ht != null) {
+      const elims = adaptEliminations(ht.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('hidden-triple');
+        continue;
+      }
+    }
+
+    const nq = findNakedQuad(board);
+    if (nq != null) {
+      const elims = adaptEliminations(nq.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('naked-quad');
+        continue;
+      }
+    }
+
+    const hq = findHiddenQuad(board);
+    if (hq != null) {
+      const elims = adaptEliminations(hq.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('hidden-quad');
+        continue;
+      }
+    }
+
+    const sf = findSwordfish(board);
+    if (sf != null) {
+      const elims = adaptEliminations(sf.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('swordfish');
+        continue;
+      }
+    }
+
+    const jf = findJellyfish(board);
+    if (jf != null) {
+      const elims = adaptEliminations(jf.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('jellyfish');
+        continue;
+      }
+    }
+
+    const xyw = findXyWing(board);
+    if (xyw != null) {
+      const elims = adaptEliminations(xyw.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('xy-wing');
+        continue;
+      }
+    }
+
+    const xyzw = findXyzWing(board);
+    if (xyzw != null) {
+      const elims = adaptEliminations(xyzw.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('xyz-wing');
+        continue;
+      }
+    }
+
+    const ww = findWWing(board);
+    if (ww != null) {
+      const elims = adaptEliminations(ww.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('w-wing');
+        continue;
+      }
+    }
+
+    const sc = findSimpleColoring(board);
+    if (sc != null) {
+      const elims = adaptEliminations(sc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('simple-coloring');
+        continue;
+      }
+    }
+
+    const xc = findXCycle(board);
+    if (xc != null) {
+      if (xc.placement != null) {
+        noteTechnique('x-cycle');
+        placeDigit(board, grid, xc.placement.pos, xc.placement.digit);
+        continue;
+      }
+      const elims = adaptEliminations(xc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('x-cycle');
+        continue;
+      }
+    }
+
+    const er = findEmptyRectangle(board);
+    if (er != null) {
+      const elims = adaptEliminations(er.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('empty-rectangle');
+        continue;
+      }
+    }
+
+    const sk = findSkyscraper(board);
+    if (sk != null) {
+      const elims = adaptEliminations(sk.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('skyscraper');
+        continue;
+      }
+    }
+
+    const tsk = findTwoStringKite(board);
+    if (tsk != null) {
+      const elims = adaptEliminations(tsk.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('two-string-kite');
+        continue;
+      }
+    }
+
+    const ur = findUniqueRectangle(board);
+    if (ur != null) {
+      const elims = adaptEliminations(ur.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('unique-rectangle');
+        continue;
+      }
+    }
+
+    const bug = findBugPlus1(board);
+    if (bug != null) {
+      noteTechnique('bug-plus-one');
+      placeDigit(board, grid, bug.cell, bug.digit);
+      continue;
+    }
+
+    const xyc = findXyChain(board);
+    if (xyc != null) {
+      const elims = adaptEliminations(xyc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('xy-chain');
+        continue;
+      }
+    }
+
+    const mc = findMultiColoring(board);
+    if (mc != null) {
+      const elims = adaptEliminations(mc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('multi-coloring');
+        continue;
+      }
+    }
+
+    const alsxz = findAlsXz(board);
+    if (alsxz != null) {
+      const elims = adaptEliminations(alsxz.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('als-xz');
+        continue;
+      }
+    }
+
+    const wxyz = findWxyzWing(board);
+    if (wxyz != null) {
+      const elims = adaptEliminations(wxyz.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('wxyz-wing');
+        continue;
+      }
+    }
+
+    const hr = findHiddenRectangle(board);
+    if (hr != null) {
+      const elims = adaptEliminations(hr.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('hidden-rectangle');
+        continue;
+      }
+    }
+
+    const ar = findAvoidableRectangle(board);
+    if (ar != null) {
+      const elims = adaptEliminations(ar.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('avoidable-rectangle');
+        continue;
+      }
+    }
+
+    const nl = findNiceLoop(board);
+    if (nl != null) {
+      if (nl.placement != null) {
+        noteTechnique('nice-loop');
+        placeDigit(board, grid, nl.placement.pos, nl.placement.digit);
+        continue;
+      }
+      const elims = adaptEliminations(nl.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('nice-loop');
+        continue;
+      }
+    }
+
+    const gxc = findGroupedXCycle(board);
+    if (gxc != null) {
+      if (gxc.placement != null) {
+        noteTechnique('grouped-x-cycle');
+        placeDigit(board, grid, gxc.placement.pos, gxc.placement.digit);
+        continue;
+      }
+      const elims = adaptEliminations(gxc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('grouped-x-cycle');
+        continue;
+      }
+    }
+
+    const med = find3DMedusa(board);
+    if (med != null) {
+      const elims = adaptEliminations(med.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('3d-medusa');
+        continue;
+      }
+    }
+
+    const db = findDeathBlossom(board);
+    if (db != null) {
+      const elims = adaptEliminations(db.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('death-blossom');
+        continue;
+      }
+    }
+
+    const fc = findForcingChains(board);
+    if (fc != null) {
+      if (fc.placement != null) {
+        noteTechnique('forcing-chains');
+        placeDigit(board, grid, fc.placement.pos, fc.placement.digit);
+        continue;
+      }
+      const elims = adaptEliminations(fc.eliminations);
+      if (applyEliminations(grid, elims)) {
+        noteTechnique('forcing-chains');
+        continue;
+      }
     }
 
     // No technique made progress — stop.

@@ -241,7 +241,7 @@ TASK-035 and TASK-036.
 ## Phase 3: Solver and rater integration
 
 ### TASK-035: Wire new techniques into rate.ts internal solver
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-022, TASK-023, TASK-024, TASK-025, TASK-026, TASK-027, TASK-028, TASK-029, TASK-030, TASK-031, TASK-032, TASK-033, TASK-034
 - **Description**: Extend the `rate()` function's solver loop in `rate.ts` to call each new finder in increasing-difficulty order (Hidden Pair → Hidden Triple → Naked Quad → Hidden Quad → Swordfish → ... → Forcing Chains). Each branch calls `noteTechnique(id)` and either places a digit via `placeDigit` or applies eliminations via `applyEliminations`. Solver still restarts at Naked Single on any progress.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts`
