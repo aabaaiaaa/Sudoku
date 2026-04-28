@@ -7,6 +7,8 @@ import { Timer } from '../components/Timer';
 import { Hint } from '../components/Hint';
 import { KeyboardHandler } from '../components/KeyboardHandler';
 import { WinModal } from '../components/WinModal';
+import { LoadingOverlay } from '../components/LoadingOverlay';
+import { useDebouncedFlag } from '../hooks/useDebouncedFlag';
 
 interface GameProps {
   store?: typeof gameStore;
@@ -35,6 +37,9 @@ export function Game({ store = gameStore, onBack }: GameProps) {
   const resume = useStore(store, (s) => s.resume);
   const hasRun = timer.accumulatedMs > 0 || timer.startTs != null;
   const showPauseOverlay = timer.paused && hasRun;
+
+  const loading = useStore(store, (s) => s.loading);
+  const showLoadingOverlay = useDebouncedFlag(loading, 200);
 
   return (
     <div className="p-4 space-y-4 max-w-md mx-auto">
@@ -99,6 +104,8 @@ export function Game({ store = gameStore, onBack }: GameProps) {
       <Hint store={store} />
 
       <WinModal store={store} onNewGame={handleNewGame} onHome={() => onBack?.()} />
+
+      <LoadingOverlay visible={showLoadingOverlay} />
     </div>
   );
 }

@@ -313,7 +313,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx`
 
 ### TASK-045: 200ms debounce wiring
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-044
 - **Description**: In `src/screens/Game.tsx`, render `<LoadingOverlay>` driven by the game store's `loading` flag, but only after a 200ms debounce so quick generations don't flash an overlay. Use a small hook `useDebouncedFlag(value, ms)`.
 - **Verification**: `npx vitest run src/screens/Game.test.tsx -t "loading"`
