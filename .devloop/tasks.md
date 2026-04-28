@@ -171,7 +171,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-chain.test.ts`
 
 ### TASK-024: Multi-Coloring
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-016
 - **Description**: Add `multi-coloring.ts`: build coloring chains for a digit and identify when two color clusters interact such that one color from each cluster is forced false, leading to eliminations on cells seeing both. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/multi-coloring.test.ts`
