@@ -213,7 +213,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "discontinuous"`
 
 ### TASK-031: Grouped X-Cycle
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-017
 - **Description**: Add `grouped-x-cycle.ts`: extension of X-Cycle where some "nodes" are groups of cells (two or three cells in the same row/col within a box) treated as a unit. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/grouped-x-cycle.test.ts`
