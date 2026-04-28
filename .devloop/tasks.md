@@ -269,7 +269,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "exact tier"`
 
 ### TASK-039: Retry cap and hard timeout
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-038
 - **Description**: Update `generateForDifficulty` to enforce a maximum of 50 attempts AND a 60-second wall-clock timeout (whichever first). On budget exhaustion, return a structured `GenerationFailed` result containing closest tier produced (if any), attempt count, and elapsed time. Update tests to use a short timeout for the failure case.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "timeout|attempts"`

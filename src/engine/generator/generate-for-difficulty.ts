@@ -8,19 +8,57 @@ import {
   type RateResult,
 } from './rate';
 
+/** Default attempt cap per call (requirements §6.2). */
+export const DEFAULT_MAX_ATTEMPTS = 50;
+/** Default wall-clock timeout per call in ms (requirements §6.2). */
+export const DEFAULT_TIMEOUT_MS = 60_000;
+
 export interface GenerateForDifficultyOptions {
   /** Optional random seed (32-bit int). Used as a base; retries derive seeds from it. */
   seed?: number;
-  /** Max retries (distinct generation attempts) before giving up. Default 40. */
+  /**
+   * Maximum number of distinct generation attempts before giving up.
+   * Defaults to {@link DEFAULT_MAX_ATTEMPTS} (50). Whichever of `maxRetries`
+   * or `timeoutMs` is reached first ends generation in failure.
+   */
   maxRetries?: number;
+  /**
+   * Hard wall-clock timeout in milliseconds. Defaults to
+   * {@link DEFAULT_TIMEOUT_MS} (60 000). Once the elapsed time meets or
+   * exceeds this value, no further attempts are started and the function
+   * returns a structured failure.
+   */
+  timeoutMs?: number;
 }
 
 export interface DifficultyGeneratedPuzzle extends GeneratedPuzzle {
+  kind: 'success';
   /** The rating for the returned puzzle. */
   rating: RateResult;
-  /** True when the produced puzzle matched the requested tier exactly. */
-  onTarget: boolean;
+  /**
+   * Always `true` under the strict tier rule (§6.1). Retained for callers
+   * that branch on it; failure is signalled by a `GenerationFailed` result.
+   */
+  onTarget: true;
 }
+
+export interface GenerationFailed {
+  kind: 'failed';
+  /**
+   * Rating of the puzzle whose tier was closest (by `DIFFICULTY_ORDER` rank
+   * distance) to the requested target. `null` when no attempt completed —
+   * e.g. the timeout fires before the first generation produces a rating.
+   */
+  closestRating: RateResult | null;
+  /** Number of generation attempts started before the budget was exhausted. */
+  attempts: number;
+  /** Wall-clock time elapsed in milliseconds at the moment of failure. */
+  elapsedMs: number;
+}
+
+export type GenerateForDifficultyResult =
+  | DifficultyGeneratedPuzzle
+  | GenerationFailed;
 
 function tierRank(d: Difficulty): number {
   return DIFFICULTY_ORDER.indexOf(d);
@@ -49,31 +87,37 @@ function clueBoundsLowerForTier(
  * Acceptance is **strict**: a generated puzzle is accepted only when
  * `rate(puzzle).difficulty === target` (exact match, per requirements §6.1).
  * Any other rating — easier or harder — is rejected and the generator retries.
- * The strict rule is what makes the tier label trustworthy; clue-count is
- * advisory only and merely biases generation via `minClues`.
  *
- * If no attempt matches within `maxRetries`, returns the closest-rated attempt
- * (by `DIFFICULTY_ORDER` rank distance; ties go to the first encountered) with
- * `onTarget: false` so callers can distinguish a true match from a fallback.
+ * Generation is bounded by two budgets (requirements §6.2):
+ *   1. `maxRetries` attempts (default 50), and
+ *   2. `timeoutMs` wall-clock milliseconds (default 60 000).
+ *
+ * The timeout is checked before starting each new attempt; an attempt already
+ * in flight is allowed to finish, but no further attempts are started once the
+ * deadline is past. When either budget is exhausted without a matching tier,
+ * the function returns a {@link GenerationFailed} result with the closest tier
+ * produced (if any), the attempt count, and elapsed time.
  */
 export function generateForDifficulty(
   variant: Variant,
   difficulty: Difficulty,
   options: GenerateForDifficultyOptions = {},
-): DifficultyGeneratedPuzzle {
-  const maxRetries = options.maxRetries ?? 40;
-  const attempts = Math.max(1, maxRetries);
+): GenerateForDifficultyResult {
+  const maxRetries = Math.max(1, options.maxRetries ?? DEFAULT_MAX_ATTEMPTS);
+  const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const targetRank = tierRank(difficulty);
   const minCluesHint = clueBoundsLowerForTier(variant.id, difficulty);
 
-  let best: DifficultyGeneratedPuzzle | null = null;
+  const startedAt = Date.now();
+  let attempts = 0;
+  let closestRating: RateResult | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
 
-  for (let i = 0; i < attempts; i++) {
+  while (attempts < maxRetries && Date.now() - startedAt < timeoutMs) {
     const genOpts: GenerateOptions = {};
     if (options.seed != null) {
       // Derive distinct deterministic seeds from the base seed.
-      genOpts.seed = (options.seed + i) | 0;
+      genOpts.seed = (options.seed + attempts) | 0;
     }
     if (minCluesHint != null) {
       genOpts.minClues = minCluesHint;
@@ -81,23 +125,25 @@ export function generateForDifficulty(
 
     const result = generate(variant, genOpts);
     const rating = rate(result.puzzle);
+    attempts++;
 
     // Strict tier rule (requirements §6.1): accept iff the rating matches the
     // target tier exactly. Easier or harder ratings are rejected and we retry.
     if (rating.difficulty === difficulty) {
-      return { ...result, rating, onTarget: true };
+      return { ...result, kind: 'success', rating, onTarget: true };
     }
 
     const distance = Math.abs(tierRank(rating.difficulty) - targetRank);
     if (distance < bestDistance) {
       bestDistance = distance;
-      best = { ...result, rating, onTarget: false };
+      closestRating = rating;
     }
   }
 
-  // Should always be set since attempts >= 1, but guard for the type-checker.
-  if (best == null) {
-    throw new Error('generateForDifficulty: no attempts were made');
-  }
-  return best;
+  return {
+    kind: 'failed',
+    closestRating,
+    attempts,
+    elapsedMs: Date.now() - startedAt,
+  };
 }

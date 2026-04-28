@@ -190,10 +190,15 @@ export function createGameStore(initialVariant: Variant | string = 'classic') {
       const diff = (difficulty ?? 'easy') as Difficulty;
       const next = initialState(v, diff);
       try {
-        const { puzzle } = generateForDifficulty(v, diff);
-        next.board = puzzle;
+        const result = generateForDifficulty(v, diff);
+        if (result.kind === 'success') {
+          next.board = result.puzzle;
+        }
+        // On structured `GenerationFailed` (budget exhausted), keep the empty
+        // board. The async/worker integration in TASK-043 surfaces a fallback
+        // dialog to the user; this synchronous path is a temporary bridge.
       } catch {
-        // If generation fails (unknown difficulty, etc.), keep the empty board.
+        // If generation throws (unknown difficulty, etc.), keep the empty board.
       }
       set(next);
 
