@@ -291,7 +291,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx tsc --noEmit src/workers/generator.worker.ts`
 
 ### TASK-042: Generator worker client wrapper
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-041
 - **Description**: Create `src/workers/generator-client.ts` exporting `generateInWorker(variant, difficulty)` returning `{ promise: Promise<GenResult>, cancel: () => void, onProgress: (cb) => void }`. Internally instantiates the worker, wires up the messaging, supports cancel via `worker.terminate()`. Add `generator-client.test.ts` using a fake worker (mocked Worker class with a queue of messages).
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts`
