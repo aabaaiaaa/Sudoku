@@ -177,7 +177,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/multi-coloring.test.ts`
 
 ### TASK-025: ALS-XZ
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Add `als-xz.ts`: two Almost Locked Sets (ALS) sharing a "restricted common" digit X. Any digit Z common to both ALS that is not the restricted common can be eliminated from cells seeing all Z-candidates in both ALS. Implement an ALS detector helper (used here and possibly in later tasks). Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/als-xz.test.ts`
