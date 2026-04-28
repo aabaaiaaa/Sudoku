@@ -207,7 +207,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "continuous"`
 
 ### TASK-030: Nice Loop (discontinuous)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-029
 - **Description**: Extend `nice-loop.ts` to also detect discontinuous nice loops (two weak or two strong links meeting at one node). At the discontinuity, the digit is forced or eliminated. Add fixture + test for the discontinuous case.
 - **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "discontinuous"`

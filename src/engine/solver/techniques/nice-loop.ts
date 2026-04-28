@@ -6,7 +6,10 @@ export interface NiceLoopElimination {
   digits: Digit[];
 }
 
-export type NiceLoopType = 'continuous';
+export type NiceLoopType =
+  | 'continuous'
+  | 'discontinuous-strong'
+  | 'discontinuous-weak';
 
 export interface NiceLoopNode {
   pos: Position;
@@ -23,6 +26,11 @@ export interface NiceLoopEdge {
   witness: string;
 }
 
+export interface NiceLoopPlacement {
+  pos: Position;
+  digit: Digit;
+}
+
 export interface NiceLoopResult {
   technique: 'nice-loop';
   cycleType: NiceLoopType;
@@ -30,6 +38,8 @@ export interface NiceLoopResult {
   nodes: NiceLoopNode[];
   /** Edges in cycle order. edges[i] connects nodes[i] and nodes[(i+1) % n]. */
   edges: NiceLoopEdge[];
+  /** For 'discontinuous-strong': the (cell, digit) forced to be true. */
+  placement?: NiceLoopPlacement;
   eliminations: NiceLoopElimination[];
   explanation: string;
 }
@@ -271,11 +281,26 @@ function dfs(
     const next = entry.to;
 
     if (sameNode(next, start)) {
-      // Closing edge: continuous loops require even length and the closing
-      // edge type to be the alternate of the starting edge type.
-      if (path.length < 4) continue;
-      if (path.length % 2 !== 0) continue;
-      if (startType === nextType) continue;
+      // Closure classification follows directly from path parity. The dfs
+      // alternates strict strong/weak after the first edge, so the closing
+      // edge type equals startType iff path.length is odd. Even closures with
+      // alternating endpoints are continuous; odd closures with matching
+      // endpoints are discontinuous (strong-strong forces a placement,
+      // weak-weak forces an elimination).
+      let cycleType: NiceLoopType | null = null;
+      if (path.length >= 4 && path.length % 2 === 0 && startType !== nextType) {
+        cycleType = 'continuous';
+      } else if (
+        path.length >= 3 &&
+        path.length % 2 === 1 &&
+        startType === nextType
+      ) {
+        cycleType =
+          startType === 'strong'
+            ? 'discontinuous-strong'
+            : 'discontinuous-weak';
+      }
+      if (cycleType === null) continue;
       const closingEdge: NiceLoopEdge = {
         from: current,
         to: start,
@@ -283,7 +308,12 @@ function dfs(
         kind: entry.kind,
         witness: entry.witness,
       };
-      const result = buildResult(ctx, path.slice(), [...edges, closingEdge]);
+      const result = buildResult(
+        ctx,
+        path.slice(),
+        [...edges, closingEdge],
+        cycleType,
+      );
       if (result !== null) return result;
       continue;
     }
@@ -315,6 +345,21 @@ function dfs(
 }
 
 function buildResult(
+  ctx: SearchContext,
+  nodes: NiceLoopNode[],
+  edges: NiceLoopEdge[],
+  cycleType: NiceLoopType,
+): NiceLoopResult | null {
+  if (cycleType === 'continuous') {
+    return buildContinuousResult(ctx, nodes, edges);
+  }
+  if (cycleType === 'discontinuous-strong') {
+    return buildDiscontinuousStrongResult(ctx, nodes, edges);
+  }
+  return buildDiscontinuousWeakResult(ctx, nodes, edges);
+}
+
+function buildContinuousResult(
   ctx: SearchContext,
   nodes: NiceLoopNode[],
   edges: NiceLoopEdge[],
@@ -391,8 +436,61 @@ function buildResult(
   };
 }
 
+function buildDiscontinuousStrongResult(
+  ctx: SearchContext,
+  nodes: NiceLoopNode[],
+  edges: NiceLoopEdge[],
+): NiceLoopResult | null {
+  // Two strong links meet at the start node. Assuming the start node is false
+  // forces both adjacent strong-link partners to be true, and the alternation
+  // closes the chain to a contradiction — so the start node is true. The
+  // (cell, digit) at nodes[0] is placed.
+  const start = nodes[0];
+  const cand = ctx.grid[start.pos.row][start.pos.col];
+  if (cand == null || !cand.has(start.digit)) return null;
+
+  const cellList = nodes.map(formatNode).join(' → ');
+  const explanation = `Nice Loop: discontinuous cycle ${cellList} (length ${nodes.length}); two strong links meet at ${formatNode(start)}, placing ${start.digit} at ${formatCell(start.pos)}`;
+
+  return {
+    technique: 'nice-loop',
+    cycleType: 'discontinuous-strong',
+    nodes,
+    edges,
+    placement: { pos: start.pos, digit: start.digit },
+    eliminations: [],
+    explanation,
+  };
+}
+
+function buildDiscontinuousWeakResult(
+  ctx: SearchContext,
+  nodes: NiceLoopNode[],
+  edges: NiceLoopEdge[],
+): NiceLoopResult | null {
+  // Two weak links meet at the start node. Assuming the start node is true
+  // forces both adjacent weak-link partners to be false, and the alternation
+  // around the chain closes with a contradiction — so the start node must be
+  // false. The digit is eliminated from the start cell.
+  const start = nodes[0];
+  const cand = ctx.grid[start.pos.row][start.pos.col];
+  if (cand == null || !cand.has(start.digit)) return null;
+
+  const cellList = nodes.map(formatNode).join(' → ');
+  const explanation = `Nice Loop: discontinuous cycle ${cellList} (length ${nodes.length}); two weak links meet at ${formatNode(start)}, eliminating ${start.digit} from ${formatCell(start.pos)}`;
+
+  return {
+    technique: 'nice-loop',
+    cycleType: 'discontinuous-weak',
+    nodes,
+    edges,
+    eliminations: [{ cell: start.pos, digits: [start.digit] }],
+    explanation,
+  };
+}
+
 /**
- * Nice Loop — continuous case.
+ * Nice Loop — continuous and discontinuous cases.
  *
  * Generalises X-Cycle to multi-digit chains. Each node is a (cell, digit)
  * candidate; edges come in two flavours:
@@ -403,25 +501,27 @@ function buildResult(
  *  - **intra-cell**: two different digits in the same cell. Strong when the
  *    cell has only those two as candidates (bivalue); weak otherwise.
  *
- * A nice loop is a closed cycle whose edges alternate strong/weak. In a
- * **continuous** loop the alternation wraps cleanly (even length), letting
- * each weak link tighten from "at most one true" to "exactly one true." Two
- * complementary scenarios satisfy every edge of the loop; in both, every node
- * carries a forced truth value, which lets the loop eliminate candidates
- * from cells outside its scope.
+ * A nice loop is a closed cycle whose edges alternate strong/weak. There are
+ * three useful classes:
  *
- * Continuous-loop eliminations:
- *  - **Weak inter-cell link** with digit d, cells A and B: any cell outside
- *    the loop's digit-d footprint that sees both A and B can have d removed.
- *  - **Weak intra-cell link** in cell C: every candidate of C not visited by
- *    the loop at C can be removed.
+ *  - **Continuous**: even-length cycle whose endpoint edges have opposite
+ *    types (strong-..-weak or weak-..-strong). The alternation wraps cleanly,
+ *    letting each weak link tighten from "at most one true" to "exactly one
+ *    true." Each weak edge contributes eliminations:
+ *    - inter-cell weak link with digit d, cells A and B: any cell outside the
+ *      loop's digit-d footprint that sees both A and B can have d removed.
+ *    - intra-cell weak link in cell C: every candidate of C not visited by
+ *      the loop at C can be removed.
+ *  - **Discontinuous-strong**: odd-length cycle starting and ending with a
+ *    strong edge at the same node. That (cell, digit) is forced true — a
+ *    placement.
+ *  - **Discontinuous-weak**: odd-length cycle starting and ending with a weak
+ *    edge at the same node. That (cell, digit) is forced false — the digit
+ *    is eliminated from the cell.
  *
  * The search iterates start nodes in row-major (then digit) order, tries each
  * with starting alternation seed strong then weak, and returns the first
- * cycle that yields at least one elimination.
- *
- * TASK-029 covers the continuous case; TASK-030 will extend the file with
- * discontinuous detection.
+ * cycle that yields at least one elimination or a placement.
  */
 export function findNiceLoop(board: Board): NiceLoopResult | null {
   const { variant } = board;

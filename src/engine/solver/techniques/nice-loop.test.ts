@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { findNiceLoop, type NiceLoopElimination } from './nice-loop';
-import { fixture } from './nice-loop.fixture';
+import { fixture, discontinuousFixture } from './nice-loop.fixture';
 import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant, miniVariant, sixVariant } from '../../variants';
 import type { Board, Digit, Position, Variant } from '../../types';
@@ -141,6 +141,90 @@ describe('findNiceLoop', () => {
       result!.nodes.map((n) => `${n.pos.row},${n.pos.col}`),
     );
     for (const cell of fixture.patternCells) {
+      expect(loopCells.has(`${cell.row},${cell.col}`)).toBe(true);
+    }
+  });
+
+  it('finds the discontinuous-weak nice loop from the fixture and yields the expected elimination', () => {
+    const board = parseBoardString(
+      discontinuousFixture.variant,
+      discontinuousFixture.board,
+    );
+    const result = findNiceLoop(board);
+
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('nice-loop');
+    expect(result!.cycleType).toBe('discontinuous-weak');
+
+    // The DFS, starting at (R1C1, 1) with a weak-edge seed, walks the
+    // five-node chain through the bivalue cells R2C2 and R3C3 and closes back
+    // to (R1C1, 1) on a weak box-1 link.
+    expect(result!.nodes).toEqual([
+      { pos: { row: 0, col: 0 }, digit: 1 },
+      { pos: { row: 1, col: 1 }, digit: 1 },
+      { pos: { row: 1, col: 1 }, digit: 2 },
+      { pos: { row: 2, col: 2 }, digit: 2 },
+      { pos: { row: 2, col: 2 }, digit: 1 },
+    ]);
+
+    expect(result!.edges).toHaveLength(5);
+    expect(result!.edges.map((e) => e.type)).toEqual([
+      'weak',
+      'strong',
+      'weak',
+      'strong',
+      'weak',
+    ]);
+    expect(result!.edges.map((e) => e.kind)).toEqual([
+      'inter-cell',
+      'intra-cell',
+      'inter-cell',
+      'intra-cell',
+      'inter-cell',
+    ]);
+    expect(result!.edges.map((e) => e.witness)).toEqual([
+      'box 1',
+      'cell R2C2',
+      'box 1',
+      'cell R3C3',
+      'box 1',
+    ]);
+
+    // Two weak links meet at the start node — digit 1 is eliminated from
+    // R1C1, and the result carries no placement.
+    expect(result!.placement).toBeUndefined();
+    expect(result!.eliminations).toHaveLength(1);
+    expect(result!.eliminations[0].cell).toEqual({ row: 0, col: 0 });
+    expect(result!.eliminations[0].digits).toEqual([1]);
+
+    expect(result!.explanation).toContain('Nice Loop');
+    expect(result!.explanation).toContain('discontinuous');
+    expect(result!.explanation).toContain('weak');
+  });
+
+  it('discontinuous nice loop fixture deduction matches the finder output', () => {
+    const board = parseBoardString(
+      discontinuousFixture.variant,
+      discontinuousFixture.board,
+    );
+    const result = findNiceLoop(board);
+
+    expect(result).not.toBeNull();
+    expect(discontinuousFixture.deduction.eliminations).toBeDefined();
+    for (const expected of discontinuousFixture.deduction.eliminations!) {
+      const got = findElim(result!.eliminations, expected.pos);
+      expect(
+        got,
+        `expected elimination at (${expected.pos.row}, ${expected.pos.col})`,
+      ).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
+
+    // patternCells should all appear among the loop's nodes.
+    const loopCells = new Set(
+      result!.nodes.map((n) => `${n.pos.row},${n.pos.col}`),
+    );
+    for (const cell of discontinuousFixture.patternCells) {
       expect(loopCells.has(`${cell.row},${cell.col}`)).toBe(true);
     }
   });
