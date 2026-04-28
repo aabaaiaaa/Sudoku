@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   generateForDifficulty,
   DEFAULT_MAX_ATTEMPTS,
   DEFAULT_TIMEOUT_MS,
+  type GenerationProgress,
 } from './generate-for-difficulty';
 import { classicVariant } from '../variants';
 import { DIFFICULTY_ORDER, type Difficulty } from './rate';
@@ -150,6 +151,84 @@ describe('generateForDifficulty — retry attempts budget', () => {
       }
     },
     60_000,
+  );
+});
+
+describe('generateForDifficulty — onProgress callback', () => {
+  // Requirements §6.3: the worker wrapper posts a `progress` message after
+  // each rejected attempt. `generateForDifficulty` exposes that hook via an
+  // optional `onProgress({ attempt, max })` callback fired only on rejection
+  // — never on the accepted attempt that yields a success result.
+
+  it(
+    'fires onProgress once per rejected attempt with monotonically increasing attempt counts',
+    () => {
+      // Force the failure path so every attempt is rejected: timeoutMs is
+      // generous, but maxRetries=3 with a target/seed that is unlikely to hit
+      // Expert in three tries makes rejection effectively guaranteed.
+      const calls: GenerationProgress[] = [];
+      const result = generateForDifficulty(classicVariant, 'Expert', {
+        seed: 999_999,
+        maxRetries: 3,
+        timeoutMs: 60_000,
+        onProgress: (p) => calls.push(p),
+      });
+
+      if (result.kind === 'failed') {
+        // One progress event per rejected attempt — equal to result.attempts.
+        expect(calls.length).toBe(result.attempts);
+        // attempt is 1-based and strictly increasing.
+        for (let i = 0; i < calls.length; i++) {
+          expect(calls[i]!.attempt).toBe(i + 1);
+          expect(calls[i]!.max).toBe(3);
+        }
+      } else {
+        // If we got lucky and matched, onProgress fires only for the rejected
+        // attempts that came before the accepted one — i.e. one fewer than
+        // the total number of attempts the loop ran. Asserting that the
+        // accepted attempt did not emit progress is the key invariant.
+        expect(calls.length).toBeLessThan(3);
+        for (let i = 0; i < calls.length; i++) {
+          expect(calls[i]!.attempt).toBe(i + 1);
+          expect(calls[i]!.max).toBe(3);
+        }
+      }
+    },
+    60_000,
+  );
+
+  it(
+    'does not call onProgress when the timeout fires before any attempt completes',
+    () => {
+      // timeoutMs=0 short-circuits the loop before any work happens, so no
+      // rejected attempts exist and onProgress must never be called.
+      const onProgress = vi.fn();
+      const result = generateForDifficulty(classicVariant, 'Expert', {
+        seed: 1,
+        maxRetries: 100,
+        timeoutMs: 0,
+        onProgress,
+      });
+
+      expect(result.kind).toBe('failed');
+      if (result.kind === 'failed') {
+        expect(result.attempts).toBe(0);
+      }
+      expect(onProgress).not.toHaveBeenCalled();
+    },
+    10_000,
+  );
+
+  it(
+    'is optional — generation works the same when onProgress is omitted',
+    () => {
+      const result = generateForDifficulty(classicVariant, 'Easy', {
+        seed: 1,
+        maxRetries: 80,
+      });
+      expect(result.kind).toBe('success');
+    },
+    120_000,
   );
 });
 

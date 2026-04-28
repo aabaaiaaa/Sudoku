@@ -13,6 +13,17 @@ export const DEFAULT_MAX_ATTEMPTS = 50;
 /** Default wall-clock timeout per call in ms (requirements §6.2). */
 export const DEFAULT_TIMEOUT_MS = 60_000;
 
+/**
+ * Progress event payload emitted after each *rejected* attempt (requirements
+ * §6.3). `attempt` is the 1-based count of attempts completed (including the
+ * just-rejected one). `max` is the configured `maxRetries` cap, so consumers
+ * can render a determinate progress indicator if they wish.
+ */
+export interface GenerationProgress {
+  attempt: number;
+  max: number;
+}
+
 export interface GenerateForDifficultyOptions {
   /** Optional random seed (32-bit int). Used as a base; retries derive seeds from it. */
   seed?: number;
@@ -29,6 +40,17 @@ export interface GenerateForDifficultyOptions {
    * returns a structured failure.
    */
   timeoutMs?: number;
+  /**
+   * Optional callback fired after each *rejected* attempt — i.e. an attempt
+   * whose rating did not match the target tier. It is **not** called on the
+   * accepted attempt that produces a success result. The Web Worker wrapper
+   * (requirements §6.3) uses this to post `{ type: 'progress' }` messages.
+   *
+   * Exceptions thrown from the callback propagate out of
+   * {@link generateForDifficulty} — handle errors inside the callback if you
+   * want generation to continue regardless.
+   */
+  onProgress?: (progress: GenerationProgress) => void;
 }
 
 export interface DifficultyGeneratedPuzzle extends GeneratedPuzzle {
@@ -138,6 +160,8 @@ export function generateForDifficulty(
       bestDistance = distance;
       closestRating = rating;
     }
+
+    options.onProgress?.({ attempt: attempts, max: maxRetries });
   }
 
   return {

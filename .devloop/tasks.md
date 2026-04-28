@@ -275,7 +275,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "timeout|attempts"`
 
 ### TASK-040: Progress callback support
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-039
 - **Description**: Extend `generateForDifficulty` (or a new `generateForDifficultyWithProgress`) to accept an optional `onProgress({ attempt, max })` callback called after each rejected attempt. Used by the worker wrapper for progress events.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "progress"`

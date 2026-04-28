@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 45,
+  "lastIteration": 46,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-039",
-    "taskTitle": "Retry cap and hard timeout",
-    "iterationNumber": 46,
-    "startedAt": "2026-04-28T21:33:07.456Z"
+    "taskId": "TASK-040",
+    "taskTitle": "Progress callback support",
+    "iterationNumber": 47,
+    "startedAt": "2026-04-28T21:37:37.866Z"
   }
 }
