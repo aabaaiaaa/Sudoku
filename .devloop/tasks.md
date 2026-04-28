@@ -431,7 +431,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx playwright test tests/e2e/hint-learn-more.spec.ts`
 
 ### TASK-062: E2E — Difficulty picker hides infeasible tiers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-048
 - **Description**: Add `tests/e2e/variant-tier-caps.spec.ts`. Switch variant on Home and assert the visible difficulty buttons match the variant cap (Mini: 3, Six: 6, Classic: 8). No "Master+" button visible on Mini.
 - **Verification**: `npx playwright test tests/e2e/variant-tier-caps.spec.ts`
