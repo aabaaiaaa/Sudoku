@@ -18,6 +18,10 @@ describe('generateForDifficulty — classic 9x9', () => {
     Medium: 2,
     Hard: 3,
     Expert: 4,
+    Master: 5,
+    Diabolical: 6,
+    Demonic: 7,
+    Nightmare: 8,
   };
 
   for (const tier of DIFFICULTY_ORDER) {

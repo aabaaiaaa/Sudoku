@@ -23,22 +23,7 @@ interface HintProps {
 
 /** Human-readable label for each technique id. */
 function techniqueLabel(result: TechniqueResult): string {
-  switch (result.technique) {
-    case 'naked-single':
-      return 'Naked Single';
-    case 'hidden-single':
-      return 'Hidden Single';
-    case 'naked-pair':
-      return 'Naked Pair';
-    case 'naked-triple':
-      return 'Naked Triple';
-    case 'pointing':
-      return 'Pointing';
-    case 'box-line-reduction':
-      return 'Box/Line Reduction';
-    case 'x-wing':
-      return 'X-Wing';
-  }
+  return TECHNIQUE_CATALOG[result.technique].displayName;
 }
 
 /** Extracts the set of cells the hint refers to, for highlighting. */
@@ -46,15 +31,74 @@ function cellsFromResult(result: TechniqueResult): Position[] {
   switch (result.technique) {
     case 'naked-single':
     case 'hidden-single':
+    case 'bug-plus-one':
       return [result.cell];
     case 'naked-pair':
     case 'naked-triple':
+    case 'naked-quad':
+    case 'hidden-pair':
+    case 'hidden-triple':
+    case 'hidden-quad':
+    case 'x-wing':
+    case 'swordfish':
+    case 'jellyfish':
+    case 'x-cycle':
       return result.cells;
     case 'pointing':
     case 'box-line-reduction':
       return result.intersectionCells;
-    case 'x-wing':
-      return result.cells;
+    case 'xy-wing':
+    case 'xyz-wing':
+      return [result.pivot, ...result.pincers];
+    case 'w-wing':
+      return [...result.bivalues, ...result.strongLink];
+    case 'simple-coloring':
+      return [...result.colorA, ...result.colorB];
+    case 'empty-rectangle':
+      return [
+        ...result.boxCells,
+        result.strongLink.from,
+        result.strongLink.to,
+      ];
+    case 'skyscraper':
+      return [...result.roof, ...result.baseCells];
+    case 'two-string-kite':
+      return [
+        result.rowBoxCell,
+        result.colBoxCell,
+        result.rowTail,
+        result.colTail,
+      ];
+    case 'unique-rectangle':
+    case 'hidden-rectangle':
+    case 'avoidable-rectangle':
+      return [...result.corners];
+    case 'xy-chain':
+      return result.chain.map((link) => link.pos);
+    case 'multi-coloring':
+      return [
+        ...result.cluster1A,
+        ...result.cluster1B,
+        ...result.cluster2A,
+        ...result.cluster2B,
+      ];
+    case 'als-xz':
+      return [...result.alsA.cells, ...result.alsB.cells];
+    case 'wxyz-wing':
+      return [result.hinge, ...result.pincers];
+    case 'nice-loop':
+      return result.nodes.map((n) => n.pos);
+    case 'grouped-x-cycle':
+      return result.nodes.flatMap((n) => n.cells);
+    case '3d-medusa':
+      return [
+        ...result.colorA.map((n) => n.cell),
+        ...result.colorB.map((n) => n.cell),
+      ];
+    case 'death-blossom':
+      return [result.stem, ...result.petals.flatMap((p) => p.als.cells)];
+    case 'forcing-chains':
+      return [result.source];
   }
 }
 

@@ -441,7 +441,7 @@ TASK-035 and TASK-036.
 ## Phase 11: Final verification
 
 ### TASK-063: Full unit-test sweep
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-058
 - **Description**: Run the full Vitest suite to confirm no regressions across foundation, techniques, generator, store, and components. Fix any issues surfaced.
 - **Verification**: `npx vitest run`
