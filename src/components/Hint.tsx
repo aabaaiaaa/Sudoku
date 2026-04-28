@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import { nextStep, type TechniqueResult } from '../engine/solver/techniques';
+import { TECHNIQUE_CATALOG } from '../engine/solver/techniques/catalog';
 import type { Board, Position } from '../engine/types';
 
 interface HintProps {
@@ -101,6 +102,14 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
           <div data-testid="hint-explanation" className="opacity-80">
             {state.result.explanation}
           </div>
+          <a
+            data-testid="hint-learn-more"
+            href={`#/learn/${state.result.technique}`}
+            className="mt-2 inline-block underline opacity-80"
+          >
+            Learn more about{' '}
+            {TECHNIQUE_CATALOG[state.result.technique].displayName} →
+          </a>
         </div>
       )}
       {state.kind === 'miss' && (

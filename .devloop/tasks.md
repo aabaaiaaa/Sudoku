@@ -403,7 +403,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/App.test.tsx -t "Learn"`
 
 ### TASK-058: Hint "Learn more" link
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-056, TASK-057
 - **Description**: Update `src/components/Hint.tsx` so when a hint is shown, a "Learn more about [technique name] →" link appears below the explanation. Clicking navigates to the matching technique's detail page (using the route from TASK-057). Update `Hint.test.tsx` to assert the link is present and navigates to the right route.
 - **Verification**: `npx vitest run src/components/Hint.test.tsx -t "learn more"`

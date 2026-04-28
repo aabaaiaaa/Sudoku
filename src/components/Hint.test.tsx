@@ -82,4 +82,35 @@ describe('Hint', () => {
     // Technique sub-elements should not be present in the miss panel.
     expect(queryByTestId('hint-technique')).toBeNull();
   });
+
+  it('renders a learn more link pointing to the matching technique detail route', () => {
+    const board = makeNakedSingleBoard();
+    const store = createGameStore('classic');
+
+    const { getByTestId } = render(<Hint store={store} board={board} />);
+
+    fireEvent.click(getByTestId('hint-button'));
+
+    const link = getByTestId('hint-learn-more') as HTMLAnchorElement;
+    expect(link).toBeTruthy();
+    expect(link.tagName).toBe('A');
+    expect(link.textContent).toBe('Learn more about Naked Single →');
+    // href reflects the hash route the App router parses for technique detail.
+    expect(link.getAttribute('href')).toBe('#/learn/naked-single');
+  });
+
+  it('does not render the learn more link when no hint is available', () => {
+    const board = createEmptyBoard(classicVariant);
+    const store = createGameStore('classic');
+
+    const { getByTestId, queryByTestId } = render(
+      <Hint store={store} board={board} />,
+    );
+
+    fireEvent.click(getByTestId('hint-button'));
+
+    expect(queryByTestId('hint-learn-more')).toBeNull();
+    // Sanity check: the miss panel is what's actually rendered.
+    expect(getByTestId('hint-panel').textContent).toMatch(/no available hint/i);
+  });
 });
