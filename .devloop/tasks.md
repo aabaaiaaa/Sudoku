@@ -225,7 +225,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts`
 
 ### TASK-033: Death Blossom
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-025
 - **Description**: Add `death-blossom.ts`: a "stem" cell with N candidates, each linked to an ALS where placing that candidate would force a digit Z out of the ALS. Z is eliminated from cells seeing all Z-candidates across the petal ALSes. Reuses ALS detector from TASK-025. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/death-blossom.test.ts`
