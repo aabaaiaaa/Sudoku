@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 52,
+  "lastIteration": 53,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-046",
-    "taskTitle": "Cancel button + 10s threshold",
-    "iterationNumber": 53,
-    "startedAt": "2026-04-28T22:07:31.820Z"
+    "taskId": "TASK-047",
+    "taskTitle": "Generation-failure fallback dialog",
+    "iterationNumber": 54,
+    "startedAt": "2026-04-28T22:11:07.069Z"
   }
 }

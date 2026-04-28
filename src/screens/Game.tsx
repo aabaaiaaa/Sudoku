@@ -8,6 +8,7 @@ import { Hint } from '../components/Hint';
 import { KeyboardHandler } from '../components/KeyboardHandler';
 import { WinModal } from '../components/WinModal';
 import { LoadingOverlay } from '../components/LoadingOverlay';
+import { GenerationFailedDialog } from '../components/GenerationFailedDialog';
 import { useDebouncedFlag } from '../hooks/useDebouncedFlag';
 
 interface GameProps {
@@ -115,6 +116,8 @@ export function Game({ store = gameStore, onBack }: GameProps) {
         visible={showLoadingOverlay}
         onCancel={handleCancelGeneration}
       />
+
+      <GenerationFailedDialog store={store} onCancel={() => onBack?.()} />
     </div>
   );
 }

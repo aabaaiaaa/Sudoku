@@ -325,7 +325,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx -t "cancel|10s"`
 
 ### TASK-047: Generation-failure fallback dialog
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-043
 - **Description**: Create `src/components/GenerationFailedDialog.tsx` that renders when game store's `generationFailure` is set. Heading mentions the target tier (e.g. "Couldn't find a Demonic puzzle in time."), body text explains briefly, three actions: Try again (re-runs same target), Try [next-easier-tier] (only if one exists), Cancel (returns to Home). Wire into `Game.tsx`.
 - **Verification**: `npx vitest run src/components/GenerationFailedDialog.test.tsx`
