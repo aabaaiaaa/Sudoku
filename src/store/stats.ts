@@ -1,5 +1,10 @@
 import { createStore } from 'zustand/vanilla';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { variants } from '../engine/variants';
+import { availableTiers } from '../engine/generator/variant-tiers';
+
+export const STATS_STORAGE_KEY = 'sudoku.stats.v2';
+export const STATS_SCHEMA_VERSION = 2;
 
 export interface StatsEntry {
   gamesCompleted: number;
@@ -13,6 +18,7 @@ export interface StatsEntry {
 
 export interface StatsState {
   entries: Record<string, StatsEntry>;
+  appVersion: string;
 }
 
 export interface StatsActions {
@@ -44,6 +50,21 @@ function emptyEntry(): StatsEntry {
   };
 }
 
+// Pre-populates an entry per (variant, tier) pair the UI exposes, keyed in the
+// same lowercase form the Stats screen renders. Ensures the persisted shape
+// includes the new tier names ('master', 'diabolical', 'demonic', 'nightmare')
+// from the moment the store is created, so consumers can rely on a stable
+// entry-keyed shape regardless of whether the user has played that tier yet.
+export function initialStatsEntries(): Record<string, StatsEntry> {
+  const result: Record<string, StatsEntry> = {};
+  for (const variant of Object.values(variants)) {
+    for (const tier of availableTiers(variant)) {
+      result[entryKey(variant.id, tier.toLowerCase())] = emptyEntry();
+    }
+  }
+  return result;
+}
+
 function formatLocalDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -68,7 +89,8 @@ export function createStatsStore() {
   return createStore<StatsStore>()(
     persist(
       (set) => ({
-        entries: {},
+        entries: initialStatsEntries(),
+        appVersion: __APP_VERSION__,
 
         recordCompletion: ({ variant, difficulty, timeMs, mistakes, now = new Date() }) => {
           set((state) => {
@@ -103,17 +125,29 @@ export function createStatsStore() {
               totalMistakes: prev.totalMistakes + mistakes,
             };
 
-            return { entries: { ...state.entries, [key]: next } };
+            return {
+              entries: { ...state.entries, [key]: next },
+              appVersion: __APP_VERSION__,
+            };
           });
         },
 
         resetStats: () => {
-          set({ entries: {} });
+          set({ entries: initialStatsEntries(), appVersion: __APP_VERSION__ });
         },
       }),
       {
-        name: 'sudoku.stats.v1',
+        name: STATS_STORAGE_KEY,
         storage: storage(),
+        version: STATS_SCHEMA_VERSION,
+        merge: (persisted, current) => {
+          const p = (persisted ?? {}) as Partial<StatsState>;
+          return {
+            ...current,
+            ...p,
+            entries: { ...current.entries, ...(p.entries ?? {}) },
+          };
+        },
       },
     ),
   );

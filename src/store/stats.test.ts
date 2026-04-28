@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createStatsStore, entryKey } from './stats';
+import {
+  STATS_SCHEMA_VERSION,
+  STATS_STORAGE_KEY,
+  createStatsStore,
+  entryKey,
+  initialStatsEntries,
+} from './stats';
 
 describe('stats store', () => {
   beforeEach(() => {
@@ -128,7 +134,7 @@ describe('stats store', () => {
     expect(hard.bestTimeMs).toBe(9000);
   });
 
-  it('resetStats() clears all entries', () => {
+  it('resetStats() clears all populated entries back to the initialised shape', () => {
     const store = createStatsStore();
 
     store.getState().recordCompletion({
@@ -138,9 +144,148 @@ describe('stats store', () => {
       mistakes: 0,
       now: new Date('2026-04-15'),
     });
-    expect(Object.keys(store.getState().entries).length).toBe(1);
+    expect(store.getState().entries[entryKey('classic', 'easy')].gamesCompleted).toBe(1);
 
     store.getState().resetStats();
-    expect(store.getState().entries).toEqual({});
+
+    // Every key still exists, but each entry is back to an empty record.
+    expect(store.getState().entries).toEqual(initialStatsEntries());
+    expect(store.getState().entries[entryKey('classic', 'easy')].gamesCompleted).toBe(0);
+    expect(store.getState().entries[entryKey('classic', 'easy')].bestTimeMs).toBeNull();
+  });
+
+  it('initialises entry keys for every (variant, tier) combination the UI exposes', () => {
+    const store = createStatsStore();
+    const entries = store.getState().entries;
+
+    // Classic exposes all 8 tiers.
+    for (const slug of [
+      'easy',
+      'medium',
+      'hard',
+      'expert',
+      'master',
+      'diabolical',
+      'demonic',
+      'nightmare',
+    ]) {
+      expect(entries[entryKey('classic', slug)]).toBeDefined();
+      expect(entries[entryKey('classic', slug)].gamesCompleted).toBe(0);
+    }
+
+    // Six caps at Diabolical.
+    for (const slug of ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical']) {
+      expect(entries[entryKey('six', slug)]).toBeDefined();
+    }
+    expect(entries[entryKey('six', 'demonic')]).toBeUndefined();
+    expect(entries[entryKey('six', 'nightmare')]).toBeUndefined();
+
+    // Mini caps at Hard.
+    for (const slug of ['easy', 'medium', 'hard']) {
+      expect(entries[entryKey('mini', slug)]).toBeDefined();
+    }
+    expect(entries[entryKey('mini', 'expert')]).toBeUndefined();
+  });
+
+  it('records completions for the new tier names without losing prior keys', () => {
+    const store = createStatsStore();
+
+    store.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'nightmare',
+      timeMs: 600_000,
+      mistakes: 0,
+      now: new Date('2026-04-20'),
+    });
+
+    const entries = store.getState().entries;
+    expect(entries[entryKey('classic', 'nightmare')].gamesCompleted).toBe(1);
+    expect(entries[entryKey('classic', 'nightmare')].bestTimeMs).toBe(600_000);
+
+    // Other pre-initialised keys are unaffected.
+    expect(entries[entryKey('classic', 'easy')].gamesCompleted).toBe(0);
+    expect(entries[entryKey('mini', 'hard')].gamesCompleted).toBe(0);
+  });
+
+  it('uses the v2 storage key and bumped schema version', () => {
+    expect(STATS_STORAGE_KEY).toBe('sudoku.stats.v2');
+    expect(STATS_SCHEMA_VERSION).toBe(2);
+  });
+
+  it('silently ignores legacy v1 entries on load', () => {
+    window.localStorage.setItem(
+      'sudoku.stats.v1',
+      JSON.stringify({
+        state: {
+          entries: {
+            'classic:easy': {
+              gamesCompleted: 99,
+              bestTimeMs: 1234,
+              currentStreak: 9,
+              longestStreak: 9,
+              lastPlayedDate: '2025-01-01',
+              totalTimeMs: 99_000,
+              totalMistakes: 9,
+            },
+          },
+        },
+        version: 0,
+      }),
+    );
+
+    const store = createStatsStore();
+    const easy = store.getState().entries[entryKey('classic', 'easy')];
+
+    // The v1 payload is sitting under the old key, but the v2 store starts fresh.
+    expect(easy.gamesCompleted).toBe(0);
+    expect(easy.bestTimeMs).toBeNull();
+  });
+
+  it('stamps writes with the current appVersion under the v2 key', () => {
+    const store = createStatsStore();
+    store.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'easy',
+      timeMs: 1000,
+      mistakes: 0,
+      now: new Date('2026-04-15'),
+    });
+
+    const raw = window.localStorage.getItem(STATS_STORAGE_KEY);
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.version).toBe(STATS_SCHEMA_VERSION);
+    expect(typeof parsed.state.appVersion).toBe('string');
+    expect(parsed.state.appVersion.length).toBeGreaterThan(0);
+    expect(parsed.state.appVersion).toBe(__APP_VERSION__);
+
+    expect(store.getState().appVersion).toBe(__APP_VERSION__);
+  });
+
+  it('refreshes the appVersion stamp on resetStats', () => {
+    const store = createStatsStore();
+    store.getState().resetStats();
+
+    const raw = window.localStorage.getItem(STATS_STORAGE_KEY);
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.state.appVersion).toBe(__APP_VERSION__);
+  });
+
+  it('preserves persisted entries across store re-creation', () => {
+    const first = createStatsStore();
+    first.getState().recordCompletion({
+      variant: 'classic',
+      difficulty: 'master',
+      timeMs: 4242,
+      mistakes: 1,
+      now: new Date('2026-04-20'),
+    });
+
+    const second = createStatsStore();
+    expect(second.getState().entries[entryKey('classic', 'master')].gamesCompleted).toBe(1);
+    expect(second.getState().entries[entryKey('classic', 'master')].bestTimeMs).toBe(4242);
+    // Pre-initialised keys for tiers that were never played still exist.
+    expect(second.getState().entries[entryKey('classic', 'nightmare')].gamesCompleted).toBe(0);
   });
 });

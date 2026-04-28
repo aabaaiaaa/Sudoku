@@ -363,7 +363,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/store/save.test.ts`
 
 ### TASK-052: Bump stats schema to v2 with appVersion stamp
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004
 - **Description**: Same treatment for `src/store/stats.ts` — `sudoku.stats.v1` → `sudoku.stats.v2`, add `appVersion` stamp. Initialise tier-keyed records to include the new tier names so the Stats screen has stable shape. Update `stats.test.ts`.
 - **Verification**: `npx vitest run src/store/stats.test.ts`

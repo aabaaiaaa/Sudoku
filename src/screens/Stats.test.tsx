@@ -112,7 +112,8 @@ describe('Stats screen', () => {
     fireEvent.click(getByTestId('stats-reset'));
     fireEvent.click(getByTestId('stats-reset-confirm'));
 
-    expect(store.getState().entries).toEqual({});
+    expect(store.getState().entries[entryKey('classic', 'easy')].gamesCompleted).toBe(0);
+    expect(store.getState().entries[entryKey('classic', 'easy')].bestTimeMs).toBeNull();
 
     const dash = '\u2014';
     expect(getByTestId('stats-cell-classic-easy-games').textContent).toBe(dash);
