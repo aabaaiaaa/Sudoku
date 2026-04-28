@@ -3,17 +3,47 @@ import { Home } from './screens/Home';
 import { Game } from './screens/Game';
 import { Stats } from './screens/Stats';
 import { Settings } from './screens/Settings';
+import { Techniques } from './screens/Techniques';
+import { TechniqueDetail } from './screens/TechniqueDetail';
+import { TECHNIQUE_ORDER } from './engine/solver/techniques/catalog';
+import type { TechniqueId } from './engine/solver/techniques';
 import { usePwaUpdate } from './pwa/useUpdate';
 
-type Screen = 'home' | 'game' | 'stats' | 'settings';
+type Screen = 'home' | 'game' | 'stats' | 'settings' | 'learn' | 'learn-detail';
 
-const VALID_SCREENS: readonly Screen[] = ['home', 'game', 'stats', 'settings'];
+type Route =
+  | { screen: 'home' | 'game' | 'stats' | 'settings' | 'learn' }
+  | { screen: 'learn-detail'; techniqueId: TechniqueId };
 
-function parseHash(hash: string): Screen {
-  const stripped = hash.replace(/^#\/?/, '').toLowerCase();
-  return (VALID_SCREENS as readonly string[]).includes(stripped)
-    ? (stripped as Screen)
-    : 'home';
+const TOP_LEVEL_SCREENS: readonly Exclude<Screen, 'learn-detail'>[] = [
+  'home',
+  'game',
+  'stats',
+  'settings',
+  'learn',
+];
+
+function isTechniqueId(value: string): value is TechniqueId {
+  return (TECHNIQUE_ORDER as readonly string[]).includes(value);
+}
+
+function parseHash(hash: string): Route {
+  const stripped = hash.replace(/^#\/?/, '');
+  const [head, ...rest] = stripped.split('/');
+  const headLower = head.toLowerCase();
+
+  if (headLower === 'learn' && rest.length > 0 && rest[0] !== '') {
+    const id = rest.join('/');
+    if (isTechniqueId(id)) {
+      return { screen: 'learn-detail', techniqueId: id };
+    }
+    return { screen: 'learn' };
+  }
+
+  if ((TOP_LEVEL_SCREENS as readonly string[]).includes(headLower)) {
+    return { screen: headLower as Exclude<Screen, 'learn-detail'> };
+  }
+  return { screen: 'home' };
 }
 
 function subscribeHash(cb: () => void): () => void {
@@ -31,7 +61,8 @@ function getServerHashSnapshot(): string {
 
 export default function App() {
   const hash = useSyncExternalStore(subscribeHash, getHashSnapshot, getServerHashSnapshot);
-  const screen = parseHash(hash);
+  const route = parseHash(hash);
+  const screen = route.screen;
 
   const navigate = useCallback((target: Screen) => {
     const next = `#/${target}`;
@@ -39,8 +70,14 @@ export default function App() {
     window.location.hash = next;
   }, []);
 
+  const navigateToTechnique = useCallback((id: TechniqueId) => {
+    const next = `#/learn/${id}`;
+    if (window.location.hash === next) return;
+    window.location.hash = next;
+  }, []);
+
   let content;
-  switch (screen) {
+  switch (route.screen) {
     case 'game':
       content = <Game onBack={() => navigate('home')} />;
       break;
@@ -49,6 +86,17 @@ export default function App() {
       break;
     case 'settings':
       content = <Settings />;
+      break;
+    case 'learn':
+      content = <Techniques onSelect={navigateToTechnique} />;
+      break;
+    case 'learn-detail':
+      content = (
+        <TechniqueDetail
+          id={route.techniqueId}
+          onBack={() => navigate('learn')}
+        />
+      );
       break;
     case 'home':
     default:
@@ -112,6 +160,17 @@ export default function App() {
             aria-current={screen === 'stats' ? 'page' : undefined}
           >
             Stats
+          </button>
+          <button
+            type="button"
+            data-testid="tab-learn"
+            onClick={() => navigate('learn')}
+            className="tab-button flex-1 py-3"
+            aria-current={
+              screen === 'learn' || screen === 'learn-detail' ? 'page' : undefined
+            }
+          >
+            Learn
           </button>
           <button
             type="button"

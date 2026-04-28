@@ -397,7 +397,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/catalog.test.ts`
 
 ### TASK-057: Bottom tab bar Learn entry
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-054
 - **Description**: Add a "Learn" entry to the bottom tab bar / navigation alongside Home, Stats, Settings. Wires routing to `Techniques.tsx`. Update navigation tests if any.
 - **Verification**: `npx vitest run src/App.test.tsx -t "Learn"`

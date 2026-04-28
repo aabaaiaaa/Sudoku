@@ -59,4 +59,56 @@ describe('App navigation', () => {
     setHash('#/game');
     expect(screen.queryByTestId('tab-bar')).toBeNull();
   });
+
+  it('navigates to Learn when hash changes to #/learn', () => {
+    render(<App />);
+
+    setHash('#/learn');
+    expect(screen.getByTestId('techniques-screen')).toBeTruthy();
+  });
+
+  it('navigates to a technique detail page via #/learn/<id>', () => {
+    render(<App />);
+
+    setHash('#/learn/x-wing');
+    expect(screen.getByTestId('technique-detail')).toBeTruthy();
+    expect(
+      screen.getByTestId('technique-detail').getAttribute('data-technique-id'),
+    ).toBe('x-wing');
+  });
+
+  it('falls back to the Learn index when the technique id is unknown', () => {
+    render(<App />);
+
+    setHash('#/learn/not-a-real-technique');
+    expect(screen.getByTestId('techniques-screen')).toBeTruthy();
+    expect(screen.queryByTestId('technique-detail')).toBeNull();
+  });
+
+  it('shows a Learn tab in the bottom tab bar that navigates to #/learn', () => {
+    render(<App />);
+
+    const tab = screen.getByTestId('tab-learn');
+    expect(tab.textContent).toContain('Learn');
+
+    act(() => {
+      fireEvent.click(tab);
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(screen.getByTestId('techniques-screen')).toBeTruthy();
+  });
+
+  it('marks the Learn tab as current on both the index and detail pages', () => {
+    render(<App />);
+
+    setHash('#/learn');
+    expect(screen.getByTestId('tab-learn').getAttribute('aria-current')).toBe(
+      'page',
+    );
+
+    setHash('#/learn/x-wing');
+    expect(screen.getByTestId('tab-learn').getAttribute('aria-current')).toBe(
+      'page',
+    );
+  });
 });
