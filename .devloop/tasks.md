@@ -195,7 +195,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-rectangle.test.ts`
 
 ### TASK-028: Avoidable Rectangle
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Add `avoidable-rectangle.ts`: uniqueness pattern using already-placed digits. If two non-given placed digits and one bivalue cell complete a rectangle, the bivalue cell must take the digit that avoids creating the deadly pattern. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/avoidable-rectangle.test.ts`
