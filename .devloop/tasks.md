@@ -219,7 +219,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/grouped-x-cycle.test.ts`
 
 ### TASK-032: 3D Medusa
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-024
 - **Description**: Add `medusa-3d.ts`: extends coloring across multiple digits. Color bivalue cells and bivalue houses simultaneously; conflicts within a color invalidate it. Eliminate accordingly. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts`
