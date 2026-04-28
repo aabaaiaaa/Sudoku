@@ -307,7 +307,7 @@ TASK-035 and TASK-036.
 ## Phase 6: Loading UX
 
 ### TASK-044: Loading overlay component
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-043
 - **Description**: Create `src/components/LoadingOverlay.tsx` rendering a full-screen overlay with the same blurred-grid styling as the existing pause overlay (reuse those styles or extract a shared `BlurOverlay` component). Centers a CSS spinner. Accepts `visible: boolean` prop. No text.
 - **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx`
