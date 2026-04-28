@@ -247,7 +247,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts`
 
 ### TASK-036: Register new techniques in techniques/index.ts
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-035
 - **Description**: Update `src/engine/solver/techniques/index.ts` to import all new techniques and add them to the `nextStep` cascade in difficulty order. Update the exported technique-list array (used elsewhere) accordingly. Update `index.test.ts` to assert that nextStep applies them in correct order.
 - **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts`

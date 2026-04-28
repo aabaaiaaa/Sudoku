@@ -12,6 +12,45 @@ import {
   type IntersectionResult,
 } from './intersection';
 import { findXWing, type XWingResult } from './x-wing';
+import { findHiddenPair, type HiddenPairResult } from './hidden-pair';
+import { findHiddenTriple, type HiddenTripleResult } from './hidden-triple';
+import { findNakedQuad, type NakedQuadResult } from './naked-quad';
+import { findHiddenQuad, type HiddenQuadResult } from './hidden-quad';
+import { findSwordfish, type SwordfishResult } from './swordfish';
+import { findJellyfish, type JellyfishResult } from './jellyfish';
+import { findXyWing, type XYWingResult } from './xy-wing';
+import { findXyzWing, type XYZWingResult } from './xyz-wing';
+import { findWWing, type WWingResult } from './w-wing';
+import { findSimpleColoring, type SimpleColoringResult } from './simple-coloring';
+import { findXCycle, type XCycleResult } from './x-cycle';
+import { findEmptyRectangle, type EmptyRectangleResult } from './empty-rectangle';
+import { findSkyscraper, type SkyscraperResult } from './skyscraper';
+import { findTwoStringKite, type TwoStringKiteResult } from './two-string-kite';
+import {
+  findUniqueRectangle,
+  type UniqueRectangleResult,
+} from './unique-rectangle';
+import { findBugPlus1, type BugPlus1Result } from './bug';
+import { findXyChain, type XyChainResult } from './xy-chain';
+import { findMultiColoring, type MultiColoringResult } from './multi-coloring';
+import { findAlsXz, type AlsXzResult } from './als-xz';
+import { findWxyzWing, type WxyzWingResult } from './wxyz-wing';
+import {
+  findHiddenRectangle,
+  type HiddenRectangleResult,
+} from './hidden-rectangle';
+import {
+  findAvoidableRectangle,
+  type AvoidableRectangleResult,
+} from './avoidable-rectangle';
+import { findNiceLoop, type NiceLoopResult } from './nice-loop';
+import {
+  findGroupedXCycle,
+  type GroupedXCycleResult,
+} from './grouped-x-cycle';
+import { find3DMedusa, type Medusa3DResult } from './medusa-3d';
+import { findDeathBlossom, type DeathBlossomResult } from './death-blossom';
+import { findForcingChains, type ForcingChainsResult } from './forcing-chains';
 
 export type TechniqueId =
   | 'naked-single'
@@ -54,7 +93,34 @@ export type TechniqueResult =
   | HiddenSingleResult
   | NakedSubsetResult
   | IntersectionResult
-  | XWingResult;
+  | XWingResult
+  | HiddenPairResult
+  | HiddenTripleResult
+  | NakedQuadResult
+  | HiddenQuadResult
+  | SwordfishResult
+  | JellyfishResult
+  | XYWingResult
+  | XYZWingResult
+  | WWingResult
+  | SimpleColoringResult
+  | XCycleResult
+  | EmptyRectangleResult
+  | SkyscraperResult
+  | TwoStringKiteResult
+  | UniqueRectangleResult
+  | BugPlus1Result
+  | XyChainResult
+  | MultiColoringResult
+  | AlsXzResult
+  | WxyzWingResult
+  | HiddenRectangleResult
+  | AvoidableRectangleResult
+  | NiceLoopResult
+  | GroupedXCycleResult
+  | Medusa3DResult
+  | DeathBlossomResult
+  | ForcingChainsResult;
 
 export interface Technique {
   id: TechniqueId;
@@ -64,6 +130,9 @@ export interface Technique {
 /**
  * Techniques listed in increasing order of difficulty. `nextStep` walks this
  * list and returns the first technique that makes progress on the board.
+ *
+ * The order mirrors the cascade in `engine/generator/rate.ts` so the public
+ * Hint solver and the rater agree on which technique fires first.
  */
 export const techniques: readonly Technique[] = [
   { id: 'naked-single', find: findNakedSingle },
@@ -73,6 +142,33 @@ export const techniques: readonly Technique[] = [
   { id: 'pointing', find: findPointing },
   { id: 'box-line-reduction', find: findBoxLineReduction },
   { id: 'x-wing', find: findXWing },
+  { id: 'hidden-pair', find: findHiddenPair },
+  { id: 'hidden-triple', find: findHiddenTriple },
+  { id: 'naked-quad', find: findNakedQuad },
+  { id: 'hidden-quad', find: findHiddenQuad },
+  { id: 'swordfish', find: findSwordfish },
+  { id: 'jellyfish', find: findJellyfish },
+  { id: 'xy-wing', find: findXyWing },
+  { id: 'xyz-wing', find: findXyzWing },
+  { id: 'w-wing', find: findWWing },
+  { id: 'simple-coloring', find: findSimpleColoring },
+  { id: 'x-cycle', find: findXCycle },
+  { id: 'empty-rectangle', find: findEmptyRectangle },
+  { id: 'skyscraper', find: findSkyscraper },
+  { id: 'two-string-kite', find: findTwoStringKite },
+  { id: 'unique-rectangle', find: findUniqueRectangle },
+  { id: 'bug-plus-one', find: findBugPlus1 },
+  { id: 'xy-chain', find: findXyChain },
+  { id: 'multi-coloring', find: findMultiColoring },
+  { id: 'als-xz', find: findAlsXz },
+  { id: 'wxyz-wing', find: findWxyzWing },
+  { id: 'hidden-rectangle', find: findHiddenRectangle },
+  { id: 'avoidable-rectangle', find: findAvoidableRectangle },
+  { id: 'nice-loop', find: findNiceLoop },
+  { id: 'grouped-x-cycle', find: findGroupedXCycle },
+  { id: '3d-medusa', find: find3DMedusa },
+  { id: 'death-blossom', find: findDeathBlossom },
+  { id: 'forcing-chains', find: findForcingChains },
 ];
 
 /**
@@ -93,4 +189,31 @@ export type {
   NakedSubsetResult,
   IntersectionResult,
   XWingResult,
+  HiddenPairResult,
+  HiddenTripleResult,
+  NakedQuadResult,
+  HiddenQuadResult,
+  SwordfishResult,
+  JellyfishResult,
+  XYWingResult,
+  XYZWingResult,
+  WWingResult,
+  SimpleColoringResult,
+  XCycleResult,
+  EmptyRectangleResult,
+  SkyscraperResult,
+  TwoStringKiteResult,
+  UniqueRectangleResult,
+  BugPlus1Result,
+  XyChainResult,
+  MultiColoringResult,
+  AlsXzResult,
+  WxyzWingResult,
+  HiddenRectangleResult,
+  AvoidableRectangleResult,
+  NiceLoopResult,
+  GroupedXCycleResult,
+  Medusa3DResult,
+  DeathBlossomResult,
+  ForcingChainsResult,
 };

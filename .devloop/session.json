@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 41,
+  "lastIteration": 42,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-035",
-    "taskTitle": "Wire new techniques into rate.ts internal solver",
-    "iterationNumber": 42,
-    "startedAt": "2026-04-28T21:06:54.859Z"
+    "taskId": "TASK-036",
+    "taskTitle": "Register new techniques in techniques/index.ts",
+    "iterationNumber": 43,
+    "startedAt": "2026-04-28T21:15:51.519Z"
   }
 }
