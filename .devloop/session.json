@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 66,
+  "lastIteration": 67,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-060",
-    "taskTitle": "E2E — Learn tab walkthrough",
-    "iterationNumber": 67,
-    "startedAt": "2026-04-28T23:22:57.247Z"
+    "taskId": "TASK-061",
+    "taskTitle": "E2E — Hint Learn-more navigates correctly",
+    "iterationNumber": 68,
+    "startedAt": "2026-04-28T23:26:29.948Z"
   }
 }

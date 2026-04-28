@@ -425,7 +425,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx playwright test tests/e2e/techniques-help.spec.ts`
 
 ### TASK-061: E2E — Hint Learn-more navigates correctly
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-058
 - **Description**: Add `tests/e2e/hint-learn-more.spec.ts`. Start a Classic Easy game (fast generation), click the Hint button, click "Learn more about Naked Single →", assert the URL/screen reflects the Naked Single detail page.
 - **Verification**: `npx playwright test tests/e2e/hint-learn-more.spec.ts`
