@@ -189,7 +189,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/wxyz-wing.test.ts`
 
 ### TASK-027: Hidden Rectangle
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Add `hidden-rectangle.ts`: a uniqueness pattern where a rectangle of bivalue corners would create two solutions; one corner having extra candidates lets you eliminate one of the bivalue digits from that corner. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-rectangle.test.ts`
