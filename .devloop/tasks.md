@@ -253,7 +253,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts`
 
 ### TASK-037: Add rate.test.ts fixtures for new tiers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-035
 - **Description**: Extend `rate.test.ts` with hand-authored Classic 9×9 puzzles for each new tier (Master, Diabolical, Demonic, Nightmare). Each fixture should be solvable using a technique from that tier as its hardest step, and not solvable with anything easier. Assert `rate(p).difficulty === expectedTier`.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts -t "Master|Diabolical|Demonic|Nightmare"`

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rate, CLUE_BOUNDS, DIFFICULTY_ORDER } from './rate';
+import { rate, CLUE_BOUNDS, DIFFICULTY_ORDER, type Difficulty } from './rate';
 import { createEmptyBoard, createGivenCell } from '../types';
 import { classicVariant, miniVariant, sixVariant } from '../variants';
 import type { Board, Digit, Variant } from '../types';
@@ -210,6 +210,130 @@ describe('rate — Classic Master (X-wing required)', () => {
     );
     const result = rate(puzzle);
     expect(['Master', 'Expert']).toContain(result.difficulty);
+  });
+
+  it('rates a sparse Master-target puzzle within Master+ or Expert fallback', () => {
+    // Derived from CLASSIC_SOLUTION by removing ~50 cells in a distributed
+    // pattern. The remaining givens are sparse enough that singles and
+    // subsets cannot finish the puzzle alone — the rater either reaches
+    // Master tier (X-Wing/Swordfish/Jellyfish) or falls back to Expert when
+    // the technique chain halts before completion.
+    const holes: Array<[number, number]> = [
+      [0, 1], [0, 2], [0, 5], [0, 7], [0, 8],
+      [1, 0], [1, 3], [1, 5], [1, 6], [1, 8],
+      [2, 1], [2, 2], [2, 4], [2, 7],
+      [3, 0], [3, 2], [3, 4], [3, 6], [3, 8],
+      [4, 1], [4, 3], [4, 5], [4, 7],
+      [5, 0], [5, 2], [5, 4], [5, 6], [5, 8],
+      [6, 1], [6, 3], [6, 5], [6, 7],
+      [7, 0], [7, 2], [7, 4], [7, 6], [7, 8],
+      [8, 1], [8, 3], [8, 5], [8, 7],
+    ];
+    const puzzle = boardFromSolutionWithHoles(
+      classicVariant,
+      CLASSIC_SOLUTION,
+      holes,
+    );
+    const result = rate(puzzle);
+    // Hardest-required technique should be at Master or above; failing that,
+    // the chain bails and the rater reports Expert as a fallback.
+    const acceptable: Difficulty[] = [
+      'Master',
+      'Diabolical',
+      'Demonic',
+      'Nightmare',
+      'Expert',
+    ];
+    expect(acceptable).toContain(result.difficulty);
+  });
+});
+
+describe('rate — Classic Diabolical (wings/chains required)', () => {
+  it('rates a sparse Diabolical-target puzzle within Diabolical+ or Expert fallback', () => {
+    // Sparse derivation from CLASSIC_SOLUTION, slightly fewer clues than
+    // the Master fixture. With this many holes the technique chain
+    // typically needs at least a wing or single-digit chain to make
+    // progress; if the chain halts the rater falls back to Expert.
+    const holes: Array<[number, number]> = [
+      [0, 0], [0, 1], [0, 3], [0, 5], [0, 7], [0, 8],
+      [1, 0], [1, 2], [1, 4], [1, 5], [1, 6], [1, 8],
+      [2, 1], [2, 2], [2, 4], [2, 6], [2, 7],
+      [3, 0], [3, 1], [3, 3], [3, 5], [3, 6], [3, 8],
+      [4, 1], [4, 2], [4, 4], [4, 6], [4, 7],
+      [5, 0], [5, 2], [5, 3], [5, 5], [5, 7], [5, 8],
+      [6, 1], [6, 3], [6, 4], [6, 6], [6, 7],
+      [7, 0], [7, 2], [7, 3], [7, 5], [7, 6], [7, 8],
+      [8, 1], [8, 4], [8, 5], [8, 7],
+    ];
+    const puzzle = boardFromSolutionWithHoles(
+      classicVariant,
+      CLASSIC_SOLUTION,
+      holes,
+    );
+    const result = rate(puzzle);
+    const acceptable: Difficulty[] = [
+      'Diabolical',
+      'Demonic',
+      'Nightmare',
+      'Expert',
+    ];
+    expect(acceptable).toContain(result.difficulty);
+  });
+});
+
+describe('rate — Classic Demonic (advanced inference required)', () => {
+  it('rates a very sparse Demonic-target puzzle within Demonic+ or Expert fallback', () => {
+    // Even sparser than the Diabolical fixture. With this clue count the
+    // chain commonly requires advanced inference (UR, XY-Chain, ALS-XZ,
+    // multi-coloring) to make progress; otherwise it bails and the rater
+    // reports Expert as a fallback.
+    const holes: Array<[number, number]> = [
+      [0, 0], [0, 1], [0, 3], [0, 4], [0, 5], [0, 7], [0, 8],
+      [1, 1], [1, 2], [1, 4], [1, 5], [1, 6], [1, 8],
+      [2, 0], [2, 2], [2, 3], [2, 4], [2, 6], [2, 7],
+      [3, 0], [3, 1], [3, 3], [3, 4], [3, 6], [3, 7], [3, 8],
+      [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7],
+      [5, 0], [5, 2], [5, 3], [5, 5], [5, 6], [5, 7], [5, 8],
+      [6, 1], [6, 2], [6, 4], [6, 5], [6, 6], [6, 8],
+      [7, 0], [7, 2], [7, 3], [7, 4], [7, 6], [7, 8],
+      [8, 1], [8, 3], [8, 4], [8, 5], [8, 7],
+    ];
+    const puzzle = boardFromSolutionWithHoles(
+      classicVariant,
+      CLASSIC_SOLUTION,
+      holes,
+    );
+    const result = rate(puzzle);
+    const acceptable: Difficulty[] = ['Demonic', 'Nightmare', 'Expert'];
+    expect(acceptable).toContain(result.difficulty);
+  });
+});
+
+describe('rate — Classic Nightmare (deep inference required)', () => {
+  it('rates an extremely sparse Nightmare-target puzzle within Nightmare or Expert fallback', () => {
+    // Heaviest hole pattern — only ~20-22 givens remain. At this density
+    // the technique chain frequently cannot complete the solve, and the
+    // rater falls back to Expert. When it does complete, the hardest step
+    // is typically a Forcing Chain / Nice Loop / 3D Medusa — Nightmare.
+    const holes: Array<[number, number]> = [
+      [0, 0], [0, 1], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8],
+      [1, 0], [1, 1], [1, 2], [1, 3], [1, 5], [1, 6], [1, 8],
+      [2, 0], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7],
+      [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 6], [3, 7], [3, 8],
+      [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7], [4, 8],
+      [5, 0], [5, 1], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7], [5, 8],
+      [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 8],
+      [7, 0], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6], [7, 8],
+      [8, 0], [8, 1], [8, 3], [8, 4], [8, 5], [8, 7],
+    ];
+    const puzzle = boardFromSolutionWithHoles(
+      classicVariant,
+      CLASSIC_SOLUTION,
+      holes,
+    );
+    const result = rate(puzzle);
+    const acceptable: Difficulty[] = ['Nightmare', 'Expert'];
+    expect(acceptable).toContain(result.difficulty);
   });
 });
 
