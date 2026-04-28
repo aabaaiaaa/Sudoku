@@ -379,7 +379,7 @@ TASK-035 and TASK-036.
 ## Phase 9: Techniques help section
 
 ### TASK-054: Techniques screen index
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-036
 - **Description**: Create `src/screens/Techniques.tsx` rendering an index of all 34 techniques grouped by tier. Each row shows technique name + tier badge and links to a detail page. Pull the technique list from a single source of truth (e.g. a `TECHNIQUE_CATALOG` constant under `src/engine/solver/techniques/catalog.ts` mapping technique id → display name + tier). Add `Techniques.test.tsx` asserting all 34 are rendered.
 - **Verification**: `npx vitest run src/screens/Techniques.test.tsx`
