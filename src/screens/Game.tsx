@@ -39,7 +39,13 @@ export function Game({ store = gameStore, onBack }: GameProps) {
   const showPauseOverlay = timer.paused && hasRun;
 
   const loading = useStore(store, (s) => s.loading);
+  const cancelGeneration = useStore(store, (s) => s.cancelGeneration);
   const showLoadingOverlay = useDebouncedFlag(loading, 200);
+
+  const handleCancelGeneration = () => {
+    cancelGeneration();
+    onBack?.();
+  };
 
   return (
     <div className="p-4 space-y-4 max-w-md mx-auto">
@@ -105,7 +111,10 @@ export function Game({ store = gameStore, onBack }: GameProps) {
 
       <WinModal store={store} onNewGame={handleNewGame} onHome={() => onBack?.()} />
 
-      <LoadingOverlay visible={showLoadingOverlay} />
+      <LoadingOverlay
+        visible={showLoadingOverlay}
+        onCancel={handleCancelGeneration}
+      />
     </div>
   );
 }

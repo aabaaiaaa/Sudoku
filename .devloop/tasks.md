@@ -319,7 +319,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/screens/Game.test.tsx -t "loading"`
 
 ### TASK-046: Cancel button + 10s threshold
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-045
 - **Description**: Extend `LoadingOverlay` (or compose a sibling component) so that after 10 seconds of continuous visibility, a Cancel button and the note "Higher difficulties can take longer to generate." fade in below the spinner. Cancel calls `cancelGeneration()` and navigates to Home. Test asserts the button is hidden initially and visible after 10s (using fake timers).
 - **Verification**: `npx vitest run src/components/LoadingOverlay.test.tsx -t "cancel|10s"`
