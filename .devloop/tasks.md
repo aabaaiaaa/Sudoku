@@ -231,7 +231,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/death-blossom.test.ts`
 
 ### TASK-034: Forcing Chains
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-023
 - **Description**: Add `forcing-chains.ts`: pick a cell with N candidates; for each candidate, follow logical implications. If all branches eliminate the same digit elsewhere or place the same digit in the same cell, that elimination/placement is forced. Cap chain depth to a reasonable limit (e.g. 50 implications) to bound runtime. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/forcing-chains.test.ts`
