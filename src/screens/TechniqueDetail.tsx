@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Board } from '../components/Board';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { createGameStore } from '../store/game';
-import { TECHNIQUE_CATALOG } from '../engine/solver/techniques/catalog';
+import {
+  TECHNIQUE_CATALOG,
+  type TechniqueFixture,
+} from '../engine/solver/techniques/catalog';
 import {
   classicVariant,
   miniVariant,
@@ -20,80 +23,6 @@ import type {
   Variant,
 } from '../engine/types';
 import type { TechniqueId } from '../engine/solver/techniques';
-
-import { fixture as hiddenPairFixture } from '../engine/solver/techniques/hidden-pair.fixture';
-import { fixture as hiddenTripleFixture } from '../engine/solver/techniques/hidden-triple.fixture';
-import { fixture as nakedQuadFixture } from '../engine/solver/techniques/naked-quad.fixture';
-import { fixture as hiddenQuadFixture } from '../engine/solver/techniques/hidden-quad.fixture';
-import { fixture as swordfishFixture } from '../engine/solver/techniques/swordfish.fixture';
-import { fixture as jellyfishFixture } from '../engine/solver/techniques/jellyfish.fixture';
-import { fixture as xyWingFixture } from '../engine/solver/techniques/xy-wing.fixture';
-import { fixture as xyzWingFixture } from '../engine/solver/techniques/xyz-wing.fixture';
-import { fixture as wWingFixture } from '../engine/solver/techniques/w-wing.fixture';
-import { fixture as simpleColoringFixture } from '../engine/solver/techniques/simple-coloring.fixture';
-import { fixture as xCycleFixture } from '../engine/solver/techniques/x-cycle.fixture';
-import { fixture as emptyRectangleFixture } from '../engine/solver/techniques/empty-rectangle.fixture';
-import { fixture as skyscraperFixture } from '../engine/solver/techniques/skyscraper.fixture';
-import { fixture as twoStringKiteFixture } from '../engine/solver/techniques/two-string-kite.fixture';
-import { fixture as uniqueRectangleFixture } from '../engine/solver/techniques/unique-rectangle.fixture';
-import { fixture as bugFixture } from '../engine/solver/techniques/bug.fixture';
-import { fixture as xyChainFixture } from '../engine/solver/techniques/xy-chain.fixture';
-import { fixture as multiColoringFixture } from '../engine/solver/techniques/multi-coloring.fixture';
-import { fixture as alsXzFixture } from '../engine/solver/techniques/als-xz.fixture';
-import { fixture as wxyzWingFixture } from '../engine/solver/techniques/wxyz-wing.fixture';
-import { fixture as hiddenRectangleFixture } from '../engine/solver/techniques/hidden-rectangle.fixture';
-import { fixture as avoidableRectangleFixture } from '../engine/solver/techniques/avoidable-rectangle.fixture';
-import { fixture as niceLoopFixture } from '../engine/solver/techniques/nice-loop.fixture';
-import { fixture as groupedXCycleFixture } from '../engine/solver/techniques/grouped-x-cycle.fixture';
-import { fixture as medusa3DFixture } from '../engine/solver/techniques/medusa-3d.fixture';
-import { fixture as deathBlossomFixture } from '../engine/solver/techniques/death-blossom.fixture';
-import { fixture as forcingChainsFixture } from '../engine/solver/techniques/forcing-chains.fixture';
-
-/**
- * Shape of a technique fixture (mirrors the per-technique fixture files;
- * structurally identical across all of them per requirements §8.4). TASK-056
- * will replace this lookup with the canonical entry on `TECHNIQUE_CATALOG`.
- */
-interface TechniqueFixture {
-  variant: 'classic' | 'six' | 'mini';
-  board: string;
-  patternCells: Position[];
-  deduction: {
-    eliminations?: Array<{ pos: Position; digits: Digit[] }>;
-    placement?: { pos: Position; digit: Digit };
-  };
-  description: string;
-}
-
-const FIXTURES: Partial<Record<TechniqueId, TechniqueFixture>> = {
-  'hidden-pair': hiddenPairFixture,
-  'hidden-triple': hiddenTripleFixture,
-  'naked-quad': nakedQuadFixture,
-  'hidden-quad': hiddenQuadFixture,
-  swordfish: swordfishFixture,
-  jellyfish: jellyfishFixture,
-  'xy-wing': xyWingFixture,
-  'xyz-wing': xyzWingFixture,
-  'w-wing': wWingFixture,
-  'simple-coloring': simpleColoringFixture,
-  'x-cycle': xCycleFixture,
-  'empty-rectangle': emptyRectangleFixture,
-  skyscraper: skyscraperFixture,
-  'two-string-kite': twoStringKiteFixture,
-  'unique-rectangle': uniqueRectangleFixture,
-  'bug-plus-one': bugFixture,
-  'xy-chain': xyChainFixture,
-  'multi-coloring': multiColoringFixture,
-  'als-xz': alsXzFixture,
-  'wxyz-wing': wxyzWingFixture,
-  'hidden-rectangle': hiddenRectangleFixture,
-  'avoidable-rectangle': avoidableRectangleFixture,
-  'nice-loop': niceLoopFixture,
-  'grouped-x-cycle': groupedXCycleFixture,
-  '3d-medusa': medusa3DFixture,
-  'death-blossom': deathBlossomFixture,
-  'forcing-chains': forcingChainsFixture,
-};
 
 type WalkthroughStep = 'initial' | 'pattern' | 'deduction' | 'applied';
 
@@ -215,17 +144,11 @@ interface TechniqueDetailProps {
 }
 
 export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
-  const entry = useMemo(
-    () => TECHNIQUE_CATALOG.find((e) => e.id === id),
-    [id],
-  );
-  const fixture = useMemo<TechniqueFixture | undefined>(
-    () => FIXTURES[id],
-    [id],
-  );
+  const entry = TECHNIQUE_CATALOG[id];
+  const fixture = entry.fixture;
 
   const initialBoard = useMemo(
-    () => (fixture ? parseFixtureBoard(fixture) : null),
+    () => parseFixtureBoard(fixture),
     [fixture],
   );
 
@@ -241,55 +164,19 @@ export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
   // duplicating the cell/selection contract; the store's `newGame` etc. are
   // never called here so worker generation isn't triggered.
   const store = useMemo(() => {
-    const variant = fixture?.variant ?? 'classic';
-    const s = createGameStore(variant);
-    if (initialBoard) s.setState({ board: initialBoard });
+    const s = createGameStore(fixture.variant);
+    s.setState({ board: initialBoard });
     return s;
-  }, [fixture?.variant, initialBoard]);
+  }, [fixture.variant, initialBoard]);
 
   useEffect(() => {
-    if (!fixture || !initialBoard) return;
     store.setState({
       board: boardForStep(initialBoard, fixture, step),
       selection: null,
     });
   }, [step, store, fixture, initialBoard]);
 
-  if (!entry) {
-    return (
-      <div data-testid="technique-detail" className="p-4">
-        <p>Unknown technique.</p>
-      </div>
-    );
-  }
-
   const slug = entry.tier.toLowerCase();
-
-  if (!fixture || !initialBoard) {
-    return (
-      <div
-        data-testid="technique-detail"
-        data-technique-id={id}
-        className="p-4 space-y-3"
-      >
-        {onBack ? (
-          <button
-            type="button"
-            data-testid="technique-detail-back"
-            onClick={onBack}
-            className="text-sm underline"
-          >
-            ← Back
-          </button>
-        ) : null}
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold">{entry.displayName}</h1>
-          <DifficultyBadge difficulty={slug} />
-        </div>
-        <p>Walkthrough not yet available for this technique.</p>
-      </div>
-    );
-  }
 
   return (
     <div

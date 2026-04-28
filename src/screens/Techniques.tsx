@@ -1,8 +1,10 @@
 import { DIFFICULTY_ORDER, type Difficulty } from '../engine/generator/rate';
 import {
   TECHNIQUE_CATALOG,
+  TECHNIQUE_ORDER,
   type TechniqueCatalogEntry,
 } from '../engine/solver/techniques/catalog';
+import type { TechniqueId } from '../engine/solver/techniques';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 
 interface TechniquesProps {
@@ -11,30 +13,34 @@ interface TechniquesProps {
    * TASK-057 to navigate to the technique detail page. Until then the rows
    * still render and respond to clicks but no navigation occurs.
    */
-  onSelect?: (id: TechniqueCatalogEntry['id']) => void;
+  onSelect?: (id: TechniqueId) => void;
 }
 
 function tierSlug(tier: Difficulty): string {
   return tier.toLowerCase();
 }
 
-function groupByTier(
-  entries: readonly TechniqueCatalogEntry[],
-): Map<Difficulty, TechniqueCatalogEntry[]> {
-  const groups = new Map<Difficulty, TechniqueCatalogEntry[]>();
-  for (const entry of entries) {
+interface OrderedEntry extends TechniqueCatalogEntry {
+  id: TechniqueId;
+}
+
+function groupByTier(): Map<Difficulty, OrderedEntry[]> {
+  const groups = new Map<Difficulty, OrderedEntry[]>();
+  for (const id of TECHNIQUE_ORDER) {
+    const entry = TECHNIQUE_CATALOG[id];
+    const ordered: OrderedEntry = { id, ...entry };
     const bucket = groups.get(entry.tier);
     if (bucket) {
-      bucket.push(entry);
+      bucket.push(ordered);
     } else {
-      groups.set(entry.tier, [entry]);
+      groups.set(entry.tier, [ordered]);
     }
   }
   return groups;
 }
 
 export function Techniques({ onSelect }: TechniquesProps = {}) {
-  const groups = groupByTier(TECHNIQUE_CATALOG);
+  const groups = groupByTier();
 
   return (
     <div

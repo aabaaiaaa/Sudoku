@@ -1,17 +1,21 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { Techniques } from './Techniques';
-import { TECHNIQUE_CATALOG } from '../engine/solver/techniques/catalog';
+import {
+  TECHNIQUE_CATALOG,
+  TECHNIQUE_ORDER,
+} from '../engine/solver/techniques/catalog';
 import { DIFFICULTY_ORDER } from '../engine/generator/rate';
 
 describe('Techniques screen', () => {
   it('renders all 34 techniques from the catalog', () => {
-    expect(TECHNIQUE_CATALOG).toHaveLength(34);
+    expect(TECHNIQUE_ORDER).toHaveLength(34);
 
     const { getByTestId } = render(<Techniques />);
 
-    for (const entry of TECHNIQUE_CATALOG) {
-      const row = getByTestId(`technique-row-${entry.id}`);
+    for (const id of TECHNIQUE_ORDER) {
+      const entry = TECHNIQUE_CATALOG[id];
+      const row = getByTestId(`technique-row-${id}`);
       expect(row).toBeTruthy();
       expect(row.textContent).toContain(entry.displayName);
     }
@@ -20,7 +24,9 @@ describe('Techniques screen', () => {
   it('groups techniques by difficulty tier in ascending order', () => {
     const { getByTestId, queryByTestId, container } = render(<Techniques />);
 
-    const presentTiers = new Set(TECHNIQUE_CATALOG.map((e) => e.tier));
+    const presentTiers = new Set(
+      TECHNIQUE_ORDER.map((id) => TECHNIQUE_CATALOG[id].tier),
+    );
 
     for (const tier of DIFFICULTY_ORDER) {
       const slug = tier.toLowerCase();
@@ -45,10 +51,11 @@ describe('Techniques screen', () => {
   it('places each technique inside its tier group', () => {
     const { getByTestId } = render(<Techniques />);
 
-    for (const entry of TECHNIQUE_CATALOG) {
+    for (const id of TECHNIQUE_ORDER) {
+      const entry = TECHNIQUE_CATALOG[id];
       const slug = entry.tier.toLowerCase();
       const group = getByTestId(`techniques-group-${slug}`);
-      const row = getByTestId(`technique-row-${entry.id}`);
+      const row = getByTestId(`technique-row-${id}`);
       expect(group.contains(row)).toBe(true);
     }
   });

@@ -101,15 +101,16 @@ describe('TechniqueDetail screen', () => {
     ).toBe(false);
   });
 
-  it('renders a placeholder for techniques that have no fixture yet', () => {
+  it('renders a walkthrough for previously-fixtureless techniques (e.g. naked-single)', () => {
+    // Every catalog entry now ships a fixture, so the originally bare
+    // techniques (naked-single, hidden-single, x-wing, etc.) render the
+    // full walkthrough rather than a placeholder.
     const { getByText, queryByTestId } = render(
       <TechniqueDetail id="naked-single" />,
     );
 
     expect(getByText('Naked Single')).toBeTruthy();
-    expect(getByText(/walkthrough not yet available/i)).toBeTruthy();
-    // No walkthrough buttons in the placeholder state.
-    expect(queryByTestId('walkthrough-highlight')).toBeNull();
+    expect(queryByTestId('walkthrough-highlight')).not.toBeNull();
   });
 
   it('invokes onBack when the back button is clicked', () => {

@@ -391,7 +391,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/screens/TechniqueDetail.test.tsx`
 
 ### TASK-056: Technique catalog wiring
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-054
 - **Description**: In `src/engine/solver/techniques/catalog.ts`, define `TECHNIQUE_CATALOG: Record<TechniqueId, { displayName: string; tier: Difficulty; fixture: TechniqueFixture; description: string }>` importing each technique's fixture file. This is the single source of truth used by the index, the detail page, and the hint Learn-more link. Add a test that asserts every TechniqueId in `TECHNIQUE_TIER` has a catalog entry.
 - **Verification**: `npx vitest run src/engine/solver/techniques/catalog.test.ts`
