@@ -453,7 +453,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npm run build`
 
 ### TASK-065: Full E2E sweep
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-062, TASK-064
 - **Description**: Run the full Playwright suite (existing v1 specs + new ones) to confirm no regressions.
 - **Verification**: `npx playwright test`
