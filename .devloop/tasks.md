@@ -201,7 +201,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/avoidable-rectangle.test.ts`
 
 ### TASK-029: Nice Loop (continuous)
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-017
 - **Description**: Add `nice-loop.ts` implementing continuous nice loops (alternating strong/weak inferences forming a closed cycle). Eliminations come from weak links involving cells outside the cycle. Implement the cycle detection plus elimination logic. Fixture + tests for the continuous case.
 - **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts -t "continuous"`
