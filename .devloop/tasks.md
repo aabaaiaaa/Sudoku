@@ -183,7 +183,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/engine/solver/techniques/als-xz.test.ts`
 
 ### TASK-026: WXYZ-Wing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-014
 - **Description**: Add `wxyz-wing.ts`: 4-cell extension of XYZ-Wing where four cells share four candidates W,X,Y,Z and eliminate Z from cells that see all four. Fixture + tests.
 - **Verification**: `npx vitest run src/engine/solver/techniques/wxyz-wing.test.ts`
