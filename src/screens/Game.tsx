@@ -9,6 +9,7 @@ import { KeyboardHandler } from '../components/KeyboardHandler';
 import { WinModal } from '../components/WinModal';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { GenerationFailedDialog } from '../components/GenerationFailedDialog';
+import { DifficultyBadge } from '../components/DifficultyBadge';
 import { useDebouncedFlag } from '../hooks/useDebouncedFlag';
 
 interface GameProps {
@@ -52,7 +53,7 @@ export function Game({ store = gameStore, onBack }: GameProps) {
     <div className="p-4 space-y-4 max-w-md mx-auto">
       <KeyboardHandler store={store} />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <button
           type="button"
           data-testid="game-back"
@@ -61,6 +62,12 @@ export function Game({ store = gameStore, onBack }: GameProps) {
         >
           ← Back
         </button>
+        {difficulty && (
+          <DifficultyBadge
+            difficulty={difficulty}
+            data-testid="game-difficulty"
+          />
+        )}
         <Timer store={store} />
       </div>
 

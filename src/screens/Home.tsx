@@ -5,6 +5,7 @@ import { getSavedGame, type SavedGame } from '../store/save';
 import { variants } from '../engine/variants';
 import { availableTiers } from '../engine/generator/variant-tiers';
 import type { Difficulty } from '../engine/generator/rate';
+import { DifficultyBadge } from '../components/DifficultyBadge';
 
 interface HomeProps {
   store?: typeof gameStore;
@@ -185,11 +186,11 @@ export function Home({
                   className="card w-full text-left p-3 transition-colors"
                 >
                   <div className="font-medium">{variantLabels[id]}</div>
-                  <div className="text-sm opacity-80">
-                    <span data-testid={`home-resume-${id}-difficulty`} className="capitalize">
-                      {save.difficulty}
-                    </span>
-                    {' · '}
+                  <div className="text-sm opacity-80 flex items-center gap-2">
+                    <DifficultyBadge
+                      difficulty={save.difficulty}
+                      data-testid={`home-resume-${id}-difficulty`}
+                    />
                     <span data-testid={`home-resume-${id}-elapsed`}>
                       {formatElapsed(save.elapsedMs)}
                     </span>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { statsStore, entryKey, type StatsEntry } from '../store/stats';
 import { variants } from '../engine/variants';
+import { DifficultyBadge } from '../components/DifficultyBadge';
 
 interface StatsProps {
   store?: typeof statsStore;
@@ -116,8 +117,11 @@ export function Stats({ store = statsStore }: StatsProps) {
               <tr>
                 <th className="p-1 border-b" />
                 {difficulties.map((d) => (
-                  <th key={d} className="p-1 border-b capitalize">
-                    {d}
+                  <th key={d} className="p-1 border-b font-normal">
+                    <DifficultyBadge
+                      difficulty={d}
+                      data-testid={`stats-header-${variant.id}-${d}`}
+                    />
                   </th>
                 ))}
               </tr>

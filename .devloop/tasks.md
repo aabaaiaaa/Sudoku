@@ -341,7 +341,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx`
 
 ### TASK-049: Difficulty badge styling for new tiers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Add visual styles for the 4 new tier badges (Master, Diabolical, Demonic, Nightmare) wherever the difficulty is shown (Home resume cards, Game header, Stats screen, WinModal). Use a colour ramp that visually escalates (e.g. deepening reds/purples through Nightmare). Update any snapshot or visual-regression tests.
 - **Verification**: `npx vitest run src/components/DifficultyBadge.test.tsx` (create if it doesn't exist)

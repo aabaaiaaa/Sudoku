@@ -3,6 +3,7 @@ import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import { statsStore } from '../store/stats';
 import { isComplete } from '../engine/board';
+import { DifficultyBadge } from './DifficultyBadge';
 
 interface WinModalProps {
   /** Optional game store override, primarily for tests. */
@@ -109,6 +110,15 @@ export function WinModal({
           Puzzle Complete!
         </h2>
         <dl className="text-sm mb-4 space-y-1 opacity-90">
+          <div className="flex justify-between items-center">
+            <dt>Difficulty</dt>
+            <dd>
+              <DifficultyBadge
+                difficulty={difficulty}
+                data-testid="win-difficulty"
+              />
+            </dd>
+          </div>
           <div className="flex justify-between">
             <dt>Time</dt>
             <dd data-testid="win-time">{formatElapsed(displayTimeMs)}</dd>
