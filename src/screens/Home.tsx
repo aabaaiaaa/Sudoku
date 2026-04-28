@@ -3,6 +3,8 @@ import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import { getSavedGame, type SavedGame } from '../store/save';
 import { variants } from '../engine/variants';
+import { availableTiers } from '../engine/generator/variant-tiers';
+import type { Difficulty } from '../engine/generator/rate';
 
 interface HomeProps {
   store?: typeof gameStore;
@@ -23,9 +25,6 @@ interface HomeProps {
   onEnterGame?: () => void;
 }
 
-const difficulties = ['easy', 'medium', 'hard', 'expert'] as const;
-type Difficulty = (typeof difficulties)[number];
-
 const variantOrder = ['classic', 'mini', 'six'] as const;
 type VariantId = (typeof variantOrder)[number];
 
@@ -34,6 +33,10 @@ const variantLabels: Record<VariantId, string> = {
   mini: 'Mini',
   six: 'Six',
 };
+
+function tierSlug(tier: Difficulty): string {
+  return tier.toLowerCase();
+}
 
 function formatElapsed(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -57,7 +60,7 @@ export function Home({
   const resumeSavedGame = useStore(store, (s) => s.resumeSavedGame);
 
   const [variantId, setVariantId] = useState<VariantId>('classic');
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [difficulty, setDifficulty] = useState<string>('easy');
 
   // Re-read saves each time the game store changes (starting or completing a
   // game writes/clears saves through the store).
@@ -67,6 +70,27 @@ export function Home({
     () => store.getState(),
   );
   void storeTick;
+
+  // Per requirements §4.1, the picker must hide tiers the generator cannot
+  // realistically produce for the current variant. `availableTiers` returns
+  // the supported tiers for `variantId` in ascending order.
+  const tiers = availableTiers(variants[variantId] ?? variants.classic);
+  const tierSlugs = tiers.map(tierSlug);
+  const effectiveDifficulty = tierSlugs.includes(difficulty)
+    ? difficulty
+    : tierSlugs[tierSlugs.length - 1];
+
+  const handleVariantChange = (id: VariantId) => {
+    setVariantId(id);
+    const v = variants[id];
+    if (!v) return;
+    // If the previously-selected tier is no longer available for the new
+    // variant, fall back to the highest tier the variant supports.
+    const newSlugs = availableTiers(v).map(tierSlug);
+    if (!newSlugs.includes(difficulty)) {
+      setDifficulty(newSlugs[newSlugs.length - 1]);
+    }
+  };
 
   const resumeCards = variantOrder
     .map((id) => ({ id, save: getSavedGameImpl(id) }))
@@ -83,7 +107,7 @@ export function Home({
     }
     const v = variants[variantId];
     if (!v) return;
-    newGame(v, difficulty);
+    newGame(v, effectiveDifficulty);
     onEnterGame?.();
   };
 
@@ -107,7 +131,7 @@ export function Home({
                 data-testid={`home-variant-${id}`}
                 value={id}
                 checked={variantId === id}
-                onChange={() => setVariantId(id)}
+                onChange={() => handleVariantChange(id)}
               />
               <span>{variantLabels[id]}</span>
             </label>
@@ -117,20 +141,23 @@ export function Home({
 
       <section data-testid="home-difficulty-picker" className="space-y-2">
         <h2 className="text-lg font-medium">Difficulty</h2>
-        <div role="radiogroup" aria-label="Difficulty" className="flex gap-2">
-          {difficulties.map((d) => (
-            <label key={d} className="flex items-center gap-1 capitalize">
-              <input
-                type="radio"
-                name="home-difficulty"
-                data-testid={`home-difficulty-${d}`}
-                value={d}
-                checked={difficulty === d}
-                onChange={() => setDifficulty(d)}
-              />
-              <span>{d}</span>
-            </label>
-          ))}
+        <div role="radiogroup" aria-label="Difficulty" className="flex flex-wrap gap-2">
+          {tiers.map((tier) => {
+            const slug = tierSlug(tier);
+            return (
+              <label key={slug} className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="home-difficulty"
+                  data-testid={`home-difficulty-${slug}`}
+                  value={slug}
+                  checked={effectiveDifficulty === slug}
+                  onChange={() => setDifficulty(slug)}
+                />
+                <span>{tier}</span>
+              </label>
+            );
+          })}
         </div>
       </section>
 
@@ -162,7 +189,7 @@ export function Home({
                     <span data-testid={`home-resume-${id}-difficulty`} className="capitalize">
                       {save.difficulty}
                     </span>
-                    {' \u00b7 '}
+                    {' · '}
                     <span data-testid={`home-resume-${id}-elapsed`}>
                       {formatElapsed(save.elapsedMs)}
                     </span>

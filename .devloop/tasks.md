@@ -335,7 +335,7 @@ TASK-035 and TASK-036.
 ## Phase 7: Variant-aware difficulty picker
 
 ### TASK-048: Home difficulty picker per variant
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-003
 - **Description**: Update `src/screens/Home.tsx` to use `availableTiers(variant)` to render only the difficulty buttons supported by the currently-selected variant. Switching variants updates the visible tier set; if the previously-selected tier is no longer available, fall back to the highest available. Update `Home.test.tsx` to cover Mini/Six/Classic showing the right tier counts.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx`
