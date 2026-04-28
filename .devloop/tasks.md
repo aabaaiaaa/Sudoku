@@ -385,7 +385,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/screens/Techniques.test.tsx`
 
 ### TASK-055: Technique detail page component
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-054
 - **Description**: Create `src/screens/TechniqueDetail.tsx` rendering the detail page for a single technique (selected via route param). Loads the fixture, shows description, tier badge, and embeds the `Board` component with the fixture's board state. Three walkthrough buttons (Highlight pattern / Show deduction / Apply) and a Reset button. Walkthrough state is local (not in the game store). Test the three steps advance correctly.
 - **Verification**: `npx vitest run src/screens/TechniqueDetail.test.tsx`
