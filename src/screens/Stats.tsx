@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { statsStore, entryKey, type StatsEntry } from '../store/stats';
 import { variants } from '../engine/variants';
+import { availableTiers } from '../engine/generator/variant-tiers';
+import type { Difficulty } from '../engine/generator/rate';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 
 interface StatsProps {
   store?: typeof statsStore;
 }
 
-const difficulties = ['easy', 'medium', 'hard', 'expert'] as const;
-type Difficulty = (typeof difficulties)[number];
-
 const EMPTY = '\u2014';
+
+function tierSlug(tier: Difficulty): string {
+  return tier.toLowerCase();
+}
 
 function formatTime(ms: number | null): string {
   if (ms == null) return EMPTY;
@@ -106,50 +109,57 @@ export function Stats({ store = statsStore }: StatsProps) {
         )}
       </div>
 
-      {Object.values(variants).map((variant) => (
-        <section key={variant.id}>
-          <h2 className="text-lg font-medium mb-2">{variant.id.toUpperCase()}</h2>
-          <table
-            data-testid={`stats-variant-${variant.id}`}
-            className="w-full text-left border-collapse"
-          >
-            <thead>
-              <tr>
-                <th className="p-1 border-b" />
-                {difficulties.map((d) => (
-                  <th key={d} className="p-1 border-b font-normal">
-                    <DifficultyBadge
-                      difficulty={d}
-                      data-testid={`stats-header-${variant.id}-${d}`}
-                    />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {statRows.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row" className="p-1 font-normal">
-                    {row.label}
-                  </th>
-                  {difficulties.map((d: Difficulty) => {
-                    const entry = entries[entryKey(variant.id, d)];
+      {Object.values(variants).map((variant) => {
+        const tiers = availableTiers(variant);
+        return (
+          <section key={variant.id}>
+            <h2 className="text-lg font-medium mb-2">{variant.id.toUpperCase()}</h2>
+            <table
+              data-testid={`stats-variant-${variant.id}`}
+              className="w-full text-left border-collapse"
+            >
+              <thead>
+                <tr>
+                  <th className="p-1 border-b" />
+                  {tiers.map((tier) => {
+                    const slug = tierSlug(tier);
                     return (
-                      <td
-                        key={d}
-                        data-testid={`stats-cell-${variant.id}-${d}-${row.key}`}
-                        className="p-1"
-                      >
-                        {statCellText(entry, row.key)}
-                      </td>
+                      <th key={slug} className="p-1 border-b font-normal">
+                        <DifficultyBadge
+                          difficulty={slug}
+                          data-testid={`stats-header-${variant.id}-${slug}`}
+                        />
+                      </th>
                     );
                   })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
+              </thead>
+              <tbody>
+                {statRows.map((row) => (
+                  <tr key={row.key}>
+                    <th scope="row" className="p-1 font-normal">
+                      {row.label}
+                    </th>
+                    {tiers.map((tier) => {
+                      const slug = tierSlug(tier);
+                      const entry = entries[entryKey(variant.id, slug)];
+                      return (
+                        <td
+                          key={slug}
+                          data-testid={`stats-cell-${variant.id}-${slug}-${row.key}`}
+                          className="p-1"
+                        >
+                          {statCellText(entry, row.key)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        );
+      })}
     </div>
   );
 }

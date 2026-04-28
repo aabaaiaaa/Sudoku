@@ -17,6 +17,57 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-variant-six')).toBeTruthy();
   });
 
+  it('renders the per-variant tier columns', () => {
+    const store = createStatsStore();
+    const { getByTestId, queryByTestId } = render(<Stats store={store} />);
+
+    // Classic exposes all eight tiers.
+    const classicTiers = [
+      'easy',
+      'medium',
+      'hard',
+      'expert',
+      'master',
+      'diabolical',
+      'demonic',
+      'nightmare',
+    ];
+    for (const slug of classicTiers) {
+      expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
+      expect(getByTestId(`stats-cell-classic-${slug}-games`)).toBeTruthy();
+    }
+
+    // Six caps at Diabolical (six tiers).
+    const sixTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical'];
+    for (const slug of sixTiers) {
+      expect(getByTestId(`stats-header-six-${slug}`)).toBeTruthy();
+      expect(getByTestId(`stats-cell-six-${slug}-games`)).toBeTruthy();
+    }
+    expect(queryByTestId('stats-header-six-demonic')).toBeNull();
+    expect(queryByTestId('stats-header-six-nightmare')).toBeNull();
+
+    // Mini caps at Hard (three tiers).
+    const miniTiers = ['easy', 'medium', 'hard'];
+    for (const slug of miniTiers) {
+      expect(getByTestId(`stats-header-mini-${slug}`)).toBeTruthy();
+      expect(getByTestId(`stats-cell-mini-${slug}-games`)).toBeTruthy();
+    }
+    expect(queryByTestId('stats-header-mini-expert')).toBeNull();
+    expect(queryByTestId('stats-header-mini-master')).toBeNull();
+  });
+
+  it('renders dashes in unpopulated cells across all tiers', () => {
+    const store = createStatsStore();
+    const { getByTestId } = render(<Stats store={store} />);
+
+    const dash = '—';
+    // Top-tier cells with no completions should still render gracefully.
+    expect(getByTestId('stats-cell-classic-nightmare-games').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-demonic-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-six-diabolical-avg').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-mini-hard-mistakes').textContent).toBe(dash);
+  });
+
   it('displays formatted stats for a populated entry and dashes for empty ones', () => {
     const store = createStatsStore();
     store.getState().recordCompletion({

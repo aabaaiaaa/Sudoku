@@ -347,7 +347,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx vitest run src/components/DifficultyBadge.test.tsx` (create if it doesn't exist)
 
 ### TASK-050: Stats screen 8-tier layout
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001, TASK-003
 - **Description**: Update `src/screens/Stats.tsx` to render columns/rows for all available tiers per variant (use `availableTiers(variant)`). Mini shows 3 columns, Six 6, Classic 8. Empty cells (no completions yet) render gracefully. Update tests.
 - **Verification**: `npx vitest run src/screens/Stats.test.tsx`
