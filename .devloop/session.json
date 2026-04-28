@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 65,
+  "lastIteration": 66,
   "startedAt": "2026-04-28T20:32:17.181Z",
   "iteration": 1,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-059",
-    "taskTitle": "E2E — generate Demonic, observe spinner and cancel",
-    "iterationNumber": 66,
-    "startedAt": "2026-04-28T23:19:12.974Z"
+    "taskId": "TASK-060",
+    "taskTitle": "E2E — Learn tab walkthrough",
+    "iterationNumber": 67,
+    "startedAt": "2026-04-28T23:22:57.247Z"
   }
 }

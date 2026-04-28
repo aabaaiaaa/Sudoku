@@ -419,7 +419,7 @@ TASK-035 and TASK-036.
 - **Verification**: `npx playwright test tests/e2e/difficulty-loading.spec.ts`
 
 ### TASK-060: E2E — Learn tab walkthrough
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-055, TASK-057
 - **Description**: Add `tests/e2e/techniques-help.spec.ts`. Navigate to the Learn tab, click into Hidden Single, step through the three walkthrough buttons, click Reset, return to the index. Assert each walkthrough step changes the visible board state.
 - **Verification**: `npx playwright test tests/e2e/techniques-help.spec.ts`
