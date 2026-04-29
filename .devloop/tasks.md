@@ -11,7 +11,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm run profile-tiers -- --all-tiers --n=1` runs to completion and writes both `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json`. The summary JSON contains entries for every tier in `DIFFICULTY_ORDER` for each variant where a `CLUE_BOUNDS` window is defined (17 cells: classic 8 + six 6 + mini 3), and each entry has a `firstHitBoard` field (string or null). `tsx` runtime-checks the script — type errors surface as the script fails to start.
 
 ### TASK-002: Capture iteration-5 post-fix baseline profile
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-001
 - **Description**: Run `npm run profile-tiers -- --all-tiers --n=20` and commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json`. This is the *validated post-fix baseline* — the first iteration-5 snapshot, against which §6/§7 decisions are made. The run takes ~6 minutes per the iteration-4 §4.4 estimate.
