@@ -135,3 +135,6 @@ describeVariantMatrix(variants.classic);
 
 // TASK-045b: Six — Easy through Diabolical (6 tiers).
 describeVariantMatrix(variants.six);
+
+// TASK-045c: Mini — Easy through Hard (3 tiers).
+describeVariantMatrix(variants.mini);

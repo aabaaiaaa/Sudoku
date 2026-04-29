@@ -306,7 +306,7 @@ their early prerequisites land.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep six` passes.
 
 ### TASK-045c: E2E difficulty matrix — Mini
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-045b
 - **Description**: Extend `difficulty-matrix.spec.ts` with the same per-tier iteration for variant `mini`. See requirements §9.1.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep mini` passes.
@@ -345,7 +345,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run` exits zero with no failing tests.
 
 ### TASK-051: Full type check + build
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-050
 - **Description**: Run a full TypeScript type check and a production build to make sure nothing escapes the test net. See requirements §12.
 - **Verification**: `npx tsc --noEmit` exits zero; `npm run build` completes with no errors.

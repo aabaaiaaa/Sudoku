@@ -89,7 +89,7 @@ describe('WinModal', () => {
       savedAt: Date.now(),
     };
     putSavedGame(savedGame);
-    expect(getSavedGame(variantId)).not.toBeNull();
+    expect(getSavedGame(variantId, 'easy')).not.toBeNull();
 
     const { getByTestId } = render(
       <WinModal store={store} statsStore={stats} />,
@@ -107,7 +107,7 @@ describe('WinModal', () => {
       mistakes: 2,
     });
 
-    expect(getSavedGame(variantId)).toBeNull();
+    expect(getSavedGame(variantId, 'easy')).toBeNull();
   });
 
   it('does not double-record when the component re-renders', () => {
@@ -181,8 +181,8 @@ describe('WinModal', () => {
     putSavedGame(otherSave);
 
     render(<WinModal store={store} statsStore={stats} />);
-    expect(getSavedGame(variantId)).toBeNull();
-    expect(getSavedGame('classic')).not.toBeNull();
-    clearSavedGame('classic');
+    expect(getSavedGame(variantId, 'easy')).toBeNull();
+    expect(getSavedGame('classic', 'easy')).not.toBeNull();
+    clearSavedGame('classic', 'easy');
   });
 });
