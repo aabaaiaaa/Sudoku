@@ -16,8 +16,9 @@ function makeSavedGame(overrides: Partial<SavedGame> = {}): SavedGame {
   };
 }
 
-// Iteration-4 §6 lever 3 descopes Hard and Master from Classic, and reduces
-// Six and Mini to Easy only — see variant-tiers.ts.
+// Classic descopes Hard and Master (iteration-4 §6 lever 3). Six advertises
+// Easy and Medium after the iteration-6 lever-2 rescue. Mini stays Easy-only.
+// See variant-tiers.ts.
 const CLASSIC_TIERS = [
   'easy',
   'medium',
@@ -26,7 +27,7 @@ const CLASSIC_TIERS = [
   'demonic',
   'nightmare',
 ] as const;
-const SIX_TIERS = ['easy'] as const;
+const SIX_TIERS = ['easy', 'medium'] as const;
 const MINI_TIERS = ['easy'] as const;
 
 describe('Home screen', () => {
@@ -59,7 +60,7 @@ describe('Home screen', () => {
     expect(queryByTestId('home-difficulty-nightmare')).toBeTruthy();
   });
 
-  it('shows only Easy when Six is selected', () => {
+  it('shows Easy and Medium when Six is selected', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -74,9 +75,9 @@ describe('Home screen', () => {
     for (const tier of SIX_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // All harder tiers are descoped from Six post-tuning.
-    expect(queryByTestId('home-difficulty-medium')).toBeNull();
+    // Hard+ remain descoped from Six post-tuning.
     expect(queryByTestId('home-difficulty-hard')).toBeNull();
+    expect(queryByTestId('home-difficulty-expert')).toBeNull();
     expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeNull();
   });

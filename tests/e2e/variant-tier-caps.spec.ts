@@ -9,7 +9,8 @@ import { test, expect } from '@playwright/test';
  *
  *   - Classic (9×9): Easy, Medium, Expert, Diabolical, Demonic, Nightmare
  *                    (Hard and Master descoped)
- *   - Six (6×6):     Easy only (harder tiers unreachable on the 6×6 grid)
+ *   - Six (6×6):     Easy, Medium (iteration-6 lever-2 rescue at clueFloor=14;
+ *                    Hard+ remain unreachable on the 6×6 grid)
  *   - Mini (4×4):    Easy only (harder tiers unreachable on the 4×4 grid)
  *
  * Switching the variant on Home must update the difficulty radio group to
@@ -29,7 +30,7 @@ const ALL_TIERS = [
 
 const VARIANT_TIERS: Record<'classic' | 'six' | 'mini', readonly string[]> = {
   classic: ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'],
-  six: ['easy'],
+  six: ['easy', 'medium'],
   mini: ['easy'],
 };
 

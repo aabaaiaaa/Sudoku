@@ -31,11 +31,13 @@ describe('Stats screen', () => {
     expect(queryByTestId('stats-header-classic-hard')).toBeNull();
     expect(queryByTestId('stats-header-classic-master')).toBeNull();
 
-    // Six and Mini are descoped to Easy only (harder tiers were unreachable
-    // on the smaller grids — variant-tiers.ts).
+    // Six advertises Easy and Medium post-iteration-6 lever-2 rescue;
+    // harder tiers remain descoped. Mini stays Easy-only.
     expect(getByTestId('stats-header-six-easy')).toBeTruthy();
     expect(getByTestId('stats-cell-six-easy-games')).toBeTruthy();
-    expect(queryByTestId('stats-header-six-medium')).toBeNull();
+    expect(getByTestId('stats-header-six-medium')).toBeTruthy();
+    expect(getByTestId('stats-cell-six-medium-games')).toBeTruthy();
+    expect(queryByTestId('stats-header-six-hard')).toBeNull();
     expect(queryByTestId('stats-header-six-diabolical')).toBeNull();
 
     expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
@@ -117,13 +119,16 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-filter-row-classic')).toBeTruthy();
     expect(getByTestId('stats-filter-classic-all')).toBeTruthy();
 
-    // Six and Mini advertise only Easy — the pill row should be omitted, but
-    // the table itself must still render below.
-    expect(queryByTestId('stats-filter-row-six')).toBeNull();
-    expect(queryByTestId('stats-filter-six-all')).toBeNull();
+    // Six now advertises Easy and Medium (iteration-6 lever-2 rescue) — the
+    // pill row should render.
+    expect(getByTestId('stats-filter-row-six')).toBeTruthy();
+    expect(getByTestId('stats-filter-six-all')).toBeTruthy();
     expect(getByTestId('stats-variant-six')).toBeTruthy();
     expect(getByTestId('stats-header-six-easy')).toBeTruthy();
+    expect(getByTestId('stats-header-six-medium')).toBeTruthy();
 
+    // Mini advertises only Easy — the pill row should be omitted, but the
+    // table itself must still render below.
     expect(queryByTestId('stats-filter-row-mini')).toBeNull();
     expect(queryByTestId('stats-filter-mini-all')).toBeNull();
     expect(getByTestId('stats-variant-mini')).toBeTruthy();

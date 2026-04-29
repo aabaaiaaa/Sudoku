@@ -16,15 +16,16 @@ describe('availableTiers', () => {
     ]);
   });
 
-  it('reduces Six to Easy only after iteration 4 tuning', () => {
-    // Baseline summary showed Medium/Hard/Expert/Master/Diabolical all at
-    // rate=0 on the 6x6 grid; only Easy reaches usable rate.
-    expect(availableTiers(sixVariant)).toEqual(['Easy']);
+  it('exposes Easy and Medium for Six after iteration-6 lever-2 rescue', () => {
+    // Iteration-6 lever-2 sweep rescued Six:Medium at clueFloor=14
+    // (solvedRate=0.05); harder tiers remain unreachable on the 6x6 grid.
+    expect(availableTiers(sixVariant)).toEqual(['Easy', 'Medium']);
   });
 
-  it('reduces Mini to Easy only after iteration 4 tuning', () => {
-    // Baseline summary showed Medium/Hard at rate=0 on the 4x4 grid; only
-    // Easy reaches usable rate.
+  it('reduces Mini to Easy only', () => {
+    // Iteration-6 corrected baseline + lever-2 sweep both showed
+    // solvedRate=0 for Medium/Hard at every tested clueFloor on the 4x4
+    // grid; only Easy reaches usable rate.
     expect(availableTiers(miniVariant)).toEqual(['Easy']);
   });
 

@@ -167,10 +167,11 @@ describe('stats store', () => {
     expect(entries[entryKey('classic', 'hard')]).toBeUndefined();
     expect(entries[entryKey('classic', 'master')]).toBeUndefined();
 
-    // Six and Mini are descoped to Easy only (harder tiers were unreachable
-    // on the smaller grids — variant-tiers.ts).
+    // Six advertises Easy and Medium after the iteration-6 lever-2 rescue;
+    // harder tiers remain descoped on the 6x6 grid. Mini stays Easy-only.
     expect(entries[entryKey('six', 'easy')]).toBeDefined();
-    expect(entries[entryKey('six', 'medium')]).toBeUndefined();
+    expect(entries[entryKey('six', 'medium')]).toBeDefined();
+    expect(entries[entryKey('six', 'hard')]).toBeUndefined();
     expect(entries[entryKey('six', 'diabolical')]).toBeUndefined();
 
     expect(entries[entryKey('mini', 'easy')]).toBeDefined();
