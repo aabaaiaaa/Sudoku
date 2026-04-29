@@ -128,7 +128,7 @@ is actually fixed.
 - **Verification**: `npm test`
 
 ### TASK-021: Type check + production build
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-020
 - **Description**: Confirm the codebase still type-checks cleanly and the production build succeeds. Catches any TypeScript regressions from the rename and any unused-import warnings introduced by removing `clueBoundsUpperForTier` calls.
 - **Verification**: `npm run build`
