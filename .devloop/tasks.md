@@ -48,7 +48,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/tier-fixtures.ts` exits 0; the file contains exactly seven entries with keys `classic:Easy/Medium/Hard/Expert/Master/Nightmare` and `six:Medium`. The round-trip test in `tier-fixtures.test.ts` is allowed to fail at this point; TASK-015 brings it green.
 
 ### TASK-007: Consolidate `TIER_BUDGETS` in `generate-for-difficulty.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, remove the parallel `MAX_ATTEMPTS_BY_TIER` and `TIMEOUT_MS_BY_TIER` records and the `DEFAULT_MAX_ATTEMPTS` / `DEFAULT_TIMEOUT_MS` constants (the last two are no longer publicly used). Add a single `TIER_BUDGETS: Record<Difficulty, { maxAttempts: number; timeoutMs: number }>` per requirements §6. Initial values: translate iteration-6 budgets under the rename — `Easy 50/150_000`, `Medium 122/370_000`, `Hard 50/150_000`, `Expert 50/150_000`, `Master 122/370_000`, `Nightmare 59/180_000`. These are placeholders that TASK-014 will re-pin against the iteration-7 baseline. Update the internal call site in `generateForDifficulty` to read `TIER_BUDGETS[difficulty]?.maxAttempts ?? 50` and `TIER_BUDGETS[difficulty]?.timeoutMs ?? 60_000`. Keep `defaultMaxAttemptsForTier` as a thin wrapper. Refresh the docblock to cite iteration 7 and the §6 reliability formula.

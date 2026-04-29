@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 24
-- **Completed**: 6
-- **Remaining**: 18
-- **Last Updated**: 2026-04-29T23:18:42.189Z
+- **Completed**: 7
+- **Remaining**: 17
+- **Last Updated**: 2026-04-29T23:22:45.716Z
 
 ## Iteration Log
 
@@ -61,4 +61,13 @@
 - **Exit Status**: success
 - **Tokens**: 463,180 total (12 in, 4,111 out, 56,835 cache-create, 402,222 cache-read)
 - **Cost**: $0.6592
+
+### Iteration 7 - 2026-04-29T23:22:45.714Z
+- **Task Attempted**: TASK-007
+- **Task Completed**: TASK-007
+- **Summary**: Completed Consolidate `TIER_BUDGETS` in `generate-for-difficulty.ts`
+- **Duration**: 4m 1s
+- **Exit Status**: success
+- **Tokens**: 1,417,512 total (23 in, 9,421 out, 71,509 cache-create, 1,336,559 cache-read)
+- **Cost**: $1.3509
 

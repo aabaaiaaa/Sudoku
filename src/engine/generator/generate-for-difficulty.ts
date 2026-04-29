@@ -9,94 +9,49 @@ import {
 } from './rate';
 
 /**
- * Per-tier attempt cap per call. Sized via the requirements §6 reliability
- * formula `N = ceil(log(0.002) / log(1 - solvedRate))` (99.8% reliability)
- * against the iteration-6 corrected baseline
- * (`scripts/tier-distribution.summary.json`, generated 2026-04-29 with the
- * §4.1 `solvedRate` fix) and the iteration-6 lever-2 sweep
- * (`scripts/tier-distribution.lever2.summary.json`). The per-tier value is
- * the maximum required N across all variants advertising that tier — the
- * worst-case (lowest-solvedRate) advertising cell drives the budget. There
- * is **no upper cap**: if `solvedRate = 0.05` the budget grows to 122
- * attempts, etc. Tiers whose worst-case formula N is below the default 50
- * keep the default as a conservative floor against small-sample variance.
+ * Per-tier generation budget. Each entry pairs an attempt cap (`maxAttempts`)
+ * with a wall-clock timeout (`timeoutMs`). The two were parallel `Record`
+ * tables prior to iteration 7 (review §5.4); they are now consolidated so
+ * the per-tier shape is impossible to skew (no chance of widening one but
+ * forgetting the other).
  *
- * Non-default budgets (each cited (variant, tier, solvedRate) drives the
- * per-tier value):
- *   - Medium = 122: six:Medium@14 solvedRate=0.05 (lever-2 sweep, sample
- *     size 20) → N=122. (classic:Medium solvedRate=0.55 → N=8 is
- *     dominated.)
- *   - Demonic = 122: classic:Demonic solvedRate=0.05 (sample size 20) →
- *     N=122.
- *   - Nightmare = 59: classic:Nightmare solvedRate=0.10 (sample size 20) →
- *     N=59.
+ * Sized via the requirements §6 reliability formula
+ * `maxAttempts = ceil(log(0.002) / log(1 - solvedRate))` (99.8% reliability)
+ * with `timeoutMs = max(60_000, maxAttempts × 2000ms × 1.5)`. A floor of
+ * 50 attempts is kept for tiers whose formula N falls below 50
+ * (small-sample variance protection). The `timeoutMs` rule applies whenever
+ * the attempt cap is widened above the default — the timeout is a backstop
+ * against pathological single-attempt runtime, not the primary budget.
  *
- * Tiers with no advertised cell — Hard and Master — keep the default 50.
- * Their descopes are documented in `variant-tiers.ts`.
+ * The values below are translated from the iteration-6 budgets under the
+ * iteration-7 tier rename (Diabolical→Expert, Demonic→Master) and act as
+ * placeholders. They will be re-pinned against the iteration-7 corrected
+ * baseline (`scripts/tier-distribution.summary.json`) by a subsequent
+ * task once the `--all-tiers --n=50` profile sweep completes. Tiers with
+ * no advertised cell keep the default 50 / 150_000.
  */
-export const MAX_ATTEMPTS_BY_TIER: Record<Difficulty, number> = {
-  Easy: 50,
-  Medium: 122,
-  Hard: 50,
-  Expert: 50,
-  Master: 50,
-  Diabolical: 50,
-  Demonic: 122,
-  Nightmare: 59,
-};
-/**
- * Legacy default attempt cap (requirements §6.2). Retained for callers and
- * tests that branch on a single canonical default; the per-tier table in
- * {@link MAX_ATTEMPTS_BY_TIER} is the source of truth at call time.
- */
-export const DEFAULT_MAX_ATTEMPTS = 50;
-/** Default wall-clock timeout per call in ms (requirements §6.2). */
-export const DEFAULT_TIMEOUT_MS = 60_000;
+export interface TierBudget {
+  maxAttempts: number;
+  timeoutMs: number;
+}
 
-/**
- * Per-tier wall-clock timeout in milliseconds. Mirrors the structure of
- * {@link MAX_ATTEMPTS_BY_TIER} so each tier can be sized independently.
- * Sized so the attempt cap (not the wall clock) is the limiting factor on
- * generation termination — i.e. the timeout is a backstop against pathological
- * single-attempt runtime, not the primary budget.
- *
- * Sizing rule (requirements §6, iteration-6): for each tier with an
- * advertised cell, `timeout ≈ attemptCap × 2000ms × 1.5` (a conservative
- * per-attempt headroom — Nightmare attempts run ~1–2s on midrange hardware
- * and we want 50% slack on top). Values are rounded up to round numbers.
- * Tiers with no advertised cell (Hard, Master) keep the default 60_000.
- *
- * Non-default values (driver = same (variant, tier, solvedRate) as
- * {@link MAX_ATTEMPTS_BY_TIER}):
- *   - Easy =      150_000:  50 attempts × 3000 ms (advertised in classic,
- *     six, mini; attempt cap stays at default 50 since formula N=3).
- *   - Medium =    370_000: 122 attempts × 3000 ms (driver six:Medium@14
- *     solvedRate=0.05, lever-2).
- *   - Expert =    150_000:  50 attempts × 3000 ms (formula N=28 < 50).
- *   - Diabolical =150_000:  50 attempts × 3000 ms (formula N=39 < 50).
- *   - Demonic =   370_000: 122 attempts × 3000 ms (driver classic:Demonic
- *     solvedRate=0.05).
- *   - Nightmare = 180_000:  59 attempts × 3000 ms (driver classic:Nightmare
- *     solvedRate=0.10).
- */
-export const TIMEOUT_MS_BY_TIER: Record<Difficulty, number> = {
-  Easy: 150_000,
-  Medium: 370_000,
-  Hard: DEFAULT_TIMEOUT_MS,
-  Expert: 150_000,
-  Master: DEFAULT_TIMEOUT_MS,
-  Diabolical: 150_000,
-  Demonic: 370_000,
-  Nightmare: 180_000,
+export const TIER_BUDGETS: Record<Difficulty, TierBudget> = {
+  Easy: { maxAttempts: 50, timeoutMs: 150_000 },
+  Medium: { maxAttempts: 122, timeoutMs: 370_000 },
+  Hard: { maxAttempts: 50, timeoutMs: 150_000 },
+  Expert: { maxAttempts: 50, timeoutMs: 150_000 },
+  Master: { maxAttempts: 122, timeoutMs: 370_000 },
+  Nightmare: { maxAttempts: 59, timeoutMs: 180_000 },
 };
 
 /**
  * Returns the default attempts budget for the given target tier from
- * {@link MAX_ATTEMPTS_BY_TIER}. Callers can still override via
- * `options.maxRetries`.
+ * {@link TIER_BUDGETS}. Callers can still override via `options.maxRetries`.
+ * Retained as a thin wrapper over the consolidated table for the existing
+ * public surface.
  */
 export function defaultMaxAttemptsForTier(difficulty: Difficulty): number {
-  return MAX_ATTEMPTS_BY_TIER[difficulty] ?? DEFAULT_MAX_ATTEMPTS;
+  return TIER_BUDGETS[difficulty]?.maxAttempts ?? 50;
 }
 
 /**
@@ -115,19 +70,17 @@ export interface GenerateForDifficultyOptions {
   seed?: number;
   /**
    * Maximum number of distinct generation attempts before giving up.
-   * Defaults to the per-tier value in {@link MAX_ATTEMPTS_BY_TIER} (50 for
-   * tiers whose iteration-6 reliability formula is at or below the default;
-   * widened to Medium=122, Demonic=122, Nightmare=59 per the iteration-6
-   * corrected baseline and lever-2 sweep). Whichever of `maxRetries` or
-   * `timeoutMs` is reached first ends generation in failure.
+   * Defaults to `TIER_BUDGETS[difficulty].maxAttempts`, falling back to 50
+   * for tiers without an entry. Whichever of `maxRetries` or `timeoutMs`
+   * is reached first ends generation in failure.
    */
   maxRetries?: number;
   /**
-   * Hard wall-clock timeout in milliseconds. Defaults to the per-tier value
-   * in {@link TIMEOUT_MS_BY_TIER}, falling back to
-   * {@link DEFAULT_TIMEOUT_MS} (60 000) for tiers without a per-tier entry.
-   * Once the elapsed time meets or exceeds this value, no further attempts
-   * are started and the function returns a structured failure.
+   * Hard wall-clock timeout in milliseconds. Defaults to
+   * `TIER_BUDGETS[difficulty].timeoutMs`, falling back to 60 000 for tiers
+   * without an entry. Once the elapsed time meets or exceeds this value,
+   * no further attempts are started and the function returns a structured
+   * failure.
    */
   timeoutMs?: number;
   /**
@@ -242,11 +195,11 @@ export function generateForDifficulty(
 
   const maxRetries = Math.max(
     1,
-    options.maxRetries ?? defaultMaxAttemptsForTier(difficulty),
+    options.maxRetries ?? TIER_BUDGETS[difficulty]?.maxAttempts ?? 50,
   );
   const timeoutMs = Math.max(
     0,
-    options.timeoutMs ?? TIMEOUT_MS_BY_TIER[difficulty] ?? DEFAULT_TIMEOUT_MS,
+    options.timeoutMs ?? TIER_BUDGETS[difficulty]?.timeoutMs ?? 60_000,
   );
   const targetRank = tierRank(difficulty);
   const clueFloorHint = clueBoundsLowerForTier(variant.id, difficulty);
