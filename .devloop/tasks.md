@@ -288,13 +288,13 @@ their early prerequisites land.
 - **Verification**: `npx playwright test --project=webkit smoke.spec.ts` passes.
 
 ### TASK-044: E2E desktop nav test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-018, TASK-043
 - **Description**: Create `tests/e2e/desktop-nav.spec.ts`. Asserts: tab bar visible on Home (`[data-testid=tab-bar]`); clicking each of `tab-home`, `tab-stats`, `tab-learn`, `tab-settings` navigates to the correct screen (URL hash changes and the corresponding screen test id is visible); the tab bar remains visible across all four screens. See requirements §9.2.
 - **Verification**: `npx playwright test desktop-nav.spec.ts --project=chromium` and `--project=webkit` both pass.
 
 ### TASK-045a: E2E difficulty matrix — Classic
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007, TASK-018
 - **Description**: Create `tests/e2e/difficulty-matrix.spec.ts`. For variant `classic`, iterate every tier in `availableTiers(classic)`. Each iteration: clear localStorage, navigate Home, select the tier, click New Game, and within 75s either (a) assert the board renders with at least one given cell *or* (b) assert the failure dialog renders with non-empty `closestRating` and a populated `lastError`. Use `test.describe.parallel` and per-iteration `test()` so each combo is its own report row. See requirements §9.1.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep classic` passes.
@@ -312,7 +312,7 @@ their early prerequisites land.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep mini` passes.
 
 ### TASK-046: E2E PWA update banner
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-032, TASK-033
 - **Description**: Create `tests/e2e/pwa-update.spec.ts`. The dev server does not produce a real SW manifest, so the test must run against `vite preview`. Configuration changes:
   1. In `playwright.config.ts`, change the `webServer` field from a single object to an array of two entries — one running `npm run dev` on port 5179 (existing default for all other specs), and a second running `npm run build && npm run preview -- --port 5180` on port 5180.
@@ -321,13 +321,13 @@ their early prerequisites land.
 - **Verification**: `npx playwright test pwa-update.spec.ts --project=chromium` passes. Both webServer entries start successfully when the suite is invoked.
 
 ### TASK-047: Settings test — updates + storage sections
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-030, TASK-035
 - **Description**: Augment `src/screens/Settings.test.tsx` to cover: the Updates section's button cycle (idle → checking → up-to-date → idle), the Storage section's visibility gating on `hasOldSaves`, the Remove flow's confirm dialog interaction, and that the Storage section disappears after removal. See requirements §9.6.
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes.
 
 ### TASK-048: Migration test — first-load prompt behaviour
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-029
 - **Description**: Augment `src/App.test.tsx` (or create one if absent) to cover: (a) seed `sudoku.save.v2` and assert the first-load `<ConfirmDialog>` renders; (b) click "Decide later" and assert the dialog disappears, the v2 key is still in localStorage, and reloading the App re-renders the dialog; (c) click "Remove now" and assert the v2 key is gone and the dialog never re-appears. See requirements §9.6.
 - **Verification**: `npx vitest run src/App.test.tsx` passes including the three new cases.

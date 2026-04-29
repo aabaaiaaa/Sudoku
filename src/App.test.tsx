@@ -147,6 +147,29 @@ describe('App migration prompt', () => {
     expect(window.localStorage.getItem('sudoku.save.v2')).toBe('{}');
   });
 
+  it('re-renders the dialog on the next App mount after "Decide later" because dismissal is in-memory only', () => {
+    window.localStorage.setItem('sudoku.save.v2', '{}');
+
+    // First mount — user clicks "Decide later".
+    const first = render(<App />);
+    expect(first.getByTestId('confirm-dialog')).toBeTruthy();
+
+    act(() => {
+      fireEvent.click(first.getByTestId('confirm-dialog-cancel'));
+    });
+
+    expect(first.queryByTestId('confirm-dialog')).toBeNull();
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBe('{}');
+
+    // Per requirements §5.5, "Decide later" is held in memory only — no
+    // localStorage write — so the next App launch re-prompts.
+    first.unmount();
+
+    const second = render(<App />);
+    expect(second.getByTestId('confirm-dialog')).toBeTruthy();
+    second.unmount();
+  });
+
   it('hides the dialog and removes the v2 key when "Remove now" is clicked', () => {
     window.localStorage.setItem('sudoku.save.v2', '{}');
 
@@ -160,6 +183,27 @@ describe('App migration prompt', () => {
 
     expect(screen.queryByTestId('confirm-dialog')).toBeNull();
     expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+  });
+
+  it('does not re-render the dialog on subsequent App mounts after "Remove now"', () => {
+    window.localStorage.setItem('sudoku.save.v2', '{}');
+
+    const first = render(<App />);
+    expect(first.getByTestId('confirm-dialog')).toBeTruthy();
+
+    act(() => {
+      fireEvent.click(first.getByTestId('confirm-dialog-confirm'));
+    });
+
+    expect(first.queryByTestId('confirm-dialog')).toBeNull();
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+    first.unmount();
+
+    // The keys are gone, so the detector returns false and the dialog never
+    // re-appears.
+    const second = render(<App />);
+    expect(second.queryByTestId('confirm-dialog')).toBeNull();
+    second.unmount();
   });
 
   it('does not render the migration dialog when no legacy keys exist', () => {
