@@ -50,7 +50,7 @@ is actually fixed.
 - **Verification**: `npx vitest run src/engine/generator/` (sanity check unit suite still compiles and existing non-skipped cases pass)
 
 ### TASK-008: Re-run profile and verify all advertised tiers meet threshold
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007
 - **Description**: Run `npm run profile-tiers -- --n=20` against the post-tuning code (this overwrites `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json` in the working tree). Commit both files. The verification command then inspects the committed JSON without re-running the 6-min profile. If any advertised entry's `rate` is still below 0.05, treat as a re-open of TASK-007 rather than continuing.
 - **Verification**: `node --input-type=commonjs -e "const s=JSON.parse(require('fs').readFileSync('./scripts/tier-distribution.summary.json','utf8')); for(const k in s){const e=s[k]; if(e.advertised && e.rate<0.05){console.error('Below threshold:',k,e); process.exit(1);}}"`

@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 6,
+  "lastIteration": 7,
   "startedAt": "2026-04-29T12:44:11.456Z",
   "iteration": 3,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-007",
-    "taskTitle": "Apply data-driven tuning per baseline `tier-distribution.summary.json`",
-    "iterationNumber": 7,
-    "startedAt": "2026-04-29T13:16:16.816Z"
+    "taskId": "TASK-008",
+    "taskTitle": "Re-run profile and verify all advertised tiers meet threshold",
+    "iterationNumber": 8,
+    "startedAt": "2026-04-29T13:22:02.735Z"
   }
 }
