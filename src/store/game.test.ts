@@ -319,6 +319,28 @@ describe('game store', () => {
       expect(store.getState().loading).toBe(false);
       expect(cancelSpy).toHaveBeenCalled();
     });
+
+    it('cancelGeneration also clears any stale generationFailure', () => {
+      // Start with a benign stub that keeps the store quiescent.
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
+
+      // Simulate the race where a worker `failed` message landed in the same
+      // tick as the cancel: both `loading: true` and a populated
+      // `generationFailure` are set on the store.
+      const staleFailure = {
+        difficulty: 'Easy' as const,
+        closestRating: null,
+        attempts: 3,
+        elapsedMs: 1234,
+        lastError: 'stale failure from a now-cancelled generation',
+      };
+      store.setState({ loading: true, generationFailure: staleFailure });
+
+      store.getState().cancelGeneration();
+
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().generationFailure).toBeNull();
+    });
   });
 
   describe('resumeSavedGame', () => {

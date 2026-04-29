@@ -338,7 +338,11 @@ export function createGameStore(
         activeHandle.cancel();
         activeHandle = null;
       }
-      set({ loading: false });
+      // Defensively clear `generationFailure` alongside `loading` in case a
+      // worker `failed` message landed in the same tick as the cancel — the
+      // user explicitly asked to abandon this generation, so any stale failure
+      // dialog state must be cleared too.
+      set({ loading: false, generationFailure: null });
     },
 
     select: (pos) => {

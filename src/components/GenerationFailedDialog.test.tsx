@@ -143,6 +143,25 @@ describe('GenerationFailedDialog', () => {
     expect(queryByTestId('failure-last-error')).toBeNull();
   });
 
+  it('renders diagnostic line for empty-string lastError', () => {
+    // The user direction in iteration 3 was "always visible when present" —
+    // an empty-string lastError still represents a present (non-null) error
+    // signal from the worker, so the diagnostic line must still render.
+    const store = createGameStore('classic');
+    store.setState({
+      generationFailure: {
+        ...makeFailure('Demonic'),
+        lastError: '',
+      },
+    });
+
+    const { getByTestId } = render(<GenerationFailedDialog store={store} />);
+
+    const errEl = getByTestId('failure-last-error');
+    expect(errEl).toBeTruthy();
+    expect(errEl.textContent).toBe('');
+  });
+
   it('handles a lowercase difficulty value (Home picker convention) for the heading', () => {
     const store = createGameStore('classic');
     store.setState({

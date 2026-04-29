@@ -114,6 +114,28 @@ describe('App navigation', () => {
 });
 
 describe('App migration prompt', () => {
+  // A structurally-valid v2 save payload — the shape `src/store/save.ts`
+  // emitted before the iteration-3 schema bump to v3. v2 stored a single
+  // save per variant under one root key with `version`, `appVersion`, and
+  // a `saved: SavedGame` entry. The migration detector matches on key alone,
+  // so the tests pass with any string value — but seeding a real shape
+  // protects against a future change to the load path that JSON-parses v2
+  // entries before the detector runs.
+  const VALID_V2_SAVE = JSON.stringify({
+    version: 2,
+    appVersion: '0.2.0',
+    saved: {
+      variant: 'classic',
+      difficulty: 'Easy',
+      cells: Array.from({ length: 9 }, () =>
+        Array.from({ length: 9 }, () => ({ value: null, notes: [], given: false })),
+      ),
+      mistakes: 0,
+      elapsedMs: 0,
+      savedAt: 1700000000000,
+    },
+  });
+
   beforeEach(() => {
     window.location.hash = '';
     window.localStorage.clear();
@@ -125,7 +147,7 @@ describe('App migration prompt', () => {
   });
 
   it('renders the migration ConfirmDialog when a legacy v2 save key exists', () => {
-    window.localStorage.setItem('sudoku.save.v2', '{}');
+    window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 
     render(<App />);
 
@@ -133,7 +155,7 @@ describe('App migration prompt', () => {
   });
 
   it('hides the dialog and leaves the v2 key in place when "Decide later" is clicked', () => {
-    window.localStorage.setItem('sudoku.save.v2', '{}');
+    window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 
     render(<App />);
 
@@ -144,11 +166,11 @@ describe('App migration prompt', () => {
     });
 
     expect(screen.queryByTestId('confirm-dialog')).toBeNull();
-    expect(window.localStorage.getItem('sudoku.save.v2')).toBe('{}');
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBe(VALID_V2_SAVE);
   });
 
   it('re-renders the dialog on the next App mount after "Decide later" because dismissal is in-memory only', () => {
-    window.localStorage.setItem('sudoku.save.v2', '{}');
+    window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 
     // First mount — user clicks "Decide later".
     const first = render(<App />);
@@ -159,7 +181,7 @@ describe('App migration prompt', () => {
     });
 
     expect(first.queryByTestId('confirm-dialog')).toBeNull();
-    expect(window.localStorage.getItem('sudoku.save.v2')).toBe('{}');
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBe(VALID_V2_SAVE);
 
     // Per requirements §5.5, "Decide later" is held in memory only — no
     // localStorage write — so the next App launch re-prompts.
@@ -171,7 +193,7 @@ describe('App migration prompt', () => {
   });
 
   it('hides the dialog and removes the v2 key when "Remove now" is clicked', () => {
-    window.localStorage.setItem('sudoku.save.v2', '{}');
+    window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 
     render(<App />);
 
@@ -186,7 +208,7 @@ describe('App migration prompt', () => {
   });
 
   it('does not re-render the dialog on subsequent App mounts after "Remove now"', () => {
-    window.localStorage.setItem('sudoku.save.v2', '{}');
+    window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 
     const first = render(<App />);
     expect(first.getByTestId('confirm-dialog')).toBeTruthy();

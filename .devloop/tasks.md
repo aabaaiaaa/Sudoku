@@ -8,7 +8,7 @@ is actually fixed.
 ---
 
 ### TASK-001: Bump app version to 0.4.0 + add tsx + profile-tiers npm script
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Update `package.json`: bump `version` from `0.3.0` to `0.4.0`; add `tsx` to `devDependencies` (latest stable, e.g. `"tsx": "^4.x"`); add `"profile-tiers": "tsx scripts/profile-tiers.ts"` under `scripts`. Run `npm install` so `package-lock.json` updates. See requirements §4.1.
 - **Verification**: `node --input-type=commonjs -e "const p=JSON.parse(require('fs').readFileSync('./package.json','utf8')); if(p.version!=='0.4.0')throw 1; if(!p.devDependencies.tsx)throw 2; if(!p.scripts['profile-tiers'])throw 3;"`
@@ -86,25 +86,25 @@ is actually fixed.
 - **Verification**: `npx vitest run src/engine/solver/techniques/tier-fixtures.test.ts`
 
 ### TASK-014: `lastError != null` defensive check in `GenerationFailedDialog`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/components/GenerationFailedDialog.tsx` (around line 124 per the iteration-3 review), change the conditional rendering of the diagnostic line from a truthy check on `failure.lastError` to `failure.lastError != null`. This keeps the line visible for empty-string errors. Add a unit test in the existing `src/components/GenerationFailedDialog.test.tsx` covering an empty-string `lastError`; name the new test so it includes the substring "empty" so the verification grep can target it specifically. See requirements §10.1.
 - **Verification**: `npx vitest run src/components/GenerationFailedDialog.test.tsx -t "empty"`
 
 ### TASK-015: `cancelGeneration` clears `generationFailure`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/store/game.ts`, `cancelGeneration` action: set `generationFailure: null` alongside the existing `loading: false`. Add a unit test in `game.test.ts` that sets a `generationFailure`, calls `cancelGeneration`, and asserts both fields are cleared. See requirements §10.2.
 - **Verification**: `npx vitest run src/store/game.test.ts -t "cancel"`
 
 ### TASK-016: JSDoc on `generateInWorker` documenting the one-at-a-time contract
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/workers/generator-client.ts`, add a JSDoc block above `generateInWorker` (or whichever function exposes the worker entry point) stating: "Callers must serialize requests — the worker rejects an overlapping `generate` message with a `'Worker is already processing a generation request'` error. The `gameStore.newGame` flow already serializes; direct callers must do the same." No behaviour change. See requirements §10.3.
 - **Verification**: `grep -q "serialize" src/workers/generator-client.ts`
 
 ### TASK-017: Migration test seeds a structurally-valid v2 payload
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/App.test.tsx` (around line 128), the migration test currently does `localStorage.setItem('sudoku.save.v2', '{}')`. Replace `'{}'` with a structurally-valid v2 payload — i.e. the JSON shape that the v2 save schema actually emits. The v2 shape is recoverable from `.devloop/archive/iteration-2/` source (or from the v3 schema in `src/store/save.ts` minus the per-(variant, difficulty) slot key). The detector matches on key, not value, so the assertion still passes; this is belt-and-braces against a future change in the schema-load path that JSON-parses v2 entries before the detector runs. See requirements §10.4.
 - **Verification**: `npx vitest run src/App.test.tsx -t "migration"`

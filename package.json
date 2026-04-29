@@ -1,13 +1,14 @@
 {
   "name": "sudoku-pwa",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "profile-tiers": "tsx scripts/profile-tiers.ts"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -27,6 +28,7 @@
     "jsdom": "^29.0.2",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.20.0",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vite-plugin-pwa": "^1.2.0",

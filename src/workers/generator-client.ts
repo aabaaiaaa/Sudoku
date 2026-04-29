@@ -109,6 +109,11 @@ export interface GenerateInWorkerOptions {
  *
  * The worker is automatically terminated once a terminal result is received,
  * so callers do not need to call `cancel()` after `await`-ing the promise.
+ *
+ * Callers must serialize requests — the worker rejects an overlapping
+ * `generate` message with a `'Worker is already processing a generation request'`
+ * error. The `gameStore.newGame` flow already serializes; direct callers
+ * must do the same.
  */
 export function generateInWorker(
   variant: Variant | string,
