@@ -68,37 +68,48 @@ export const DIFFICULTY_ORDER: readonly Difficulty[] = [
 /**
  * Mapping from technique id to the minimum difficulty tier that requires it.
  * A puzzle's rating is the max over all techniques used in its solution chain.
+ *
+ * Iteration 7 remap: the iteration-6 baseline showed `classic:Hard` and
+ * `classic:Master` empty because intersections (`pointing`,
+ * `box-line-reduction`) always co-occur with subsets, and fish (`x-wing`,
+ * `swordfish`, `jellyfish`) always co-occur with wings/colorings. Folding
+ * those members one tier up — and renaming the old Diabolical/Demonic bands
+ * to Expert/Master — makes every advertised tier reachable end-to-end. No
+ * actually-occurring puzzle is reclassified; only the labels move. The
+ * companion table is `TECHNIQUE_CATALOG[*].tier` in
+ * `src/engine/solver/techniques/catalog.ts` and the two must agree.
+ * See requirements §4.1.
  */
 const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
   'naked-single': 'Easy',
   'hidden-single': 'Medium',
   pointing: 'Hard',
   'box-line-reduction': 'Hard',
-  'naked-pair': 'Expert',
-  'naked-triple': 'Expert',
-  'naked-quad': 'Expert',
-  'hidden-pair': 'Expert',
-  'hidden-triple': 'Expert',
-  'hidden-quad': 'Expert',
-  'x-wing': 'Master',
-  swordfish: 'Master',
-  jellyfish: 'Master',
-  'xy-wing': 'Diabolical',
-  'xyz-wing': 'Diabolical',
-  'w-wing': 'Diabolical',
-  'simple-coloring': 'Diabolical',
-  'x-cycle': 'Diabolical',
-  'empty-rectangle': 'Diabolical',
-  skyscraper: 'Diabolical',
-  'two-string-kite': 'Diabolical',
-  'unique-rectangle': 'Demonic',
-  'bug-plus-one': 'Demonic',
-  'xy-chain': 'Demonic',
-  'multi-coloring': 'Demonic',
-  'als-xz': 'Demonic',
-  'wxyz-wing': 'Demonic',
-  'hidden-rectangle': 'Demonic',
-  'avoidable-rectangle': 'Demonic',
+  'naked-pair': 'Hard',
+  'naked-triple': 'Hard',
+  'naked-quad': 'Hard',
+  'hidden-pair': 'Hard',
+  'hidden-triple': 'Hard',
+  'hidden-quad': 'Hard',
+  'x-wing': 'Expert',
+  swordfish: 'Expert',
+  jellyfish: 'Expert',
+  'xy-wing': 'Expert',
+  'xyz-wing': 'Expert',
+  'w-wing': 'Expert',
+  'simple-coloring': 'Expert',
+  'x-cycle': 'Expert',
+  'empty-rectangle': 'Expert',
+  skyscraper: 'Expert',
+  'two-string-kite': 'Expert',
+  'unique-rectangle': 'Master',
+  'bug-plus-one': 'Master',
+  'xy-chain': 'Master',
+  'multi-coloring': 'Master',
+  'als-xz': 'Master',
+  'wxyz-wing': 'Master',
+  'hidden-rectangle': 'Master',
+  'avoidable-rectangle': 'Master',
   'nice-loop': 'Nightmare',
   'grouped-x-cycle': 'Nightmare',
   '3d-medusa': 'Nightmare',

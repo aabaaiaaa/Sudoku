@@ -13,7 +13,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/generator/rate.ts` passes for this file (other files will fail to type-check until later tasks; that is acceptable for this task's scope).
 
 ### TASK-002: Remap `TECHNIQUE_TIER`
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite `TECHNIQUE_TIER` in `rate.ts` per the table in requirements §4.1. Move `pointing` and `box-line-reduction` to `Hard` (alongside subsets); move x-wing/swordfish/jellyfish into `Expert` (alongside wings/colorings/cycles); move unique-rectangle/BUG+1/xy-chain/multi-coloring/als-xz/wxyz-wing/hidden-rectangle/avoidable-rectangle into `Master`. Nightmare members unchanged. Refresh the docblock above the table.

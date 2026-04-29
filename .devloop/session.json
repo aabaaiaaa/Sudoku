@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 0,
+  "lastIteration": 1,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-001",
-    "taskTitle": "Collapse `Difficulty` type and `DIFFICULTY_ORDER`",
-    "iterationNumber": 1,
-    "startedAt": "2026-04-29T23:03:47.459Z"
+    "taskId": "TASK-002",
+    "taskTitle": "Remap `TECHNIQUE_TIER`",
+    "iterationNumber": 2,
+    "startedAt": "2026-04-29T23:07:29.880Z"
   }
 }
