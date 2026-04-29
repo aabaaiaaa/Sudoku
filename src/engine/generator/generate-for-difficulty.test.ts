@@ -182,16 +182,18 @@ describe('generateForDifficulty — default budget constants', () => {
     expect(DEFAULT_TIMEOUT_MS).toBe(60_000);
   });
 
-  it('per-tier attempt table matches the iteration-5 baseline tuning', () => {
-    // Every tier defaults to 50; Nightmare is widened to 59 per the
-    // iteration-5 reliability formula (classic:Nightmare rate=0.10 → N=59).
+  it('per-tier attempt table matches the iteration-6 baseline tuning', () => {
+    // Iteration-6 corrected baseline + lever-2 sweep drive the worst-case
+    // (variant, tier, solvedRate) tuple per tier. Tiers whose worst-case
+    // formula N is below 50 keep the default 50 floor; the rest widen to
+    // the formula's N. See generate-for-difficulty.ts:11-32 for citations.
     expect(MAX_ATTEMPTS_BY_TIER.Easy).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Medium).toBe(50);
+    expect(MAX_ATTEMPTS_BY_TIER.Medium).toBe(122);
     expect(MAX_ATTEMPTS_BY_TIER.Hard).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Expert).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Master).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Diabolical).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Demonic).toBe(50);
+    expect(MAX_ATTEMPTS_BY_TIER.Demonic).toBe(122);
     expect(MAX_ATTEMPTS_BY_TIER.Nightmare).toBe(59);
 
     // Helper agrees with the table for every tier in DIFFICULTY_ORDER.
@@ -206,9 +208,9 @@ describe('generateForDifficulty — default budget constants', () => {
       // Force every attempt to be rejected by mocking `rate` to return a
       // fixed off-target tier. The loop then runs until the attempts budget
       // is exhausted, so `result.attempts` equals the per-tier default.
-      // Nightmare is the only tier whose iteration-5 reliability budget
-      // exceeds the 50-attempt default — the others all reduce to the
-      // default and would be redundant to assert here.
+      // Nightmare's per-tier budget is widened to 59 per the iteration-6
+      // formula (classic:Nightmare solvedRate=0.10 → N=59); this assertion
+      // pins that wiring end-to-end.
       const rateModule = await import('./rate');
       const realRate = rateModule.rate;
       // Pick a fake rating well off the target. Returning Easy guarantees

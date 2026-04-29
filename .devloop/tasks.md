@@ -105,7 +105,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   values vs the iteration-5 file.
 
 ### TASK-006: Recalibrate MAX_ATTEMPTS_BY_TIER and TIMEOUT_MS_BY_TIER
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-003, TASK-005, TASK-009
 - **Description**: Read `scripts/tier-distribution.summary.json`
@@ -215,7 +215,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   applied, `git status` is clean for these three files.
 
 ### TASK-010: Refresh variant-tiers.ts docblock
-- **Status**: pending
+- **Status**: done
 - **Type**: docs
 - **Dependencies**: TASK-005, TASK-008, TASK-009
 - **Description**: Rewrite the doc-block above `VARIANT_TIERS` in
