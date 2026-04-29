@@ -11,23 +11,11 @@
     "sampleSize": 20,
     "firstHitSeed": 102
   },
-  "classic:Hard": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
   "classic:Expert": {
     "rate": 0.2,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 301
-  },
-  "classic:Master": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
   },
   "classic:Diabolical": {
     "rate": 0.2,
@@ -53,52 +41,10 @@
     "sampleSize": 20,
     "firstHitSeed": 1000
   },
-  "six:Medium": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
-  "six:Hard": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
-  "six:Expert": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
-  "six:Master": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
-  "six:Diabolical": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
   "mini:Easy": {
     "rate": 1,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 2000
-  },
-  "mini:Medium": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
-  },
-  "mini:Hard": {
-    "rate": 0,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": null
   }
 }

@@ -101,8 +101,17 @@ for (let variantIndex = 0; variantIndex < VARIANTS_IN_ORDER.length; variantIndex
     let firstHitSeed: number | null = null;
     let matchCount = 0;
 
+    // Seed offset is keyed on the tier's *position in `DIFFICULTY_ORDER`*,
+    // not the local index inside `availableTiers(variant)`. Local indexing
+    // shifts every time a tier is descoped (lever 3 in requirements §6),
+    // which causes already-profiled tiers to silently sample a *different*
+    // seed range — a classic source of false-positive verification failures
+    // when the natural rate at a given (variant, tier, clueFloor) is itself
+    // healthy but the new seed range happens to be unlucky. Keying on the
+    // global tier rank keeps each tier's seed range stable across iterations.
+    const tierRank = DIFFICULTY_ORDER.indexOf(tier);
     for (let i = 0; i < N; i++) {
-      const seed = variantIndex * 1000 + tierIndex * 100 + i;
+      const seed = variantIndex * 1000 + tierRank * 100 + i;
       // Use `minClues` as the floor — this corresponds to what the
       // post-rename API will call `clueFloor`.
       const generated = generate(variant, { seed, minClues: clueFloor });
