@@ -21,13 +21,13 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
 
 ### TASK-003: Test that exception in rate is contained per attempt
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002
 - **Description**: Add a Vitest case to `src/engine/generator/generate-for-difficulty.test.ts` that monkey-patches `rate` (or supplies a fake) to throw on attempt 1 and succeed on attempt 2; assert the function returns `kind: 'success'` and the test does not throw. Add a second case where every attempt throws; assert `kind: 'failed'` with `attempts === maxRetries` and `lastError` populated. See requirements §4.1.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes including the two new cases.
 
 ### TASK-004: Surface lastError through worker
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002
 - **Description**: In `src/workers/generator.worker.ts`, add `lastError?: string` to the `FailedMessage` interface. When `generateForDifficulty` returns `kind: 'failed'`, copy `result.lastError` onto the posted `failed` message. Also `console.warn` every caught exception inside the worker's outer try/catch with the message and stack so a developer running locally can identify the offender. See requirements §4.1.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts` passes (FakeWorker tests still green).
@@ -57,7 +57,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
 
 ### TASK-009: Remove Expert fallback in rate
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008
 - **Description**: In `src/engine/generator/rate.ts`, change the post-loop logic so `difficulty` is set to `hardestTier` regardless of whether the cascade finished. The `solved` flag (already in `RateResult`) is the authoritative signal for "fully solved by cascade". Update the JSDoc on `rate()` to reflect this. The existing `rate.test.ts` cases that asserted `difficulty === 'Expert'` for stalled puzzles will fail after this change — that is expected and is repaired in TASK-010. See requirements §4.4.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-010, which lands in the same commit chain immediately after.
@@ -87,7 +87,7 @@ their early prerequisites land.
 - **Verification**: The test file exists at the named path and is runnable via `npx vitest run src/engine/solver/techniques/fuzz.test.ts`. If all finders are clean the test passes immediately and TASK-014a/b/c can be marked no-op. If any finder throws, the test fails with a reproducible seed printed in the failure message — that output is consumed by TASK-014a. The fuzz harness is "green" only after TASK-014c lands; this task creates the harness, it does not gate-on its passing.
 
 ### TASK-014a: Triage fuzz failures and fix first throwing finder
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-013
 - **Description**: Run the fuzz harness, identify the first finder that throws, fix the root cause (typically: degenerate-grid handling, off-by-one on box dimensions, assumption that `variant.size === 9`). Add a regression fixture to that finder's existing `<name>.test.ts` reproducing the failure. If no finders throw, mark this task and TASK-014b/c complete with a note. See requirements §4.2.
 - **Verification**: `npx vitest run src/engine/solver/techniques/<fixed-name>.test.ts` passes the new regression case; `npx vitest run src/engine/solver/techniques/fuzz.test.ts` no longer reports that finder.
@@ -105,7 +105,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/solver/techniques/fuzz.test.ts` passes with zero failures across `classic`, `mini`, and `six`.
 
 ### TASK-015: Add maxClues hint plumbing in generate
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/engine/generator/generate.ts`, add an optional `maxClues?: number` to `GenerateOptions`. When supplied, the clue-removal loop refuses to remove a clue that would push the puzzle below `maxClues`. Update the JSDoc on `GenerateOptions`. See requirements §4.3.
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts` passes including a new case asserting clue count after generation is `>= maxClues`.

@@ -247,6 +247,91 @@ describe('generateForDifficulty — onProgress callback', () => {
   );
 });
 
+describe('generateForDifficulty — per-attempt error containment', () => {
+  // Requirements §4.1: each generate()+rate() pair is wrapped in try/catch.
+  // A throwing attempt is counted against the retry budget, captured in
+  // `lastError`, and never propagates out of generateForDifficulty.
+
+  it(
+    'recovers when rate throws on the first attempt and succeeds on the second',
+    async () => {
+      const rateModule = await import('./rate');
+      const realRate = rateModule.rate;
+      let callCount = 0;
+      const spy = vi.spyOn(rateModule, 'rate').mockImplementation((puzzle) => {
+        callCount++;
+        if (callCount === 1) {
+          throw new Error('synthetic finder failure on attempt 1');
+        }
+        return realRate(puzzle);
+      });
+
+      try {
+        // Use Easy with a generous retry budget so attempt 2 reliably matches.
+        // The function must not throw, and must ultimately return success.
+        let result: ReturnType<typeof generateForDifficulty> | undefined;
+        expect(() => {
+          result = generateForDifficulty(classicVariant, 'Easy', {
+            seed: 1,
+            maxRetries: 80,
+            timeoutMs: 60_000,
+          });
+        }).not.toThrow();
+
+        expect(result).toBeDefined();
+        expect(result!.kind).toBe('success');
+        // Sanity: the throwing attempt was actually exercised.
+        expect(callCount).toBeGreaterThanOrEqual(2);
+      } finally {
+        spy.mockRestore();
+      }
+    },
+    120_000,
+  );
+
+  it(
+    'returns kind:failed with attempts === maxRetries and lastError populated when every attempt throws',
+    async () => {
+      const rateModule = await import('./rate');
+      const spy = vi.spyOn(rateModule, 'rate').mockImplementation(() => {
+        const err = new Error('synthetic always-throws') as Error & {
+          technique?: string;
+        };
+        err.technique = 'synthetic-finder';
+        throw err;
+      });
+
+      try {
+        const maxRetries = 3;
+        let result: ReturnType<typeof generateForDifficulty> | undefined;
+        expect(() => {
+          result = generateForDifficulty(classicVariant, 'Easy', {
+            seed: 1,
+            maxRetries,
+            timeoutMs: 60_000,
+          });
+        }).not.toThrow();
+
+        expect(result).toBeDefined();
+        expect(result!.kind).toBe('failed');
+        if (result!.kind !== 'failed') return;
+
+        expect(result!.attempts).toBe(maxRetries);
+        // Every attempt threw, so no rating completed -> closestRating null.
+        expect(result!.closestRating).toBeNull();
+        // lastError must be populated and carry the synthetic message; the
+        // technique tag is prefixed by generateForDifficulty when present.
+        expect(result!.lastError).toBeTruthy();
+        expect(typeof result!.lastError).toBe('string');
+        expect(result!.lastError).toContain('synthetic always-throws');
+      } finally {
+        spy.mockRestore();
+      }
+    },
+    60_000,
+  );
+});
+
 describe('generateForDifficulty — wall-clock timeout', () => {
   // Requirements §6.2: hard 60-second wall-clock timeout, whichever (cap or
   // timeout) hits first. Tests use a tiny `timeoutMs` so the failure path is

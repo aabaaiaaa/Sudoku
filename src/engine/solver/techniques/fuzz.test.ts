@@ -23,6 +23,9 @@ import { classicVariant, miniVariant, sixVariant } from '../../variants';
  * Runs are deterministic: the seed for each (finder, variant) pair is derived
  * from a stable FNV-1a hash so any failure can be reproduced from the printed
  * context.
+ *
+ * Status (TASK-014a, 2026-04-29): fuzz suite is clean — all 34 finders pass
+ * across all 3 variants × 50 random boards. TASK-014b/c are no-ops.
  */
 
 // ---------- deterministic PRNG (mulberry32) ----------

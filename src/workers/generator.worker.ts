@@ -39,6 +39,12 @@ export interface FailedMessage {
   closestRating: RateResult | null;
   attempts: number;
   elapsedMs: number;
+  /**
+   * Best-effort message from the most recent attempt that threw. Mirrors
+   * `GenerationFailed.lastError` from `generate-for-difficulty.ts` so the UI
+   * can surface finder bugs to users without crashing generation.
+   */
+  lastError?: string;
 }
 
 /** Posted when a request is malformed or generation throws unexpectedly. */
@@ -125,12 +131,20 @@ ctx.addEventListener('message', (event) => {
         closestRating: result.closestRating,
         attempts: result.attempts,
         elapsedMs: result.elapsedMs,
+        lastError: result.lastError,
       });
     }
   } catch (err) {
+    // Diagnostic warn so a developer running locally can identify the
+    // offender. Per-attempt errors are already contained inside
+    // `generateForDifficulty`; reaching this catch indicates an unexpected
+    // exception escaped — log message and stack before posting to the host.
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    console.warn('[generator.worker] unhandled exception:', message, stack);
     ctx.postMessage({
       type: 'error',
-      message: err instanceof Error ? err.message : String(err),
+      message,
     });
   } finally {
     busy = false;

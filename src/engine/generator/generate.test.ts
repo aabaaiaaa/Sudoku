@@ -82,3 +82,18 @@ describe('generate — minClues floor', () => {
     expect(countGivens(puzzle)).toBeGreaterThanOrEqual(floor);
   });
 });
+
+describe('generate — maxClues floor', () => {
+  it('honors the maxClues option (does not remove below the higher floor)', () => {
+    // maxClues is a secondary floor used to prevent mid-tier puzzles from
+    // overshooting into a harder tier. With a value clearly above the natural
+    // classic minClues default (30), the resulting puzzle must keep at least
+    // that many givens.
+    const ceiling = 40;
+    const { puzzle } = generate(classicVariant, {
+      seed: 0xc1a551c,
+      maxClues: ceiling,
+    });
+    expect(countGivens(puzzle)).toBeGreaterThanOrEqual(ceiling);
+  }, 30_000);
+});

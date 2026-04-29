@@ -23,6 +23,12 @@ export interface GeneratorFailure {
   closestRating: RateResult | null;
   attempts: number;
   elapsedMs: number;
+  /**
+   * Best-effort message from the most recent attempt that threw inside
+   * `generateForDifficulty`. Mirrored from the worker's `failed` message so
+   * the UI can surface finder bugs without crashing generation.
+   */
+  lastError?: string;
 }
 
 /** Worker reported a malformed request or an unexpected exception. */
@@ -126,6 +132,7 @@ export function generateInWorker(
             closestRating: msg.closestRating,
             attempts: msg.attempts,
             elapsedMs: msg.elapsedMs,
+            lastError: msg.lastError,
           });
           break;
         case 'error':

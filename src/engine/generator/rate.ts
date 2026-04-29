@@ -575,9 +575,10 @@ function countGivens(board: Board): number {
 export interface RateResult {
   /** The final difficulty tier for the puzzle. */
   difficulty: Difficulty;
-  /** The hardest technique that was actually required, if the puzzle was
-   *  solved by technique chain. `null` if the techniques can't finish it
-   *  (in which case `difficulty` is `Expert`). */
+  /** The hardest technique that actually fired during the cascade. `null`
+   *  only if no technique fired at all (e.g. an empty or already-solved
+   *  board). When the cascade stalls, this still reflects the hardest
+   *  technique used; consult `solved` to know whether the cascade finished. */
   hardestTechnique: TechniqueId | null;
   /** The set of technique ids used during solving. */
   techniquesUsed: TechniqueId[];
@@ -591,9 +592,14 @@ export interface RateResult {
  * Rate a puzzle by solving it with the implemented technique chain and
  * returning the hardest technique required, mapped to a difficulty tier.
  *
- * If the technique chain can't fully solve the puzzle, the puzzle is rated
- * `Expert` — this means it requires techniques beyond those implemented (or
- * guessing), which is at or above Expert in our taxonomy.
+ * `difficulty` always reflects the hardest technique that actually fired
+ * during the cascade — it is never used as a sentinel for "unsolvable".
+ * Callers must consult `solved: false` separately to detect a stalled
+ * cascade (i.e. the puzzle requires reasoning beyond the implemented
+ * technique chain). When `solved` is `false`, `difficulty` still reports
+ * the hardest technique used so far rather than a fallback label, which
+ * keeps the tier mapping unambiguous and prevents collisions with puzzles
+ * that legitimately rate at the same tier.
  */
 export function rate(puzzle: Board): RateResult {
   const board = cloneBoard(puzzle);
@@ -996,7 +1002,7 @@ export function rate(puzzle: Board): RateResult {
   }
 
   const solved = isSolved(board);
-  const difficulty: Difficulty = solved ? hardestTier : 'Expert';
+  const difficulty: Difficulty = hardestTier;
   return {
     difficulty,
     hardestTechnique,
