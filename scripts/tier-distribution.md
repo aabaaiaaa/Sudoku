@@ -1,8 +1,8 @@
 # Tier distribution
 
 - Variants: classic, six, mini
-- Generated: 2026-04-29T20:24:08.034Z
-- Total runtime: 2.2s
+- Generated: 2026-04-29T20:43:12.149Z
+- Total runtime: 2.6s
 - N per cell: 20
 
 ## classic — clueFloor=38 (Easy.lower)
@@ -122,12 +122,12 @@
 | Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
 
-## six — clueFloor=18 (Medium.lower)
+## six — clueFloor=14 (Medium.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
-| Medium     | 0     | 0.0%  | 0      | 0.0%     |
+| Easy       | 19    | 95.0% | 19     | 95.0%    |
+| Medium     | 1     | 5.0%  | 1      | 5.0%     |
 | Hard       | 0     | 0.0%  | 0      | 0.0%     |
 | Expert     | 0     | 0.0%  | 0      | 0.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |

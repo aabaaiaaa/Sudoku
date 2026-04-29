@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 3,
+  "lastIteration": 4,
   "startedAt": "2026-04-29T20:15:28.692Z",
   "iteration": 5,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-006",
-    "taskTitle": "Batch: TASK-006, TASK-010",
-    "iterationNumber": 4,
-    "startedAt": "2026-04-29T20:34:39.833Z"
+    "taskId": "TASK-011",
+    "taskTitle": "Re-run final profile and commit iteration-6 final snapshot",
+    "iterationNumber": 5,
+    "startedAt": "2026-04-29T20:42:08.766Z"
   }
 }

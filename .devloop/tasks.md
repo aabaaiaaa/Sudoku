@@ -234,7 +234,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   updated to cite iteration-6 evidence.
 
 ### TASK-011: Re-run final profile and commit iteration-6 final snapshot
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-006, TASK-007, TASK-009
 - **Description**: Run `npm run profile-tiers -- --all-tiers --n=20`

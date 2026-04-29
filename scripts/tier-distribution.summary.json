@@ -72,12 +72,12 @@
     "firstHitBoard": "2.5631...25.41.3.53.6142.31.26..4.1."
   },
   "six:Medium": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
+    "rate": 0.05,
+    "solvedRate": 0.05,
+    "advertised": true,
     "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
+    "firstHitSeed": 1102,
+    "firstHitBoard": "16...2...6...2..43.341......61.1.2.."
   },
   "six:Hard": {
     "rate": 0,
