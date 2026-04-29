@@ -18,7 +18,7 @@ numbers (§N) below refer to that document.
 - **Verification**: Both files exist on disk and reflect the new run (check `Generated:` header date in the markdown, and that `tier-distribution.summary.json` has 17 entries — every tier × variant cell with a defined `CLUE_BOUNDS` window). `git diff scripts/tier-distribution.summary.json` shows the new entries with non-null `firstHitBoard` for tiers that hit. No code changes in this task.
 
 ### TASK-003: Apply lever 1 — update `MAX_ATTEMPTS_BY_TIER` per the iteration-5 baseline
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-002
 - **Description**: Implement requirements §6. Read `scripts/tier-distribution.summary.json` (the iteration-5 baseline). For each (variant, tier) cell with `rate ≥ 0.05`, compute `N = ceil(log(0.002) / log(1 - rate))` (cap at 200). For each tier (across variants), set `MAX_ATTEMPTS_BY_TIER[tier]` to the maximum `N` among that tier's cells. Update the table in `src/engine/generator/generate-for-difficulty.ts` (lines ~19-28). Also refresh the doc-block above the table (lines ~11-18) to: drop the "Iteration 3 §4.3" reference; cite the iteration-5 baseline by date; for any non-default budget, cite the (variant, tier, rate) tuple that justified it. Cells with `rate < 0.05` keep the default `50` budget — they will be handled by descope/restore in TASK-004, not by lever 1.

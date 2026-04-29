@@ -182,17 +182,17 @@ describe('generateForDifficulty — default budget constants', () => {
     expect(DEFAULT_TIMEOUT_MS).toBe(60_000);
   });
 
-  it('per-tier attempt table matches Iteration 3 §4.3', () => {
-    // Easy/Medium and Diabolical/Demonic/Nightmare: 50 attempts.
-    // Hard/Expert/Master: 100 attempts.
+  it('per-tier attempt table matches the iteration-5 baseline tuning', () => {
+    // Every tier defaults to 50; Nightmare is widened to 59 per the
+    // iteration-5 reliability formula (classic:Nightmare rate=0.10 → N=59).
     expect(MAX_ATTEMPTS_BY_TIER.Easy).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Medium).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Hard).toBe(100);
-    expect(MAX_ATTEMPTS_BY_TIER.Expert).toBe(100);
-    expect(MAX_ATTEMPTS_BY_TIER.Master).toBe(100);
+    expect(MAX_ATTEMPTS_BY_TIER.Hard).toBe(50);
+    expect(MAX_ATTEMPTS_BY_TIER.Expert).toBe(50);
+    expect(MAX_ATTEMPTS_BY_TIER.Master).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Diabolical).toBe(50);
     expect(MAX_ATTEMPTS_BY_TIER.Demonic).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Nightmare).toBe(50);
+    expect(MAX_ATTEMPTS_BY_TIER.Nightmare).toBe(59);
 
     // Helper agrees with the table for every tier in DIFFICULTY_ORDER.
     for (const tier of DIFFICULTY_ORDER) {
@@ -201,37 +201,38 @@ describe('generateForDifficulty — default budget constants', () => {
   });
 
   it(
-    'Hard/Expert/Master default to 100 attempts when maxRetries is omitted',
+    'Nightmare defaults to 59 attempts when maxRetries is omitted',
     async () => {
       // Force every attempt to be rejected by mocking `rate` to return a
       // fixed off-target tier. The loop then runs until the attempts budget
       // is exhausted, so `result.attempts` equals the per-tier default.
+      // Nightmare is the only tier whose iteration-5 reliability budget
+      // exceeds the 50-attempt default — the others all reduce to the
+      // default and would be redundant to assert here.
       const rateModule = await import('./rate');
       const realRate = rateModule.rate;
-      // Pick a fake rating well off the targets we test (Hard/Expert/Master).
-      // Returning Easy guarantees no strict-tier match on those targets.
+      // Pick a fake rating well off the target. Returning Easy guarantees
+      // no strict-tier match on Nightmare.
       const spy = vi.spyOn(rateModule, 'rate').mockImplementation((puzzle) => {
         const real = realRate(puzzle);
         return { ...real, difficulty: 'Easy' };
       });
 
       try {
-        for (const target of ['Hard', 'Expert', 'Master'] as const) {
-          // Omit maxRetries so the per-tier default applies. Generous timeout
-          // ensures the failure path is reached via the attempts budget.
-          const result = generateForDifficulty(classicVariant, target, {
-            seed: 1,
-            timeoutMs: 60_000,
-          });
-          expect(result.kind).toBe('failed');
-          if (result.kind !== 'failed') continue;
-          expect(result.attempts).toBe(100);
-        }
+        // Omit maxRetries so the per-tier default applies. Generous timeout
+        // ensures the failure path is reached via the attempts budget.
+        const result = generateForDifficulty(classicVariant, 'Nightmare', {
+          seed: 1,
+          timeoutMs: 120_000,
+        });
+        expect(result.kind).toBe('failed');
+        if (result.kind !== 'failed') return;
+        expect(result.attempts).toBe(59);
       } finally {
         spy.mockRestore();
       }
     },
-    120_000,
+    180_000,
   );
 });
 

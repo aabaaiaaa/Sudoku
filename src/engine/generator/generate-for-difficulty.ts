@@ -9,22 +9,28 @@ import {
 } from './rate';
 
 /**
- * Per-tier attempt cap per call (Iteration 3 §4.3). Hard/Expert/Master are
- * mid-range tiers whose generator distribution doesn't reliably hit the
- * target inside 50 tries, so they get a larger 100-attempt budget.
- * Diabolical/Demonic/Nightmare keep 50 because each attempt is much more
- * expensive — they typically consume the full 60s wall-clock budget anyway.
- * Easy/Medium are cheap and almost always match within 50.
+ * Per-tier attempt cap per call. Sized via the requirements §6 reliability
+ * formula `N = ceil(log(0.002) / log(1 - rate))` against the iteration-5
+ * post-fix baseline (`scripts/tier-distribution.summary.json`, generated
+ * 2026-04-29). Each tier defaults to 50; lever-1 widens only where the
+ * baseline data shows the formula's required N exceeds the default.
+ *
+ * Non-default budgets:
+ *   - Nightmare = 59: classic:Nightmare rate=0.10 (sample size 20) → N=59.
+ *
+ * Tiers with no qualifying cell (rate ≥ 0.05) in any variant — currently
+ * Hard and Master — keep the default 50; the iteration-5 descope/restore
+ * decisions for those tiers are handled separately, not via lever 1.
  */
 export const MAX_ATTEMPTS_BY_TIER: Record<Difficulty, number> = {
   Easy: 50,
   Medium: 50,
-  Hard: 100,
-  Expert: 100,
-  Master: 100,
+  Hard: 50,
+  Expert: 50,
+  Master: 50,
   Diabolical: 50,
   Demonic: 50,
-  Nightmare: 50,
+  Nightmare: 59,
 };
 /**
  * Legacy default attempt cap (requirements §6.2). Retained for callers and
@@ -36,8 +42,9 @@ export const DEFAULT_MAX_ATTEMPTS = 50;
 export const DEFAULT_TIMEOUT_MS = 60_000;
 
 /**
- * Returns the default attempts budget for the given target tier (Iteration 3
- * §4.3). Callers can still override via `options.maxRetries`.
+ * Returns the default attempts budget for the given target tier from
+ * {@link MAX_ATTEMPTS_BY_TIER}. Callers can still override via
+ * `options.maxRetries`.
  */
 export function defaultMaxAttemptsForTier(difficulty: Difficulty): number {
   return MAX_ATTEMPTS_BY_TIER[difficulty] ?? DEFAULT_MAX_ATTEMPTS;
@@ -60,9 +67,9 @@ export interface GenerateForDifficultyOptions {
   /**
    * Maximum number of distinct generation attempts before giving up.
    * Defaults to the per-tier value in {@link MAX_ATTEMPTS_BY_TIER} (50 for
-   * Easy/Medium and Diabolical/Demonic/Nightmare; 100 for Hard/Expert/Master).
-   * Whichever of `maxRetries` or `timeoutMs` is reached first ends generation
-   * in failure.
+   * every tier except Nightmare, which is widened to 59 per the
+   * iteration-5 baseline). Whichever of `maxRetries` or `timeoutMs` is
+   * reached first ends generation in failure.
    */
   maxRetries?: number;
   /**

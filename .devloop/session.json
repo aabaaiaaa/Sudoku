@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 1,
+  "lastIteration": 2,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-002",
-    "taskTitle": "Capture iteration-5 post-fix baseline profile",
-    "iterationNumber": 2,
-    "startedAt": "2026-04-29T16:39:52.830Z"
+    "taskId": "TASK-003",
+    "taskTitle": "Apply lever 1 — update `MAX_ATTEMPTS_BY_TIER` per the iteration-5 baseline",
+    "iterationNumber": 3,
+    "startedAt": "2026-04-29T16:42:06.968Z"
   }
 }
