@@ -351,7 +351,7 @@ their early prerequisites land.
 - **Verification**: `npx tsc --noEmit` exits zero; `npm run build` completes with no errors.
 
 ### TASK-052: Full E2E sweep — Chromium and WebKit
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-037, TASK-043, TASK-044, TASK-045c, TASK-046, TASK-049, TASK-051
 - **Description**: Run the full E2E suite under both Playwright projects. See requirements §12.
 - **Verification**: `npx playwright test --project=chromium` and `npx playwright test --project=webkit` both exit zero. Document elapsed time for each so future iterations can spot drift.

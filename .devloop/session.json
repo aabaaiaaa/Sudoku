@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 12,
+  "lastIteration": 13,
   "startedAt": "2026-04-29T09:04:22.582Z",
   "iteration": 2,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-049",
-    "taskTitle": "Verify Bug B status with matrix E2E",
-    "iterationNumber": 13,
-    "startedAt": "2026-04-29T10:28:59.838Z"
+    "taskId": "TASK-052",
+    "taskTitle": "Full E2E sweep — Chromium and WebKit",
+    "iterationNumber": 14,
+    "startedAt": "2026-04-29T10:32:22.652Z"
   }
 }
