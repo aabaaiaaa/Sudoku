@@ -25,10 +25,17 @@ describe('migration helpers', () => {
       expect(hasOldSaves()).toBe(true);
     });
 
-    it('returns false when only v3 keys exist', () => {
+    it('returns true when v3 keys exist', () => {
       window.localStorage.setItem('sudoku.save.v3', '{}');
       window.localStorage.setItem('sudoku.stats.v3', '{}');
       window.localStorage.setItem('sudoku.settings.v3', '{}');
+      expect(hasOldSaves()).toBe(true);
+    });
+
+    it('returns false when only v4 keys exist', () => {
+      window.localStorage.setItem('sudoku.save.v4', '{}');
+      window.localStorage.setItem('sudoku.stats.v4', '{}');
+      window.localStorage.setItem('sudoku.settings.v4', '{}');
       expect(hasOldSaves()).toBe(false);
     });
 
@@ -45,39 +52,45 @@ describe('migration helpers', () => {
   });
 
   describe('removeOldSaves', () => {
-    it('removes only v1 and v2 keys, leaving v3 keys intact', () => {
+    it('removes v1, v2, and v3 keys, leaving v4 keys intact', () => {
       window.localStorage.setItem('sudoku.save.v1', '{"v":1}');
       window.localStorage.setItem('sudoku.save.v2', '{"v":2}');
       window.localStorage.setItem('sudoku.save.v3', '{"v":3}');
+      window.localStorage.setItem('sudoku.save.v4', '{"v":4}');
       window.localStorage.setItem('sudoku.stats.v1', '{"v":1}');
       window.localStorage.setItem('sudoku.stats.v2', '{"v":2}');
       window.localStorage.setItem('sudoku.stats.v3', '{"v":3}');
+      window.localStorage.setItem('sudoku.stats.v4', '{"v":4}');
       window.localStorage.setItem('sudoku.settings.v1', '{"v":1}');
       window.localStorage.setItem('sudoku.settings.v2', '{"v":2}');
       window.localStorage.setItem('sudoku.settings.v3', '{"v":3}');
+      window.localStorage.setItem('sudoku.settings.v4', '{"v":4}');
 
       removeOldSaves();
 
       expect(window.localStorage.getItem('sudoku.save.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+      expect(window.localStorage.getItem('sudoku.save.v3')).toBeNull();
       expect(window.localStorage.getItem('sudoku.stats.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.stats.v2')).toBeNull();
+      expect(window.localStorage.getItem('sudoku.stats.v3')).toBeNull();
       expect(window.localStorage.getItem('sudoku.settings.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.settings.v2')).toBeNull();
+      expect(window.localStorage.getItem('sudoku.settings.v3')).toBeNull();
 
-      expect(window.localStorage.getItem('sudoku.save.v3')).toBe('{"v":3}');
-      expect(window.localStorage.getItem('sudoku.stats.v3')).toBe('{"v":3}');
-      expect(window.localStorage.getItem('sudoku.settings.v3')).toBe('{"v":3}');
+      expect(window.localStorage.getItem('sudoku.save.v4')).toBe('{"v":4}');
+      expect(window.localStorage.getItem('sudoku.stats.v4')).toBe('{"v":4}');
+      expect(window.localStorage.getItem('sudoku.settings.v4')).toBe('{"v":4}');
     });
 
     it('is a no-op when there are no matching keys', () => {
-      window.localStorage.setItem('sudoku.save.v3', '{"v":3}');
+      window.localStorage.setItem('sudoku.save.v4', '{"v":4}');
       window.localStorage.setItem('someOtherApp.thing', 'value');
 
       expect(() => removeOldSaves()).not.toThrow();
 
       expect(window.localStorage.length).toBe(2);
-      expect(window.localStorage.getItem('sudoku.save.v3')).toBe('{"v":3}');
+      expect(window.localStorage.getItem('sudoku.save.v4')).toBe('{"v":4}');
       expect(window.localStorage.getItem('someOtherApp.thing')).toBe('value');
     });
 
@@ -161,13 +174,13 @@ describe('migration helpers', () => {
     it('removeOldSaves operates on the supplied storage instance', () => {
       const storage = makeStorage();
       storage.setItem('sudoku.save.v1', '{}');
-      storage.setItem('sudoku.save.v3', '{}');
+      storage.setItem('sudoku.save.v4', '{}');
       window.localStorage.setItem('sudoku.save.v1', '{}');
 
       removeOldSaves(storage);
 
       expect(storage.getItem('sudoku.save.v1')).toBeNull();
-      expect(storage.getItem('sudoku.save.v3')).toBe('{}');
+      expect(storage.getItem('sudoku.save.v4')).toBe('{}');
       // Default localStorage is untouched.
       expect(window.localStorage.getItem('sudoku.save.v1')).toBe('{}');
     });

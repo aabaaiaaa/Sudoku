@@ -132,7 +132,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/components/DifficultyBadge.test.tsx src/components/GenerationFailedDialog.test.tsx` passes.
 
 ### TASK-019: Update store / migration tests for v4 schemas
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-008, TASK-009, TASK-010
 - **Description**: Update `src/store/save.test.ts` (any literal `'sudoku.save.v3'` becomes `'sudoku.save.v4'`; `SAVE_SCHEMA_VERSION === 4`). Update `src/store/stats.test.ts` (the `'sudoku.stats.v3'` and `STATS_SCHEMA_VERSION === 3` literals; `initialStatsEntries` shape now nine entries — six classic + two six + one mini; add a targeted assertion that `entryKey('classic', 'Hard') === 'classic:hard'` covering the lowercase normalisation closing review §5.1). Update `src/store/migration.test.ts` — the iteration-6 "v3 keys not detected" case at lines 28-33 inverts (v3 IS now detected); add a "v4 keys NOT detected" case to pin the new boundary.

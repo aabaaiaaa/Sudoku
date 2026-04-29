@@ -198,9 +198,9 @@ describe('save store', () => {
     expect(getSavedGame('classic', 'easy')).toBeNull();
   });
 
-  it('uses the v3 storage key and bumped schema version', () => {
-    expect(SAVE_STORAGE_KEY).toBe('sudoku.save.v3');
-    expect(SAVE_SCHEMA_VERSION).toBe(3);
+  it('uses the v4 storage key and bumped schema version', () => {
+    expect(SAVE_STORAGE_KEY).toBe('sudoku.save.v4');
+    expect(SAVE_SCHEMA_VERSION).toBe(4);
   });
 
   it('silently drops legacy v1 entries on load', () => {

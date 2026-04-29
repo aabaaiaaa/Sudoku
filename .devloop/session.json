@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 17,
+  "lastIteration": 18,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-018",
-    "taskTitle": "Update component tests for new tier scheme",
-    "iterationNumber": 18,
-    "startedAt": "2026-04-29T23:49:50.310Z"
+    "taskId": "TASK-019",
+    "taskTitle": "Update store / migration tests for v4 schemas",
+    "iterationNumber": 19,
+    "startedAt": "2026-04-29T23:52:56.098Z"
   }
 }

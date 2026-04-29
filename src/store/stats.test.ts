@@ -158,25 +158,30 @@ describe('stats store', () => {
     const store = createStatsStore();
     const entries = store.getState().entries;
 
-    // Classic post-tuning advertises 6 tiers (Hard and Master descoped per
-    // iteration-4 §6 lever 3 — see variant-tiers.ts).
-    for (const slug of ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare']) {
+    // Classic iteration-7 ladder advertises all six tiers (Easy/Medium/Hard/
+    // Expert/Master/Nightmare). The old Diabolical/Demonic tiers are collapsed.
+    for (const slug of ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare']) {
       expect(entries[entryKey('classic', slug)]).toBeDefined();
       expect(entries[entryKey('classic', slug)].gamesCompleted).toBe(0);
     }
-    expect(entries[entryKey('classic', 'hard')]).toBeUndefined();
-    expect(entries[entryKey('classic', 'master')]).toBeUndefined();
+    expect(entries[entryKey('classic', 'diabolical')]).toBeUndefined();
+    expect(entries[entryKey('classic', 'demonic')]).toBeUndefined();
 
-    // Six advertises Easy and Medium after the iteration-6 lever-2 rescue;
-    // harder tiers remain descoped on the 6x6 grid. Mini stays Easy-only.
+    // Six advertises Easy and Medium; harder tiers remain descoped on the 6×6
+    // grid. Mini stays Easy-only. Total: 6 + 2 + 1 = 9 entries.
     expect(entries[entryKey('six', 'easy')]).toBeDefined();
     expect(entries[entryKey('six', 'medium')]).toBeDefined();
     expect(entries[entryKey('six', 'hard')]).toBeUndefined();
-    expect(entries[entryKey('six', 'diabolical')]).toBeUndefined();
 
     expect(entries[entryKey('mini', 'easy')]).toBeDefined();
     expect(entries[entryKey('mini', 'medium')]).toBeUndefined();
     expect(entries[entryKey('mini', 'hard')]).toBeUndefined();
+
+    expect(Object.keys(entries)).toHaveLength(9);
+  });
+
+  it('entryKey lowercases the difficulty before composing the key', () => {
+    expect(entryKey('classic', 'Hard')).toBe('classic:hard');
   });
 
   it('records completions for the new tier names without losing prior keys', () => {
@@ -199,9 +204,9 @@ describe('stats store', () => {
     expect(entries[entryKey('mini', 'easy')].gamesCompleted).toBe(0);
   });
 
-  it('uses the v3 storage key and bumped schema version', () => {
-    expect(STATS_STORAGE_KEY).toBe('sudoku.stats.v3');
-    expect(STATS_SCHEMA_VERSION).toBe(3);
+  it('uses the v4 storage key and bumped schema version', () => {
+    expect(STATS_STORAGE_KEY).toBe('sudoku.stats.v4');
+    expect(STATS_SCHEMA_VERSION).toBe(4);
   });
 
   it('silently ignores legacy v1 entries on load', () => {
@@ -228,12 +233,12 @@ describe('stats store', () => {
     const store = createStatsStore();
     const easy = store.getState().entries[entryKey('classic', 'easy')];
 
-    // The v1 payload is sitting under the old key, but the v3 store starts fresh.
+    // The v1 payload is sitting under the old key, but the v4 store starts fresh.
     expect(easy.gamesCompleted).toBe(0);
     expect(easy.bestTimeMs).toBeNull();
   });
 
-  it('stamps writes with the current appVersion under the v3 key', () => {
+  it('stamps writes with the current appVersion under the v4 key', () => {
     const store = createStatsStore();
     store.getState().recordCompletion({
       variant: 'classic',
