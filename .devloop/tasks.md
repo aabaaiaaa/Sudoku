@@ -9,13 +9,13 @@ their early prerequisites land.
 ---
 
 ### TASK-001: Bump app version to 0.3.0
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Bump `package.json` version to `0.3.0` so new save/stats/settings records carry the iteration 3 `appVersion` stamp. See requirements §11.
 - **Verification**: `node -p "require('./package.json').version"` prints `0.3.0`.
 
 ### TASK-002: Add per-attempt try/catch in generateForDifficulty
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, wrap each `generate()` + `rate()` pair inside the retry loop in `try/catch`. On exception: count the attempt, store the error message (and any technique id available) on a closure-scoped `lastError` variable, and continue. Add `lastError?: string` to the `GenerationFailed` interface and include it in the returned object. See requirements §4.1.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
@@ -51,7 +51,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/components/GenerationFailedDialog.test.tsx` passes including a new case asserting `lastError` is rendered when present and not rendered when null.
 
 ### TASK-008: Fix silent-skip in rate.ts extended chain
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/engine/generator/rate.ts`, for each extended-chain finder block (lines ~681–940), add a `console.warn` call when the finder returns non-null but `applyEliminations` returns false. No need to dedupe across finder invocations — rating is short-lived and warning spam during a test run is acceptable. Existing fall-through behaviour is preserved. See requirements §4.4.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
@@ -75,13 +75,13 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes including a new case that asserts an unsolved-rating puzzle is rejected even when its `difficulty` field matches the target.
 
 ### TASK-012: Reconcile cascade order with catalog
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/engine/solver/techniques/index.ts`, reorder the `techniques[]` cascade entries so the order matches `src/engine/solver/techniques/catalog.ts`'s `TECHNIQUE_ORDER`. Update the explanatory comment to declare the catalog as canonical. The rater's order in `rate.ts` is independent and stays as today. See requirements §4.4.
 - **Verification**: `npx vitest run src/engine/solver/techniques/index.test.ts` passes (or existing equivalent test file). Add an assertion if no test currently locks the order: `expect(techniques.map(t => t.id)).toEqual(TECHNIQUE_ORDER)`.
 
 ### TASK-013: Add fuzz harness for technique finders
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Create `src/engine/solver/techniques/fuzz.test.ts`. For each finder in the 27-technique chain, run it against a bounded set of randomly-reduced boards across `classic`, `mini`, `six` (e.g. 50 boards per variant per finder). Use a deterministic seed based on the finder's id and variant for reproducibility. Assert no finder throws. On failure, print variant id, seed, finder id, and the reduced board's serialized form. Use a small per-test budget so the harness stays inside Vitest's timeout. See requirements §4.2.
 - **Verification**: The test file exists at the named path and is runnable via `npx vitest run src/engine/solver/techniques/fuzz.test.ts`. If all finders are clean the test passes immediately and TASK-014a/b/c can be marked no-op. If any finder throws, the test fails with a reproducible seed printed in the failure message — that output is consumed by TASK-014a. The fuzz harness is "green" only after TASK-014c lands; this task creates the harness, it does not gate-on its passing.

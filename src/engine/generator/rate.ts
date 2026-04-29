@@ -684,6 +684,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('hidden-pair');
         continue;
+      } else {
+        console.warn('[rate] Technique hidden-pair returned eliminations, but all were already applied.');
       }
     }
 
@@ -693,6 +695,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('hidden-triple');
         continue;
+      } else {
+        console.warn('[rate] Technique hidden-triple returned eliminations, but all were already applied.');
       }
     }
 
@@ -702,6 +706,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('naked-quad');
         continue;
+      } else {
+        console.warn('[rate] Technique naked-quad returned eliminations, but all were already applied.');
       }
     }
 
@@ -711,6 +717,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('hidden-quad');
         continue;
+      } else {
+        console.warn('[rate] Technique hidden-quad returned eliminations, but all were already applied.');
       }
     }
 
@@ -720,6 +728,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('swordfish');
         continue;
+      } else {
+        console.warn('[rate] Technique swordfish returned eliminations, but all were already applied.');
       }
     }
 
@@ -729,6 +739,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('jellyfish');
         continue;
+      } else {
+        console.warn('[rate] Technique jellyfish returned eliminations, but all were already applied.');
       }
     }
 
@@ -738,6 +750,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('xy-wing');
         continue;
+      } else {
+        console.warn('[rate] Technique xy-wing returned eliminations, but all were already applied.');
       }
     }
 
@@ -747,6 +761,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('xyz-wing');
         continue;
+      } else {
+        console.warn('[rate] Technique xyz-wing returned eliminations, but all were already applied.');
       }
     }
 
@@ -756,6 +772,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('w-wing');
         continue;
+      } else {
+        console.warn('[rate] Technique w-wing returned eliminations, but all were already applied.');
       }
     }
 
@@ -765,6 +783,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('simple-coloring');
         continue;
+      } else {
+        console.warn('[rate] Technique simple-coloring returned eliminations, but all were already applied.');
       }
     }
 
@@ -779,6 +799,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('x-cycle');
         continue;
+      } else {
+        console.warn('[rate] Technique x-cycle returned eliminations, but all were already applied.');
       }
     }
 
@@ -788,6 +810,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('empty-rectangle');
         continue;
+      } else {
+        console.warn('[rate] Technique empty-rectangle returned eliminations, but all were already applied.');
       }
     }
 
@@ -797,6 +821,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('skyscraper');
         continue;
+      } else {
+        console.warn('[rate] Technique skyscraper returned eliminations, but all were already applied.');
       }
     }
 
@@ -806,6 +832,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('two-string-kite');
         continue;
+      } else {
+        console.warn('[rate] Technique two-string-kite returned eliminations, but all were already applied.');
       }
     }
 
@@ -815,6 +843,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('unique-rectangle');
         continue;
+      } else {
+        console.warn('[rate] Technique unique-rectangle returned eliminations, but all were already applied.');
       }
     }
 
@@ -831,6 +861,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('xy-chain');
         continue;
+      } else {
+        console.warn('[rate] Technique xy-chain returned eliminations, but all were already applied.');
       }
     }
 
@@ -840,6 +872,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('multi-coloring');
         continue;
+      } else {
+        console.warn('[rate] Technique multi-coloring returned eliminations, but all were already applied.');
       }
     }
 
@@ -849,6 +883,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('als-xz');
         continue;
+      } else {
+        console.warn('[rate] Technique als-xz returned eliminations, but all were already applied.');
       }
     }
 
@@ -858,6 +894,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('wxyz-wing');
         continue;
+      } else {
+        console.warn('[rate] Technique wxyz-wing returned eliminations, but all were already applied.');
       }
     }
 
@@ -867,6 +905,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('hidden-rectangle');
         continue;
+      } else {
+        console.warn('[rate] Technique hidden-rectangle returned eliminations, but all were already applied.');
       }
     }
 
@@ -876,6 +916,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('avoidable-rectangle');
         continue;
+      } else {
+        console.warn('[rate] Technique avoidable-rectangle returned eliminations, but all were already applied.');
       }
     }
 
@@ -890,6 +932,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('nice-loop');
         continue;
+      } else {
+        console.warn('[rate] Technique nice-loop returned eliminations, but all were already applied.');
       }
     }
 
@@ -904,6 +948,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('grouped-x-cycle');
         continue;
+      } else {
+        console.warn('[rate] Technique grouped-x-cycle returned eliminations, but all were already applied.');
       }
     }
 
@@ -913,6 +959,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('3d-medusa');
         continue;
+      } else {
+        console.warn('[rate] Technique 3d-medusa returned eliminations, but all were already applied.');
       }
     }
 
@@ -922,6 +970,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('death-blossom');
         continue;
+      } else {
+        console.warn('[rate] Technique death-blossom returned eliminations, but all were already applied.');
       }
     }
 
@@ -936,6 +986,8 @@ export function rate(puzzle: Board): RateResult {
       if (applyEliminations(grid, elims)) {
         noteTechnique('forcing-chains');
         continue;
+      } else {
+        console.warn('[rate] Technique forcing-chains returned eliminations, but all were already applied.');
       }
     }
 

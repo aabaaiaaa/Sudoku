@@ -76,6 +76,12 @@ export interface GenerationFailed {
   attempts: number;
   /** Wall-clock time elapsed in milliseconds at the moment of failure. */
   elapsedMs: number;
+  /**
+   * Best-effort message from the most recent attempt that threw. Captured so
+   * that finder bugs surface to the UI without crashing generation. Undefined
+   * when no attempt threw during the run.
+   */
+  lastError?: string;
 }
 
 export type GenerateForDifficultyResult =
@@ -153,6 +159,7 @@ export function generateForDifficulty(
   let attempts = 0;
   let closestRating: RateResult | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
+  let lastError: string | undefined;
 
   while (attempts < maxRetries && Date.now() - startedAt < timeoutMs) {
     const genOpts: GenerateOptions = {};
@@ -164,23 +171,39 @@ export function generateForDifficulty(
       genOpts.minClues = minCluesHint;
     }
 
-    const result = generate(variant, genOpts);
-    const rating = rate(result.puzzle);
-    attempts++;
+    // Per-attempt try/catch (requirements §4.1): a finder bug must never
+    // throw out of generateForDifficulty. Count the failed attempt against
+    // the retry budget, capture a best-effort error message, and continue.
+    try {
+      const result = generate(variant, genOpts);
+      const rating = rate(result.puzzle);
+      attempts++;
 
-    // Strict tier rule (requirements §6.1): accept iff the rating matches the
-    // target tier exactly. Easier or harder ratings are rejected and we retry.
-    if (rating.difficulty === difficulty) {
-      return { ...result, kind: 'success', rating, onTarget: true };
+      // Strict tier rule (requirements §6.1): accept iff the rating matches the
+      // target tier exactly. Easier or harder ratings are rejected and we retry.
+      if (rating.difficulty === difficulty) {
+        return { ...result, kind: 'success', rating, onTarget: true };
+      }
+
+      const distance = Math.abs(tierRank(rating.difficulty) - targetRank);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        closestRating = rating;
+      }
+
+      options.onProgress?.({ attempt: attempts, max: maxRetries });
+    } catch (err) {
+      attempts++;
+      const baseMessage = err instanceof Error ? err.message : String(err);
+      // If the thrown error carries a `technique` identifier (some finders
+      // attach this for triage), prefix the message so the UI can surface it.
+      const techniqueId =
+        err != null && typeof err === 'object' && 'technique' in err
+          ? String((err as { technique?: unknown }).technique ?? '')
+          : '';
+      lastError = techniqueId ? `[${techniqueId}] ${baseMessage}` : baseMessage;
+      options.onProgress?.({ attempt: attempts, max: maxRetries });
     }
-
-    const distance = Math.abs(tierRank(rating.difficulty) - targetRank);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      closestRating = rating;
-    }
-
-    options.onProgress?.({ attempt: attempts, max: maxRetries });
   }
 
   return {
@@ -188,5 +211,6 @@ export function generateForDifficulty(
     closestRating,
     attempts,
     elapsedMs: Date.now() - startedAt,
+    lastError,
   };
 }

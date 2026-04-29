@@ -131,21 +131,23 @@ export interface Technique {
  * Techniques listed in increasing order of difficulty. `nextStep` walks this
  * list and returns the first technique that makes progress on the board.
  *
- * The order mirrors the cascade in `engine/generator/rate.ts` so the public
- * Hint solver and the rater agree on which technique fires first.
+ * The canonical source of order is `TECHNIQUE_ORDER` in
+ * `engine/solver/techniques/catalog.ts` — this cascade MUST match it exactly.
+ * The rater's internal cascade in `engine/generator/rate.ts` is independent
+ * and may differ; it does not need to follow the catalog.
  */
 export const techniques: readonly Technique[] = [
   { id: 'naked-single', find: findNakedSingle },
   { id: 'hidden-single', find: findHiddenSingle },
-  { id: 'naked-pair', find: findNakedPair },
-  { id: 'naked-triple', find: findNakedTriple },
   { id: 'pointing', find: findPointing },
   { id: 'box-line-reduction', find: findBoxLineReduction },
-  { id: 'x-wing', find: findXWing },
+  { id: 'naked-pair', find: findNakedPair },
+  { id: 'naked-triple', find: findNakedTriple },
+  { id: 'naked-quad', find: findNakedQuad },
   { id: 'hidden-pair', find: findHiddenPair },
   { id: 'hidden-triple', find: findHiddenTriple },
-  { id: 'naked-quad', find: findNakedQuad },
   { id: 'hidden-quad', find: findHiddenQuad },
+  { id: 'x-wing', find: findXWing },
   { id: 'swordfish', find: findSwordfish },
   { id: 'jellyfish', find: findJellyfish },
   { id: 'xy-wing', find: findXyWing },

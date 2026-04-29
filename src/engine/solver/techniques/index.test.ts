@@ -1,47 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { nextStep, techniques, type TechniqueId } from './index';
+import { TECHNIQUE_ORDER } from './catalog';
 import { createEmptyBoard } from '../../types';
 import { classicVariant } from '../../variants';
 
 describe('techniques list', () => {
-  it('exports techniques in increasing difficulty order', () => {
+  it('matches TECHNIQUE_ORDER from catalog (canonical source)', () => {
     const ids: TechniqueId[] = techniques.map((t) => t.id);
-    expect(ids).toEqual([
-      'naked-single',
-      'hidden-single',
-      'naked-pair',
-      'naked-triple',
-      'pointing',
-      'box-line-reduction',
-      'x-wing',
-      'hidden-pair',
-      'hidden-triple',
-      'naked-quad',
-      'hidden-quad',
-      'swordfish',
-      'jellyfish',
-      'xy-wing',
-      'xyz-wing',
-      'w-wing',
-      'simple-coloring',
-      'x-cycle',
-      'empty-rectangle',
-      'skyscraper',
-      'two-string-kite',
-      'unique-rectangle',
-      'bug-plus-one',
-      'xy-chain',
-      'multi-coloring',
-      'als-xz',
-      'wxyz-wing',
-      'hidden-rectangle',
-      'avoidable-rectangle',
-      'nice-loop',
-      'grouped-x-cycle',
-      '3d-medusa',
-      'death-blossom',
-      'forcing-chains',
-    ]);
+    expect(ids).toEqual([...TECHNIQUE_ORDER]);
   });
 });
 
