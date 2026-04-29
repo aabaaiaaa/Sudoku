@@ -28,9 +28,9 @@ describe('DifficultyBadge', () => {
 
   it('exposes the lowercase tier slug via data-tier for theming hooks', () => {
     const { getByTestId } = render(
-      <DifficultyBadge difficulty="Demonic" data-testid="badge" />,
+      <DifficultyBadge difficulty="Master" data-testid="badge" />,
     );
-    expect(getByTestId('badge').getAttribute('data-tier')).toBe('demonic');
+    expect(getByTestId('badge').getAttribute('data-tier')).toBe('master');
   });
 
   it.each([
@@ -38,9 +38,7 @@ describe('DifficultyBadge', () => {
     ['medium', '#1d4ed8'],
     ['hard', '#b45309'],
     ['expert', '#c2410c'],
-    ['master', '#b91c1c'],
-    ['diabolical', '#7f1d1d'],
-    ['demonic', '#581c87'],
+    ['master', '#7f1d1d'],
     ['nightmare', '#0f0f1f'],
   ])('paints %s with the configured ramp colour %s', (slug, expectedHex) => {
     const { getByTestId } = render(
@@ -52,11 +50,10 @@ describe('DifficultyBadge', () => {
   });
 
   it('escalates from green at Easy to dark indigo at Nightmare (ramp ordering)', () => {
-    // The four new tiers must be visually distinct and visually heavier than
-    // any tier below them — sanity-check that Master/Diabolical/Demonic/
-    // Nightmare each map to a distinct background colour.
+    // The six tiers must be visually distinct — sanity-check that the top four
+    // (Hard/Expert/Master/Nightmare) each map to a distinct background colour.
     const seen = new Set<string>();
-    for (const tier of ['Master', 'Diabolical', 'Demonic', 'Nightmare'] as const) {
+    for (const tier of ['Hard', 'Expert', 'Master', 'Nightmare'] as const) {
       const { getByTestId, unmount } = render(
         <DifficultyBadge difficulty={tier} data-testid={`badge-${tier}`} />,
       );
@@ -69,7 +66,7 @@ describe('DifficultyBadge', () => {
 
   it('falls back to a neutral swatch for unknown difficulty strings', () => {
     const { getByTestId } = render(
-      <DifficultyBadge difficulty="Wat" data-testid="badge" />,
+      <DifficultyBadge difficulty="unknown-tier" data-testid="badge" />,
     );
     const style = getByTestId('badge').getAttribute('style') ?? '';
     expect(style).toContain(hexToRgb('#6b7280'));

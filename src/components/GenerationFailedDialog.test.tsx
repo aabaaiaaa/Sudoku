@@ -54,7 +54,7 @@ describe('GenerationFailedDialog', () => {
 
   it('renders a modal dialog when generationFailure is set', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -65,17 +65,17 @@ describe('GenerationFailedDialog', () => {
 
   it('heading mentions the target tier', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
     const dialog = getByTestId('generation-failed-dialog');
-    expect(dialog.textContent).toContain("Couldn't find a Demonic puzzle in time.");
+    expect(dialog.textContent).toContain("Couldn't find a Master puzzle in time.");
   });
 
   it('renders body text explaining the situation', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -87,7 +87,7 @@ describe('GenerationFailedDialog', () => {
 
   it('renders Try-again, Try-easier, and Cancel when an easier tier exists', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -98,12 +98,12 @@ describe('GenerationFailedDialog', () => {
 
   it('Try-easier button label includes the next-easier tier name', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
     const btn = getByTestId('generation-failed-try-easier');
-    expect(btn.textContent).toContain('Diabolical');
+    expect(btn.textContent).toContain('Expert');
   });
 
   it('hides Try-easier when the failed target was Easy', () => {
@@ -123,7 +123,7 @@ describe('GenerationFailedDialog', () => {
     const store = createGameStore('classic');
     store.setState({
       generationFailure: {
-        ...makeFailure('Demonic'),
+        ...makeFailure('Master'),
         lastError: 'Solver bailed out: cells exhausted',
       },
     });
@@ -136,7 +136,7 @@ describe('GenerationFailedDialog', () => {
 
   it('does not render failure.lastError when it is absent', () => {
     const store = createGameStore('classic');
-    store.setState({ generationFailure: makeFailure('Demonic') });
+    store.setState({ generationFailure: makeFailure('Master') });
 
     const { queryByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -150,7 +150,7 @@ describe('GenerationFailedDialog', () => {
     const store = createGameStore('classic');
     store.setState({
       generationFailure: {
-        ...makeFailure('Demonic'),
+        ...makeFailure('Master'),
         lastError: '',
       },
     });
@@ -169,16 +169,16 @@ describe('GenerationFailedDialog', () => {
       // the runtime value coming through Home is lowercase, and the dialog
       // must render reasonably either way.
       generationFailure: makeFailure(
-        'demonic' as unknown as GenerationFailure['difficulty'],
+        'master' as unknown as GenerationFailure['difficulty'],
       ),
     });
 
     const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
     const dialog = getByTestId('generation-failed-dialog');
-    expect(dialog.textContent).toContain('Demonic');
+    expect(dialog.textContent).toContain('Master');
     expect(getByTestId('generation-failed-try-easier').textContent).toContain(
-      'Diabolical',
+      'Expert',
     );
   });
 
@@ -187,8 +187,8 @@ describe('GenerationFailedDialog', () => {
       const { generator, calls } = recordingGenerator();
       const store = createGameStore('classic', { generator });
       store.setState({
-        generationFailure: makeFailure('Demonic'),
-        difficulty: 'Demonic',
+        generationFailure: makeFailure('Master'),
+        difficulty: 'Master',
       });
 
       const { getByTestId } = render(<GenerationFailedDialog store={store} />);
@@ -197,15 +197,15 @@ describe('GenerationFailedDialog', () => {
 
       expect(calls).toHaveLength(1);
       expect(calls[0].variantId).toBe('classic');
-      expect(calls[0].difficulty).toBe('Demonic');
+      expect(calls[0].difficulty).toBe('Master');
     });
 
     it('Try-easier invokes newGame with the next-easier tier', () => {
       const { generator, calls } = recordingGenerator();
       const store = createGameStore('classic', { generator });
       store.setState({
-        generationFailure: makeFailure('Demonic'),
-        difficulty: 'Demonic',
+        generationFailure: makeFailure('Master'),
+        difficulty: 'Master',
       });
 
       const { getByTestId } = render(<GenerationFailedDialog store={store} />);
@@ -214,12 +214,12 @@ describe('GenerationFailedDialog', () => {
 
       expect(calls).toHaveLength(1);
       expect(calls[0].variantId).toBe('classic');
-      expect(calls[0].difficulty.toLowerCase()).toBe('diabolical');
+      expect(calls[0].difficulty.toLowerCase()).toBe('expert');
     });
 
     it('Cancel clears generationFailure and invokes onCancel', () => {
       const store = createGameStore('classic');
-      store.setState({ generationFailure: makeFailure('Demonic') });
+      store.setState({ generationFailure: makeFailure('Master') });
       const onCancel = vi.fn();
 
       const { getByTestId, queryByTestId } = render(
@@ -235,7 +235,7 @@ describe('GenerationFailedDialog', () => {
 
     it('Cancel works without an onCancel handler', () => {
       const store = createGameStore('classic');
-      store.setState({ generationFailure: makeFailure('Demonic') });
+      store.setState({ generationFailure: makeFailure('Master') });
 
       const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -248,7 +248,7 @@ describe('GenerationFailedDialog', () => {
   describe('focus management', () => {
     it('Escape closes the dialog and invokes onCancel', () => {
       const store = createGameStore('classic');
-      store.setState({ generationFailure: makeFailure('Demonic') });
+      store.setState({ generationFailure: makeFailure('Master') });
       const onCancel = vi.fn();
 
       const { queryByTestId } = render(
@@ -264,7 +264,7 @@ describe('GenerationFailedDialog', () => {
 
     it('focuses the first action button when the dialog opens', () => {
       const store = createGameStore('classic');
-      store.setState({ generationFailure: makeFailure('Demonic') });
+      store.setState({ generationFailure: makeFailure('Master') });
 
       const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 
@@ -283,7 +283,7 @@ describe('GenerationFailedDialog', () => {
       expect(document.activeElement).toBe(trigger);
 
       const store = createGameStore('classic');
-      store.setState({ generationFailure: makeFailure('Demonic') });
+      store.setState({ generationFailure: makeFailure('Master') });
 
       const { getByTestId } = render(<GenerationFailedDialog store={store} />);
 

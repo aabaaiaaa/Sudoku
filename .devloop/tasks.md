@@ -125,7 +125,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts src/engine/generator/variant-tiers.test.ts` passes.
 
 ### TASK-018: Update component tests for new tier scheme
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-001, TASK-011
 - **Description**: Two component test files need updating. (a) `src/components/DifficultyBadge.test.tsx` — replace any eight-tier-ramp assertions with explicit cases for each of the six new tiers (`easy`, `medium`, `hard`, `expert`, `master`, `nightmare`); assert each renders with the corresponding swatch (background colour matches `TIER_SWATCH[slug].background`); keep the unknown-tier neutral-fallback case but use a synthetic slug (e.g. `'unknown-tier'`) instead of the removed `'diabolical'` / `'demonic'`. (b) `src/components/GenerationFailedDialog.test.tsx` — every test seeds `makeFailure('Demonic')` and asserts the "Try easier" button reads `'Diabolical'`. Replace with `makeFailure('Master')` and assert the easier label is `'Expert'`. The component itself reads `DIFFICULTY_ORDER` so no source change is needed; only the test fixture values move under the new ladder.
