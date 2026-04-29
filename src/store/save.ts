@@ -1,21 +1,29 @@
 // Save-game persistence for in-progress Sudoku games.
 //
 // Keeps in-progress saves in a single localStorage entry keyed by
-// `sudoku.save.v3`. The stored payload is a JSON object with a schema
+// `sudoku.save.v4`. The stored payload is a JSON object with a schema
 // `version` field, an `appVersion` stamp recording the build that wrote
 // it, and a `saves` map keyed by slot — `${variantId}:${difficultySlug}`
 // — so multiple in-progress games per variant (one per difficulty) can
 // coexist. On version mismatch or parse failure, loads return an empty
-// save file so callers can treat it as "no save present" — v1 and v2
-// entries from previous releases are silently dropped.
+// save file so callers can treat it as "no save present" — v1, v2, and
+// v3 entries from previous releases are silently dropped.
+//
+// The v3 → v4 bump accompanies iteration-7's tier collapse: the
+// difficulty ladder was rewritten (Diabolical/Demonic merged into
+// Nightmare, Hard/Expert reshaped) and the slot keys derived from
+// difficulty slugs are no longer guaranteed to round-trip from older
+// payloads. Bumping the storage key forces v3 saves to fall through
+// the migration prompt (see `migration.ts`) rather than silently
+// resurfacing under stale slug keys.
 //
 // This module is intentionally independent of the game store and React — it
 // only depends on the platform `Storage` API (which is provided by Vitest's
 // jsdom environment for tests). Cell `notes` are stored as sorted number
 // arrays on disk and reconstructed into `Set<Digit>` on load.
 
-export const SAVE_STORAGE_KEY = 'sudoku.save.v3';
-export const SAVE_SCHEMA_VERSION = 3;
+export const SAVE_STORAGE_KEY = 'sudoku.save.v4';
+export const SAVE_SCHEMA_VERSION = 4;
 
 export interface SavedCell {
   value: number | null;

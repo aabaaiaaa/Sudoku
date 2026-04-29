@@ -55,7 +55,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/generator/generate-for-difficulty.ts` exits 0.
 
 ### TASK-008: Bump save schema to v4
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: none
 - **Description**: In `src/store/save.ts`, change `SAVE_STORAGE_KEY` to `'sudoku.save.v4'` and `SAVE_SCHEMA_VERSION` to `4`. The internal `SaveFile` shape and the slotKey/entry helpers are unchanged. The persistence comment at the top of the file is refreshed to cite v4 and to note the iteration-7 tier collapse as the reason for the bump.
