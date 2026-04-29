@@ -14,7 +14,7 @@ is actually fixed.
 - **Verification**: `node --input-type=commonjs -e "const p=JSON.parse(require('fs').readFileSync('./package.json','utf8')); if(p.version!=='0.4.0')throw 1; if(!p.devDependencies.tsx)throw 2; if(!p.scripts['profile-tiers'])throw 3;"`
 
 ### TASK-002: Implement `scripts/profile-tiers.ts`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001
 - **Description**: Create `scripts/profile-tiers.ts` per requirements §4.2–4.3. The script: (a) iterates each variant in `['classic','six','mini']`; (b) for each tier in `availableTiers(variant)` computes `clueFloor = clueBoundsLowerForTier(variant, tier)`; (c) generates N puzzles (default `N=20`, accept `--n=N` override) via `generate({ seed, clueFloor })` — **without** the strict-tier filter — using deterministic seeds derived from `(variantIndex*1000 + tierIndex*100 + i)`; (d) calls `rate()` on each result and records the rated tier; (e) prints incremental progress to stdout (`classic Master 12/20...`); (f) writes a histogram-table-per-(variant, clueFloor) markdown to `scripts/tier-distribution.md`, overwriting any prior content; (g) **also** writes `scripts/tier-distribution.summary.json` — a flat object keyed `${variantId}:${tierName}` with `{ rate: number, advertised: boolean, sampleSize: number, firstHitSeed: number | null }`. `firstHitSeed` is the seed of the first puzzle in the run whose rated tier matches the keyed tier (null if none hit). The summary feeds TASK-008's verification and TASK-012's fixture extraction. The script must be runnable as `npm run profile-tiers` and complete a smoke run (`-- --n=1`) in under 60 seconds.
 - **Verification**: `npm run profile-tiers -- --n=1 && test -f scripts/tier-distribution.md && test -f scripts/tier-distribution.summary.json`
@@ -110,13 +110,13 @@ is actually fixed.
 - **Verification**: `npx vitest run src/App.test.tsx -t "migration"`
 
 ### TASK-018: Settings test asserts 2-second auto-revert with fake timers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/screens/Settings.test.tsx` (the test file covering the Updates section), use `vi.useFakeTimers()` to drive the up-to-date and error-state revert paths. After the button transitions to "Up to date" (and separately to "Couldn't check — try again"), call `vi.advanceTimersByTime(2000)` and assert the label reverts to "Check for updates". Name the new test(s) so they include the word "revert" (used by the verification grep below). See requirements §10.5.
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx -t "revert"`
 
 ### TASK-019: Real-worker smoke test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: New file `src/workers/generator-client.real-worker.test.ts`. Construct the real worker via `defaultCreateWorker` (or the equivalent factory in `generator-client.ts`), fire a `generate` request for a Mini puzzle (smallest variant), immediately call `cancel()`, assert the call resolves cleanly without an unhandled rejection or unexpected error message. The intent is to lock in the `new Worker(new URL('./generator.worker.ts', import.meta.url), { type: 'module' })` import-URL plumbing. If vitest's jsdom environment cannot host a real worker, document the limitation in a `// @vitest-environment node` (or comparable) override at the top of the file; if that still doesn't work, fall back to a Playwright smoke spec at `tests/e2e/worker-smoke.spec.ts` that loads the app and listens for a generate-progress event. See requirements §10.6.
 - **Verification**: `npx vitest run src/workers/generator-client.real-worker.test.ts` (OR `npx playwright test tests/e2e/worker-smoke.spec.ts --project=chromium` if the Playwright fallback was used)

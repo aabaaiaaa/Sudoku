@@ -284,6 +284,58 @@ describe('Settings screen', () => {
       expect(button.textContent).toBe('Check for updates');
     });
 
+    it('auto-reverts the "Up to date" label to "Check for updates" after 2s', async () => {
+      vi.useFakeTimers();
+      const store = createSettingsStore();
+      const checkForUpdates = vi.fn().mockResolvedValue('idle' as const);
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+
+      await act(async () => {
+        fireEvent.click(button);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(button.textContent).toBe('Up to date');
+
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(button.textContent).toBe('Check for updates');
+    });
+
+    it('auto-reverts the "Couldn\'t check — try again" label to "Check for updates" after 2s', async () => {
+      vi.useFakeTimers();
+      const store = createSettingsStore();
+      const checkForUpdates = vi.fn().mockResolvedValue('error' as const);
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+
+      await act(async () => {
+        fireEvent.click(button);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(button.textContent).toBe("Couldn't check — try again");
+
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(button.textContent).toBe('Check for updates');
+    });
+
     it('walks the full idle → checking → up-to-date → idle cycle on a successful check', async () => {
       vi.useFakeTimers();
       const store = createSettingsStore();

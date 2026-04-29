@@ -1,0 +1,104 @@
+{
+  "classic:Easy": {
+    "rate": 1,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": 0
+  },
+  "classic:Medium": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "classic:Hard": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "classic:Expert": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "classic:Master": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "classic:Diabolical": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "classic:Demonic": {
+    "rate": 1,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": 600
+  },
+  "classic:Nightmare": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "six:Easy": {
+    "rate": 1,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": 1000
+  },
+  "six:Medium": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "six:Hard": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "six:Expert": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "six:Master": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "six:Diabolical": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "mini:Easy": {
+    "rate": 1,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": 2000
+  },
+  "mini:Medium": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  },
+  "mini:Hard": {
+    "rate": 0,
+    "advertised": true,
+    "sampleSize": 1,
+    "firstHitSeed": null
+  }
+}
