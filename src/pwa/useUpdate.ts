@@ -18,12 +18,21 @@ export function usePwaUpdate(): PwaUpdateHook {
   >(null);
 
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     const update = registerSW({
       onNeedRefresh() {
         setNeedsRefresh(true);
       },
+      onRegisteredSW(_swUrl: string, r: ServiceWorkerRegistration | undefined) {
+        intervalId = setInterval(() => {
+          void r?.update();
+        }, 60_000);
+      },
     });
     setUpdateSW(() => update);
+    return () => {
+      if (intervalId !== undefined) clearInterval(intervalId);
+    };
   }, []);
 
   const reload = () => {

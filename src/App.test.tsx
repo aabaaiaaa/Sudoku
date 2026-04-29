@@ -112,3 +112,59 @@ describe('App navigation', () => {
     );
   });
 });
+
+describe('App migration prompt', () => {
+  beforeEach(() => {
+    window.location.hash = '';
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    window.location.hash = '';
+    window.localStorage.clear();
+  });
+
+  it('renders the migration ConfirmDialog when a legacy v2 save key exists', () => {
+    window.localStorage.setItem('sudoku.save.v2', '{}');
+
+    render(<App />);
+
+    expect(screen.getByTestId('confirm-dialog')).toBeTruthy();
+  });
+
+  it('hides the dialog and leaves the v2 key in place when "Decide later" is clicked', () => {
+    window.localStorage.setItem('sudoku.save.v2', '{}');
+
+    render(<App />);
+
+    expect(screen.getByTestId('confirm-dialog')).toBeTruthy();
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('confirm-dialog-cancel'));
+    });
+
+    expect(screen.queryByTestId('confirm-dialog')).toBeNull();
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBe('{}');
+  });
+
+  it('hides the dialog and removes the v2 key when "Remove now" is clicked', () => {
+    window.localStorage.setItem('sudoku.save.v2', '{}');
+
+    render(<App />);
+
+    expect(screen.getByTestId('confirm-dialog')).toBeTruthy();
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('confirm-dialog-confirm'));
+    });
+
+    expect(screen.queryByTestId('confirm-dialog')).toBeNull();
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+  });
+
+  it('does not render the migration dialog when no legacy keys exist', () => {
+    render(<App />);
+
+    expect(screen.queryByTestId('confirm-dialog')).toBeNull();
+  });
+});

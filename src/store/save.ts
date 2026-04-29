@@ -105,18 +105,16 @@ export function writeSaveFile(file: SaveFile, storage?: Storage): void {
 }
 
 /**
- * Returns the saved game for the given variant, or null if none exists.
- *
- * NOTE: this single-argument signature predates the slot-keyed schema and
- * is kept until TASK-021 extends the API surface. Until then, it returns
- * the first save it finds for the variant (regardless of difficulty).
+ * Returns the saved game in the `(variantId, difficulty)` slot, or null if
+ * the slot is empty.
  */
-export function getSavedGame(variant: string, storage?: Storage): SavedGame | null {
+export function getSavedGame(
+  variantId: string,
+  difficulty: string,
+  storage?: Storage,
+): SavedGame | null {
   const file = loadSaveFile(storage);
-  for (const save of Object.values(file.saves)) {
-    if (save.variant === variant) return save;
-  }
-  return null;
+  return file.saves[slotKey(variantId, difficulty)] ?? null;
 }
 
 /**
@@ -134,32 +132,41 @@ export function putSavedGame(game: SavedGame, storage?: Storage): void {
 }
 
 /**
- * Clears every save for the given variant. Other variants' saves are preserved.
- *
- * NOTE: this single-argument signature predates the slot-keyed schema and is
- * kept until TASK-021 extends the API surface.
+ * Removes the save in the `(variantId, difficulty)` slot. Other slots are
+ * untouched. No-op when the slot is already empty.
  */
-export function clearSavedGame(variant: string, storage?: Storage): void {
+export function clearSavedGame(
+  variantId: string,
+  difficulty: string,
+  storage?: Storage,
+): void {
   const file = loadSaveFile(storage);
-  const nextSaves: Record<string, SavedGame> = {};
-  let changed = false;
-  for (const [key, save] of Object.entries(file.saves)) {
-    if (save.variant === variant) {
-      changed = true;
-      continue;
-    }
-    nextSaves[key] = save;
-  }
-  if (!changed) return;
+  const key = slotKey(variantId, difficulty);
+  if (!(key in file.saves)) return;
+  const nextSaves: Record<string, SavedGame> = { ...file.saves };
+  delete nextSaves[key];
   writeSaveFile(
     { version: SAVE_SCHEMA_VERSION, appVersion: __APP_VERSION__, saves: nextSaves },
     storage,
   );
 }
 
-/** Returns true iff at least one saved game exists for the variant. */
-export function hasSavedGame(variant: string, storage?: Storage): boolean {
-  return getSavedGame(variant, storage) != null;
+/** Returns true iff a save exists in the `(variantId, difficulty)` slot. */
+export function hasSavedGame(
+  variantId: string,
+  difficulty: string,
+  storage?: Storage,
+): boolean {
+  return getSavedGame(variantId, difficulty, storage) != null;
+}
+
+/**
+ * Returns every saved game in the file, sorted by `savedAt` descending so the
+ * most recent save appears first. Empty array when no saves are present.
+ */
+export function listSavedGames(storage?: Storage): SavedGame[] {
+  const file = loadSaveFile(storage);
+  return Object.values(file.saves).sort((a, b) => b.savedAt - a.savedAt);
 }
 
 // -- Serialization helpers for converting between engine Cells and SavedCells.

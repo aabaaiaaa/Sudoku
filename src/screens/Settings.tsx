@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useStore } from 'zustand';
 import { settingsStore, type Theme } from '../store/settings';
 import { themes } from '../themes';
+import { hasOldSaves, removeOldSaves } from '../store/migration';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 interface SettingsProps {
   store?: typeof settingsStore;
@@ -85,6 +88,9 @@ export function Settings({ store = settingsStore }: SettingsProps) {
   const setTheme = useStore(store, (s) => s.setTheme);
   const setFollowSystem = useStore(store, (s) => s.setFollowSystem);
 
+  const [hasOld, setHasOld] = useState(() => hasOldSaves());
+  const [confirmRemove, setConfirmRemove] = useState(false);
+
   const version =
     typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '0.0.0';
 
@@ -129,6 +135,20 @@ export function Settings({ store = settingsStore }: SettingsProps) {
         </label>
       </section>
 
+      {hasOld && (
+        <section data-testid="settings-storage" className="space-y-2">
+          <h2 className="text-lg font-medium">Storage</h2>
+          <button
+            type="button"
+            data-testid="settings-remove-old-saves"
+            onClick={() => setConfirmRemove(true)}
+            className="btn"
+          >
+            Remove old saves
+          </button>
+        </section>
+      )}
+
       <section
         data-testid="settings-about"
         className="pt-4 text-sm opacity-70 border-t"
@@ -138,6 +158,20 @@ export function Settings({ store = settingsStore }: SettingsProps) {
           Version <span data-testid="settings-version">{version}</span>
         </div>
       </section>
+
+      <ConfirmDialog
+        open={confirmRemove}
+        title="Remove all old saves now?"
+        body="This will permanently delete saves from earlier versions of the app."
+        confirmLabel="Remove now"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          removeOldSaves();
+          setHasOld(false);
+          setConfirmRemove(false);
+        }}
+        onCancel={() => setConfirmRemove(false)}
+      />
     </div>
   );
 }

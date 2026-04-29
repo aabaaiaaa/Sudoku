@@ -84,4 +84,32 @@ describe('Settings screen', () => {
     expect(store.getState().followSystem).toBe(true);
     expect(store.getState().theme).toBe('light');
   });
+
+  it('shows Remove old saves button when legacy saves exist and removes them on confirm', () => {
+    window.localStorage.setItem(
+      'sudoku.save.v2',
+      JSON.stringify({ version: 2, saves: {} }),
+    );
+
+    const store = createSettingsStore();
+    const { getByTestId, queryByTestId } = render(<Settings store={store} />);
+
+    expect(queryByTestId('settings-remove-old-saves')).toBeTruthy();
+
+    fireEvent.click(getByTestId('settings-remove-old-saves'));
+
+    expect(queryByTestId('confirm-dialog')).toBeTruthy();
+
+    fireEvent.click(getByTestId('confirm-dialog-confirm'));
+
+    expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+    expect(queryByTestId('settings-remove-old-saves')).toBeNull();
+  });
+
+  it('does not render the Storage section when no legacy saves exist', () => {
+    const store = createSettingsStore();
+    const { queryByTestId } = render(<Settings store={store} />);
+
+    expect(queryByTestId('settings-remove-old-saves')).toBeNull();
+  });
 });

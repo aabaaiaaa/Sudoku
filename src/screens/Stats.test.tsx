@@ -121,6 +121,52 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-cell-classic-easy-avg').textContent).toBe(dash);
   });
 
+  it('filters tier columns when a per-variant filter pill is clicked', () => {
+    const store = createStatsStore();
+    const { getByTestId, queryByTestId } = render(<Stats store={store} />);
+
+    // Default: all classic tiers visible.
+    const classicTiers = [
+      'easy',
+      'medium',
+      'hard',
+      'expert',
+      'master',
+      'diabolical',
+      'demonic',
+      'nightmare',
+    ];
+    for (const slug of classicTiers) {
+      expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
+    }
+
+    // Click the Hard filter pill.
+    fireEvent.click(getByTestId('stats-filter-classic-hard'));
+
+    // Only Hard column should remain for classic.
+    expect(getByTestId('stats-header-classic-hard')).toBeTruthy();
+    expect(getByTestId('stats-cell-classic-hard-games')).toBeTruthy();
+    for (const slug of classicTiers.filter((s) => s !== 'hard')) {
+      expect(queryByTestId(`stats-header-classic-${slug}`)).toBeNull();
+      expect(queryByTestId(`stats-cell-classic-${slug}-games`)).toBeNull();
+    }
+
+    // Other variants should be unaffected — six and mini still show all their
+    // tiers because each variant section has independent state.
+    expect(getByTestId('stats-header-six-easy')).toBeTruthy();
+    expect(getByTestId('stats-header-six-diabolical')).toBeTruthy();
+    expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
+    expect(getByTestId('stats-header-mini-hard')).toBeTruthy();
+
+    // Click All to restore.
+    fireEvent.click(getByTestId('stats-filter-classic-all'));
+
+    for (const slug of classicTiers) {
+      expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
+      expect(getByTestId(`stats-cell-classic-${slug}-games`)).toBeTruthy();
+    }
+  });
+
   it('cancelling the reset leaves stats untouched', () => {
     const store = createStatsStore();
     store.getState().recordCompletion({

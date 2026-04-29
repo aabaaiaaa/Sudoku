@@ -141,7 +141,7 @@ their early prerequisites land.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-021, which lands in the same commit chain immediately after.
 
 ### TASK-021: Update save helpers to (variant, difficulty) signatures
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-020
 - **Description**: Update `getSavedGame`, `clearSavedGame`, `hasSavedGame` in `src/store/save.ts` to accept `(variantId, difficulty)` and operate on the slot key. `putSavedGame(saved)` derives the slot from `saved.variant + saved.difficulty`. Add `listSavedGames(): SavedGame[]` returning all slots sorted by `savedAt` descending. Update existing tests in `save.test.ts` to use the new signatures. See requirements §5.1.
 - **Verification**: `npx vitest run src/store/save.test.ts` passes.
@@ -189,25 +189,25 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/store/migration.test.ts` passes — covers detection of mixed v1/v2 entries, no-op when only v3 entries, and removal correctness.
 
 ### TASK-029: First-load migration prompt in App
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-019, TASK-028
 - **Description**: In `src/App.tsx`, on mount call `hasOldSaves()`. Hold result in state plus a session-only `dismissed` flag. When `hasOldSaves && !dismissed`, render `<ConfirmDialog>` over the app shell with the copy from requirements §5.5. **Remove now** triggers `removeOldSaves()` then sets `hasOldSaves` to false. **Decide later** sets `dismissed=true` (in memory only). See requirements §5.5.
 - **Verification**: `npx vitest run src/App.test.tsx` passes including new cases for both buttons.
 
 ### TASK-030: Settings — Storage section with Remove old saves button
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-019, TASK-028
 - **Description**: In `src/screens/Settings.tsx`, add a "Storage" section that is conditionally rendered when `hasOldSaves()` is true. Section contains a button labelled "Remove old saves" that opens a `<ConfirmDialog>` with copy "Remove all old saves now?". Confirm calls `removeOldSaves()` and the section disappears. See requirements §5.5.
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes including a new case that seeds a v2 key, asserts the section appears, clicks the button, and asserts the section disappears.
 
 ### TASK-031: Stats screen — per-variant tier filter pills
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/screens/Stats.tsx`, above each variant's table render a row of pill buttons: **All** + each tier in `availableTiers(variant)`. Local `useState` per variant section; default `All`. When a tier is selected, the table renders only that tier's column. Test ids: `stats-filter-${variantId}-all` and `stats-filter-${variantId}-${slug}`. State does not persist across visits. See requirements §6.
 - **Verification**: `npx vitest run src/screens/Stats.test.tsx` passes including a new case that clicks a tier pill and asserts only that column is rendered.
 
 ### TASK-032: Periodic update poll in usePwaUpdate
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/pwa/useUpdate.ts`, pass an `onRegisteredSW(swUrl, r)` to `registerSW` that does `setInterval(() => r?.update(), 60_000)`. Capture the interval id and clear it on hook unmount. See requirements §8.
 - **Verification**: `npx vitest run src/pwa/useUpdate.test.ts` passes including a new case using fake timers that asserts `update()` is called after 60s.

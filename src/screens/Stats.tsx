@@ -3,6 +3,7 @@ import { useStore } from 'zustand';
 import { statsStore, entryKey, type StatsEntry } from '../store/stats';
 import { variants } from '../engine/variants';
 import { availableTiers } from '../engine/generator/variant-tiers';
+import type { Variant } from '../engine/types';
 import type { Difficulty } from '../engine/generator/rate';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 
@@ -10,7 +11,7 @@ interface StatsProps {
   store?: typeof statsStore;
 }
 
-const EMPTY = '\u2014';
+const EMPTY = '—';
 
 function tierSlug(tier: Difficulty): string {
   return tier.toLowerCase();
@@ -62,6 +63,98 @@ const statRows: Array<{
   { key: 'mistakes', label: 'Total mistakes' },
 ];
 
+interface VariantStatsProps {
+  variant: Variant;
+  entries: Record<string, StatsEntry>;
+}
+
+function VariantStats({ variant, entries }: VariantStatsProps) {
+  const tiers = availableTiers(variant);
+  const [selected, setSelected] = useState<Difficulty | null>(null);
+
+  const visibleTiers = selected === null ? tiers : [selected];
+
+  const pillBase =
+    'px-2 py-0.5 rounded text-xs font-medium border transition-colors';
+  const pillSelected = 'bg-blue-600 text-white border-blue-600';
+  const pillUnselected =
+    'bg-transparent text-gray-700 border-gray-300 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-800';
+
+  return (
+    <section key={variant.id}>
+      <h2 className="text-lg font-medium mb-2">{variant.id.toUpperCase()}</h2>
+      <div className="flex flex-wrap gap-1 mb-2">
+        <button
+          type="button"
+          data-testid={`stats-filter-${variant.id}-all`}
+          onClick={() => setSelected(null)}
+          className={`${pillBase} ${selected === null ? pillSelected : pillUnselected}`}
+        >
+          All
+        </button>
+        {tiers.map((tier) => {
+          const slug = tierSlug(tier);
+          const isSelected = selected === tier;
+          return (
+            <button
+              key={slug}
+              type="button"
+              data-testid={`stats-filter-${variant.id}-${slug}`}
+              onClick={() => setSelected(tier)}
+              className={`${pillBase} ${isSelected ? pillSelected : pillUnselected}`}
+            >
+              {tier}
+            </button>
+          );
+        })}
+      </div>
+      <table
+        data-testid={`stats-variant-${variant.id}`}
+        className="w-full text-left border-collapse"
+      >
+        <thead>
+          <tr>
+            <th className="p-1 border-b" />
+            {visibleTiers.map((tier) => {
+              const slug = tierSlug(tier);
+              return (
+                <th key={slug} className="p-1 border-b font-normal">
+                  <DifficultyBadge
+                    difficulty={slug}
+                    data-testid={`stats-header-${variant.id}-${slug}`}
+                  />
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {statRows.map((row) => (
+            <tr key={row.key}>
+              <th scope="row" className="p-1 font-normal">
+                {row.label}
+              </th>
+              {visibleTiers.map((tier) => {
+                const slug = tierSlug(tier);
+                const entry = entries[entryKey(variant.id, slug)];
+                return (
+                  <td
+                    key={slug}
+                    data-testid={`stats-cell-${variant.id}-${slug}-${row.key}`}
+                    className="p-1"
+                  >
+                    {statCellText(entry, row.key)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 export function Stats({ store = statsStore }: StatsProps) {
   const entries = useStore(store, (s) => s.entries);
   const resetStats = useStore(store, (s) => s.resetStats);
@@ -109,57 +202,9 @@ export function Stats({ store = statsStore }: StatsProps) {
         )}
       </div>
 
-      {Object.values(variants).map((variant) => {
-        const tiers = availableTiers(variant);
-        return (
-          <section key={variant.id}>
-            <h2 className="text-lg font-medium mb-2">{variant.id.toUpperCase()}</h2>
-            <table
-              data-testid={`stats-variant-${variant.id}`}
-              className="w-full text-left border-collapse"
-            >
-              <thead>
-                <tr>
-                  <th className="p-1 border-b" />
-                  {tiers.map((tier) => {
-                    const slug = tierSlug(tier);
-                    return (
-                      <th key={slug} className="p-1 border-b font-normal">
-                        <DifficultyBadge
-                          difficulty={slug}
-                          data-testid={`stats-header-${variant.id}-${slug}`}
-                        />
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {statRows.map((row) => (
-                  <tr key={row.key}>
-                    <th scope="row" className="p-1 font-normal">
-                      {row.label}
-                    </th>
-                    {tiers.map((tier) => {
-                      const slug = tierSlug(tier);
-                      const entry = entries[entryKey(variant.id, slug)];
-                      return (
-                        <td
-                          key={slug}
-                          data-testid={`stats-cell-${variant.id}-${slug}-${row.key}`}
-                          className="p-1"
-                        >
-                          {statCellText(entry, row.key)}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        );
-      })}
+      {Object.values(variants).map((variant) => (
+        <VariantStats key={variant.id} variant={variant} entries={entries} />
+      ))}
     </div>
   );
 }

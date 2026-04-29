@@ -6,9 +6,11 @@ import {
   deserializeNotes,
   getSavedGame,
   hasSavedGame,
+  listSavedGames,
   loadSaveFile,
   putSavedGame,
   serializeNotes,
+  slotKey,
   type SavedGame,
 } from './save';
 
@@ -47,7 +49,7 @@ describe('save store', () => {
     });
 
     putSavedGame(game);
-    const loaded = getSavedGame('classic');
+    const loaded = getSavedGame('classic', 'easy');
 
     expect(loaded).not.toBeNull();
     expect(loaded!.variant).toBe('classic');
@@ -71,20 +73,20 @@ describe('save store', () => {
     putSavedGame(makeSavedGame({ mistakes: 1, elapsedMs: 1000 }));
     putSavedGame(makeSavedGame({ mistakes: 5, elapsedMs: 99_000 }));
 
-    const loaded = getSavedGame('classic');
+    const loaded = getSavedGame('classic', 'easy');
     expect(loaded!.mistakes).toBe(5);
     expect(loaded!.elapsedMs).toBe(99_000);
 
     const file = loadSaveFile();
-    expect(Object.keys(file.saves)).toEqual(['classic']);
+    expect(Object.keys(file.saves)).toEqual(['classic:easy']);
   });
 
   it('putSavedGame for a different variant leaves the original in place', () => {
     putSavedGame(makeSavedGame({ variant: 'classic', mistakes: 3 }));
     putSavedGame(makeSavedGame({ variant: 'mini', mistakes: 7 }));
 
-    const classic = getSavedGame('classic');
-    const mini = getSavedGame('mini');
+    const classic = getSavedGame('classic', 'easy');
+    const mini = getSavedGame('mini', 'easy');
 
     expect(classic).not.toBeNull();
     expect(classic!.mistakes).toBe(3);
@@ -92,26 +94,93 @@ describe('save store', () => {
     expect(mini!.mistakes).toBe(7);
   });
 
-  it('clearSavedGame removes only that variant\'s save', () => {
+  it('clearSavedGame removes only that slot', () => {
     putSavedGame(makeSavedGame({ variant: 'classic' }));
     putSavedGame(makeSavedGame({ variant: 'mini' }));
     putSavedGame(makeSavedGame({ variant: 'six' }));
 
-    clearSavedGame('mini');
+    clearSavedGame('mini', 'easy');
 
-    expect(getSavedGame('classic')).not.toBeNull();
-    expect(getSavedGame('mini')).toBeNull();
-    expect(getSavedGame('six')).not.toBeNull();
+    expect(getSavedGame('classic', 'easy')).not.toBeNull();
+    expect(getSavedGame('mini', 'easy')).toBeNull();
+    expect(getSavedGame('six', 'easy')).not.toBeNull();
   });
 
   it('hasSavedGame returns true/false appropriately', () => {
-    expect(hasSavedGame('classic')).toBe(false);
+    expect(hasSavedGame('classic', 'easy')).toBe(false);
     putSavedGame(makeSavedGame({ variant: 'classic' }));
-    expect(hasSavedGame('classic')).toBe(true);
-    expect(hasSavedGame('mini')).toBe(false);
+    expect(hasSavedGame('classic', 'easy')).toBe(true);
+    expect(hasSavedGame('mini', 'easy')).toBe(false);
 
-    clearSavedGame('classic');
-    expect(hasSavedGame('classic')).toBe(false);
+    clearSavedGame('classic', 'easy');
+    expect(hasSavedGame('classic', 'easy')).toBe(false);
+  });
+
+  it('keeps two saves for the same variant at different difficulties side by side', () => {
+    const classicEasy = makeSavedGame({
+      variant: 'classic',
+      difficulty: 'easy',
+      mistakes: 1,
+      savedAt: 1_700_000_000_000,
+    });
+    const classicHard = makeSavedGame({
+      variant: 'classic',
+      difficulty: 'hard',
+      mistakes: 4,
+      savedAt: 1_700_000_500_000,
+    });
+    putSavedGame(classicEasy);
+    putSavedGame(classicHard);
+
+    const easy = getSavedGame('classic', 'easy');
+    const hard = getSavedGame('classic', 'hard');
+
+    expect(easy).not.toBeNull();
+    expect(hard).not.toBeNull();
+    expect(easy!.difficulty).toBe('easy');
+    expect(easy!.mistakes).toBe(1);
+    expect(hard!.difficulty).toBe('hard');
+    expect(hard!.mistakes).toBe(4);
+    expect(easy).not.toEqual(hard);
+
+    const file = loadSaveFile();
+    expect(Object.keys(file.saves).sort()).toEqual([
+      slotKey('classic', 'easy'),
+      slotKey('classic', 'hard'),
+    ]);
+  });
+
+  it('listSavedGames returns every slot ordered by savedAt descending', () => {
+    const oldest = makeSavedGame({
+      variant: 'mini',
+      difficulty: 'easy',
+      savedAt: 1_700_000_000_000,
+    });
+    const middle = makeSavedGame({
+      variant: 'classic',
+      difficulty: 'hard',
+      savedAt: 1_700_000_500_000,
+    });
+    const newest = makeSavedGame({
+      variant: 'six',
+      difficulty: 'medium',
+      savedAt: 1_700_001_000_000,
+    });
+
+    putSavedGame(oldest);
+    putSavedGame(middle);
+    putSavedGame(newest);
+
+    const all = listSavedGames();
+    expect(all).toHaveLength(3);
+    expect(all.map((s) => s.savedAt)).toEqual([
+      newest.savedAt,
+      middle.savedAt,
+      oldest.savedAt,
+    ]);
+    expect(all[0].variant).toBe('six');
+    expect(all[1].variant).toBe('classic');
+    expect(all[2].variant).toBe('mini');
   });
 
   it('returns an empty file on schema version mismatch', () => {
@@ -126,12 +195,12 @@ describe('save store', () => {
     const file = loadSaveFile();
     expect(file.version).toBe(SAVE_SCHEMA_VERSION);
     expect(file.saves).toEqual({});
-    expect(getSavedGame('classic')).toBeNull();
+    expect(getSavedGame('classic', 'easy')).toBeNull();
   });
 
-  it('uses the v2 storage key and bumped schema version', () => {
-    expect(SAVE_STORAGE_KEY).toBe('sudoku.save.v2');
-    expect(SAVE_SCHEMA_VERSION).toBe(2);
+  it('uses the v3 storage key and bumped schema version', () => {
+    expect(SAVE_STORAGE_KEY).toBe('sudoku.save.v3');
+    expect(SAVE_SCHEMA_VERSION).toBe(3);
   });
 
   it('silently drops legacy v1 entries on load', () => {
@@ -145,7 +214,7 @@ describe('save store', () => {
 
     const file = loadSaveFile();
     expect(file.saves).toEqual({});
-    expect(getSavedGame('classic')).toBeNull();
+    expect(getSavedGame('classic', 'easy')).toBeNull();
   });
 
   it('stamps writes with the current appVersion', () => {
@@ -170,7 +239,7 @@ describe('save store', () => {
     const file = loadSaveFile();
     expect(file.version).toBe(SAVE_SCHEMA_VERSION);
     expect(file.saves).toEqual({});
-    expect(getSavedGame('classic')).toBeNull();
+    expect(getSavedGame('classic', 'easy')).toBeNull();
   });
 
   it('serializeNotes returns a sorted ascending array', () => {

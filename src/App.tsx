@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Home } from './screens/Home';
 import { Game } from './screens/Game';
 import { Stats } from './screens/Stats';
@@ -8,6 +8,8 @@ import { TechniqueDetail } from './screens/TechniqueDetail';
 import { TECHNIQUE_ORDER } from './engine/solver/techniques/catalog';
 import type { TechniqueId } from './engine/solver/techniques';
 import { usePwaUpdate } from './pwa/useUpdate';
+import { ConfirmDialog } from './components/ConfirmDialog';
+import { hasOldSaves, removeOldSaves } from './store/migration';
 
 type Screen = 'home' | 'game' | 'stats' | 'settings' | 'learn' | 'learn-detail';
 
@@ -107,6 +109,22 @@ export default function App() {
   const showTabBar = screen !== 'game';
   const { needsRefresh, reload } = usePwaUpdate();
 
+  const [hasOld, setHasOld] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    setHasOld(hasOldSaves());
+  }, []);
+
+  const handleRemoveOld = useCallback(() => {
+    removeOldSaves();
+    setHasOld(false);
+  }, []);
+
+  const handleDismissOld = useCallback(() => {
+    setDismissed(true);
+  }, []);
+
   return (
     <div className="min-h-screen pb-16 sm:pb-0">
       {needsRefresh && (
@@ -183,6 +201,27 @@ export default function App() {
           </button>
         </nav>
       )}
+      <ConfirmDialog
+        open={hasOld && !dismissed}
+        title="Old saves detected"
+        body={
+          <>
+            <p className="mb-2">
+              We found saves from an earlier version of the app that aren&apos;t
+              compatible with this version. They take up space but won&apos;t
+              load.
+            </p>
+            <p>
+              Remove them now? You can also remove them later from Settings →
+              Storage → Remove old saves.
+            </p>
+          </>
+        }
+        confirmLabel="Remove now"
+        cancelLabel="Decide later"
+        onConfirm={handleRemoveOld}
+        onCancel={handleDismissOld}
+      />
     </div>
   );
 }
