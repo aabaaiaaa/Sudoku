@@ -25,7 +25,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm test -- src/engine/generator/generate-for-difficulty.test.ts` passes. The `MAX_ATTEMPTS_BY_TIER` table values are explainable by the iteration-5 baseline data (each non-default entry traces to a specific cell). The doc-block does not reference "Iteration 3 §4.3" anywhere.
 
 ### TASK-004: Restore tiers in `VARIANT_TIERS` and refresh its doc-block
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-003
 - **Description**: Implement requirements §7. For each (variant, tier) cell in the iteration-5 baseline `scripts/tier-distribution.summary.json` with `rate ≥ 0.05`, ensure `tier` is included in `VARIANT_TIERS[variant.id]` in `src/engine/generator/variant-tiers.ts`. Keep each per-variant tier list in `DIFFICULTY_ORDER` order. Rewrite the doc-block at the top of the file: cite the iteration-5 baseline by date; for any tier that **remains** descoped, list the (variant, tier, rate, sampleSize) tuple from the iteration-5 baseline as the rationale; for tiers that **were** descoped in iteration 4 but are restored now, do not enumerate them in the doc-block (the `VARIANT_TIERS` change itself is the evidence). If no tier is restored, this task is a no-op for `VARIANT_TIERS` itself but still rewrites the doc-block to cite iteration-5 evidence. **Breaking** field is intentionally omitted: `availableTiers` is internal API; the player surface change is forward-compatible (existing saves continue to load on tiers that were always advertised).

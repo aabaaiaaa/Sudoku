@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 2,
+  "lastIteration": 3,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-003",
-    "taskTitle": "Apply lever 1 — update `MAX_ATTEMPTS_BY_TIER` per the iteration-5 baseline",
-    "iterationNumber": 3,
-    "startedAt": "2026-04-29T16:42:06.968Z"
+    "taskId": "TASK-004",
+    "taskTitle": "Restore tiers in `VARIANT_TIERS` and refresh its doc-block",
+    "iterationNumber": 4,
+    "startedAt": "2026-04-29T16:46:50.313Z"
   }
 }

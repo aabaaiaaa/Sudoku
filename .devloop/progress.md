@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 14
-- **Completed**: 6
-- **Remaining**: 8
-- **Last Updated**: 2026-04-29T16:46:48.170Z
+- **Completed**: 7
+- **Remaining**: 7
+- **Last Updated**: 2026-04-29T16:49:19.902Z
 
 ## Iteration Log
 
@@ -34,4 +34,13 @@
 - **Exit Status**: success
 - **Tokens**: 1,442,656 total (24 in, 16,900 out, 68,124 cache-create, 1,357,608 cache-read)
 - **Cost**: $1.5272
+
+### Iteration 4 - 2026-04-29T16:49:19.900Z
+- **Task Attempted**: TASK-004
+- **Task Completed**: TASK-004
+- **Summary**: Completed Restore tiers in `VARIANT_TIERS` and refresh its doc-block
+- **Duration**: 2m 30s
+- **Exit Status**: success
+- **Tokens**: 768,185 total (17 in, 6,398 out, 53,834 cache-create, 707,936 cache-read)
+- **Cost**: $0.8505
 
