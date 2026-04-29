@@ -134,7 +134,7 @@ is actually fixed.
 - **Verification**: `npm run build`
 
 ### TASK-022: Full E2E sweep on Chromium and WebKit
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: Run the **full** Playwright suite on both projects — not just the tightened matrix. The matrix is the canonical Bug B regression check, but iteration 4 also touches generator/store/dialog code that the slow-generate, desktop-nav, and PWA-update specs exercise; without a full sweep we cannot honour the §14 success criterion "No regressions in v0.3.0 functionality." If any case fails: matrix failures route back to TASK-007 (re-open tuning); other-spec failures route to whichever iteration-4 task touched the relevant code.
 - **Verification**: `npx playwright test --project=chromium && npx playwright test --project=webkit`
