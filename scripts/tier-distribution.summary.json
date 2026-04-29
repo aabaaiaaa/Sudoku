@@ -1,6 +1,7 @@
 {
   "classic:Easy": {
     "rate": 0.9,
+    "solvedRate": 0.9,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 0,
@@ -8,6 +9,7 @@
   },
   "classic:Medium": {
     "rate": 0.55,
+    "solvedRate": 0.55,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 102,
@@ -15,6 +17,7 @@
   },
   "classic:Hard": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -22,6 +25,7 @@
   },
   "classic:Expert": {
     "rate": 0.2,
+    "solvedRate": 0.2,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 301,
@@ -29,6 +33,7 @@
   },
   "classic:Master": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -36,20 +41,23 @@
   },
   "classic:Diabolical": {
     "rate": 0.2,
+    "solvedRate": 0.15,
     "advertised": true,
     "sampleSize": 20,
-    "firstHitSeed": 502,
-    "firstHitBoard": "....4..8..6....1..8..3.2......2..3645.68....9.....9...12.......3.5..7......1.8.9."
+    "firstHitSeed": 504,
+    "firstHitBoard": ".....29.5....7.32.7...9.....3..86....8.9..1.7....4.8..25...8.....8...4...4..6..3."
   },
   "classic:Demonic": {
     "rate": 0.2,
+    "solvedRate": 0.05,
     "advertised": true,
     "sampleSize": 20,
-    "firstHitSeed": 600,
-    "firstHitBoard": "9....67.3...51.8....68....1.9..2....7.8.6..2.4.......7.54.........1.7..9....8...."
+    "firstHitSeed": 612,
+    "firstHitBoard": "62..8.....5..4.2...4..5..131..9.4..773......1.......5.8....56.9...7..........3..."
   },
   "classic:Nightmare": {
     "rate": 0.1,
+    "solvedRate": 0.1,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 703,
@@ -57,6 +65,7 @@
   },
   "six:Easy": {
     "rate": 1,
+    "solvedRate": 1,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 1000,
@@ -64,6 +73,7 @@
   },
   "six:Medium": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -71,6 +81,7 @@
   },
   "six:Hard": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -78,6 +89,7 @@
   },
   "six:Expert": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -85,6 +97,7 @@
   },
   "six:Master": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -92,6 +105,7 @@
   },
   "six:Diabolical": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -99,6 +113,7 @@
   },
   "mini:Easy": {
     "rate": 1,
+    "solvedRate": 1,
     "advertised": true,
     "sampleSize": 20,
     "firstHitSeed": 2000,
@@ -106,6 +121,7 @@
   },
   "mini:Medium": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,
@@ -113,6 +129,7 @@
   },
   "mini:Hard": {
     "rate": 0,
+    "solvedRate": 0,
     "advertised": false,
     "sampleSize": 20,
     "firstHitSeed": null,

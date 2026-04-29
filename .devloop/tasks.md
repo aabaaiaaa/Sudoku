@@ -90,7 +90,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   two new cases.
 
 ### TASK-005: Re-run profile and commit corrected baseline
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-001
 - **Description**: Run `npm run profile-tiers -- --all-tiers --n=20`.
@@ -156,7 +156,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   comment removed.
 
 ### TASK-008: Run lever-2 exploration sweep for Six and Mini
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-001, TASK-002
 - **Description**: Run a single invocation of

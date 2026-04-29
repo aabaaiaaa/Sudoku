@@ -1,0 +1,114 @@
+{
+  "six:Medium@14": {
+    "rate": 0.05,
+    "solvedRate": 0.05,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": 1102,
+    "firstHitBoard": "16...2...6...2..43.341......61.1.2.."
+  },
+  "six:Medium@16": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Hard@11": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Hard@13": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Expert@8": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Expert@10": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Master@9": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Master@11": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Diabolical@7": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "six:Diabolical@9": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "mini:Medium@6": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "mini:Medium@8": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "mini:Hard@5": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  },
+  "mini:Hard@7": {
+    "rate": 0,
+    "solvedRate": 0,
+    "advertised": false,
+    "sampleSize": 20,
+    "firstHitSeed": null,
+    "firstHitBoard": null
+  }
+}
