@@ -122,7 +122,7 @@ is actually fixed.
 - **Verification**: `npx vitest run src/workers/generator-client.real-worker.test.ts` (OR `npx playwright test tests/e2e/worker-smoke.spec.ts --project=chromium` if the Playwright fallback was used)
 
 ### TASK-020: Full unit-test sweep
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008, TASK-010, TASK-011, TASK-013, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019
 - **Description**: Run the full vitest suite and confirm every test passes — including the un-skipped Hard/Master cases, the new tier-fixture round-trip, the new real-worker smoke test, and all existing iteration-3 tests. Investigate any failures.
 - **Verification**: `npm test`
