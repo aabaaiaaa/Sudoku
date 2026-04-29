@@ -8,10 +8,40 @@ import {
   type RateResult,
 } from './rate';
 
-/** Default attempt cap per call (requirements §6.2). */
+/**
+ * Per-tier attempt cap per call (Iteration 3 §4.3). Hard/Expert/Master are
+ * mid-range tiers whose generator distribution doesn't reliably hit the
+ * target inside 50 tries, so they get a larger 100-attempt budget.
+ * Diabolical/Demonic/Nightmare keep 50 because each attempt is much more
+ * expensive — they typically consume the full 60s wall-clock budget anyway.
+ * Easy/Medium are cheap and almost always match within 50.
+ */
+export const MAX_ATTEMPTS_BY_TIER: Record<Difficulty, number> = {
+  Easy: 50,
+  Medium: 50,
+  Hard: 100,
+  Expert: 100,
+  Master: 100,
+  Diabolical: 50,
+  Demonic: 50,
+  Nightmare: 50,
+};
+/**
+ * Legacy default attempt cap (requirements §6.2). Retained for callers and
+ * tests that branch on a single canonical default; the per-tier table in
+ * {@link MAX_ATTEMPTS_BY_TIER} is the source of truth at call time.
+ */
 export const DEFAULT_MAX_ATTEMPTS = 50;
 /** Default wall-clock timeout per call in ms (requirements §6.2). */
 export const DEFAULT_TIMEOUT_MS = 60_000;
+
+/**
+ * Returns the default attempts budget for the given target tier (Iteration 3
+ * §4.3). Callers can still override via `options.maxRetries`.
+ */
+export function defaultMaxAttemptsForTier(difficulty: Difficulty): number {
+  return MAX_ATTEMPTS_BY_TIER[difficulty] ?? DEFAULT_MAX_ATTEMPTS;
+}
 
 /**
  * Progress event payload emitted after each *rejected* attempt (requirements
@@ -29,8 +59,10 @@ export interface GenerateForDifficultyOptions {
   seed?: number;
   /**
    * Maximum number of distinct generation attempts before giving up.
-   * Defaults to {@link DEFAULT_MAX_ATTEMPTS} (50). Whichever of `maxRetries`
-   * or `timeoutMs` is reached first ends generation in failure.
+   * Defaults to the per-tier value in {@link MAX_ATTEMPTS_BY_TIER} (50 for
+   * Easy/Medium and Diabolical/Demonic/Nightmare; 100 for Hard/Expert/Master).
+   * Whichever of `maxRetries` or `timeoutMs` is reached first ends generation
+   * in failure.
    */
   maxRetries?: number;
   /**
@@ -150,7 +182,10 @@ export function generateForDifficulty(
   }
   difficulty = normalized;
 
-  const maxRetries = Math.max(1, options.maxRetries ?? DEFAULT_MAX_ATTEMPTS);
+  const maxRetries = Math.max(
+    1,
+    options.maxRetries ?? defaultMaxAttemptsForTier(difficulty),
+  );
   const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const targetRank = tierRank(difficulty);
   const minCluesHint = clueBoundsLowerForTier(variant.id, difficulty);

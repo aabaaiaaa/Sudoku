@@ -135,7 +135,7 @@ export default function App() {
       {showTabBar && (
         <nav
           data-testid="tab-bar"
-          className="fixed bottom-0 inset-x-0 flex sm:hidden"
+          className="fixed bottom-0 inset-x-0 flex"
           style={{
             background: 'var(--cell-bg)',
             borderTop: '1px solid var(--border)',

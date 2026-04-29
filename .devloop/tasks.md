@@ -33,7 +33,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts` passes (FakeWorker tests still green).
 
 ### TASK-005: Propagate lastError to GeneratorFailure result
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004
 - **Description**: In `src/workers/generator-client.ts`, add `lastError?: string` to the `GeneratorFailure` interface. The message handler for `failed` should copy it into the resolved result. See requirements §4.1.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts` passes.
@@ -63,7 +63,7 @@ their early prerequisites land.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-010, which lands in the same commit chain immediately after.
 
 ### TASK-010: Update rate.test fixtures for solved-flag semantics
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-009
 - **Description**: Update `src/engine/generator/rate.test.ts` cases that previously asserted `difficulty === 'Expert'` for cascade-stalled puzzles to instead assert `solved === false`. Add at least one new case that supplies a puzzle whose cascade stalls and whose hardest fired technique is below Expert; assert the rated difficulty matches that lower tier and `solved === false`. See requirements §4.4.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
@@ -93,7 +93,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/solver/techniques/<fixed-name>.test.ts` passes the new regression case; `npx vitest run src/engine/solver/techniques/fuzz.test.ts` no longer reports that finder.
 
 ### TASK-014b: Fix second throwing finder if any
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-014a
 - **Description**: Repeat TASK-014a for the next throwing finder. Same pattern.
 - **Verification**: same pattern as TASK-014a.
@@ -111,7 +111,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts` passes including a new case asserting clue count after generation is `>= maxClues`.
 
 ### TASK-016: Add per-tier attempt budgets
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, replace the single `DEFAULT_MAX_ATTEMPTS` constant with a per-tier table: `Easy/Medium = 50`, `Hard/Expert/Master = 100`, `Diabolical/Demonic/Nightmare = 50`. The per-call default is now derived from the target tier. `options.maxRetries` continues to override. Wall-clock cap is unchanged at 60s. See requirements §4.3.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes including a new case asserting Hard/Expert/Master use 100 attempts by default.
@@ -123,7 +123,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
 
 ### TASK-018: Drop sm:hidden on bottom tab bar
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/App.tsx`, on the `<nav data-testid="tab-bar">` element (currently around line 138), change `className="fixed bottom-0 inset-x-0 flex sm:hidden"` to `className="fixed bottom-0 inset-x-0 flex"`. The bottom tab bar now shows on every viewport. There is no existing `App.test.tsx` to run against, so regression coverage for this change is provided by TASK-044 (E2E desktop nav). See requirements §7.
 - **Verification**: `npx tsc --noEmit` exits zero. Manual smoke: `npm run dev`, open at a desktop viewport (≥640 px wide), assert the tab bar is visible. Automated regression coverage lands with TASK-044.
