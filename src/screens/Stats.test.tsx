@@ -109,6 +109,27 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-cell-classic-easy-avg').textContent).toBe(dash);
   });
 
+  it('hides the filter pill row for single-tier variants but shows it for multi-tier variants', () => {
+    const store = createStatsStore();
+    const { getByTestId, queryByTestId } = render(<Stats store={store} />);
+
+    // Classic advertises multiple tiers — the pill row (and its All pill) should render.
+    expect(getByTestId('stats-filter-row-classic')).toBeTruthy();
+    expect(getByTestId('stats-filter-classic-all')).toBeTruthy();
+
+    // Six and Mini advertise only Easy — the pill row should be omitted, but
+    // the table itself must still render below.
+    expect(queryByTestId('stats-filter-row-six')).toBeNull();
+    expect(queryByTestId('stats-filter-six-all')).toBeNull();
+    expect(getByTestId('stats-variant-six')).toBeTruthy();
+    expect(getByTestId('stats-header-six-easy')).toBeTruthy();
+
+    expect(queryByTestId('stats-filter-row-mini')).toBeNull();
+    expect(queryByTestId('stats-filter-mini-all')).toBeNull();
+    expect(getByTestId('stats-variant-mini')).toBeTruthy();
+    expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
+  });
+
   it('filters tier columns when a per-variant filter pill is clicked', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);

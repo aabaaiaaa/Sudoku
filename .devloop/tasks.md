@@ -4,7 +4,7 @@ Tasks reference `.devloop/requirements.md` for full context. Section
 numbers (§N) below refer to that document.
 
 ### TASK-001: Add `--all-tiers` flag and `firstHitBoard` emission to profile-tiers.ts
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: none
 - **Description**: Implement requirements §4 in `scripts/profile-tiers.ts`. Three changes in the same edit window: (1) extend the argv parser to recognize `--all-tiers`; when present, iterate `DIFFICULTY_ORDER` for every variant whose `CLUE_BOUNDS[variant.id]` defines a window for that tier (skip cells with no defined window). The summary JSON's `advertised: boolean` field is set as `availableTiers(variant).includes(tier)`. (2) Add a `firstHitBoard: string | null` field to each per-cell `SummaryEntry` — the dotted-digit row-major givens string of the first puzzle that rated as the target tier (or `null`). Use the existing `puzzle` returned from `generate(...)` and convert via the same row-major dotted-digit convention used by `parseBoardString`. (3) Retire the obsolete iteration-3 `minClues` preamble (lines ~75-82) and rename the call site `{ seed, minClues: clueFloor }` → `{ seed, clueFloor }`.
@@ -53,21 +53,21 @@ numbers (§N) below refer to that document.
 - **Verification**: For every `(v, t)` such that `availableTiers(v).includes(t)`, the iteration-5 final `tier-distribution.summary.json` has `summary[`${v.id}:${t}`].rate >= 0.05`. The two iteration-5 commits of `scripts/tier-distribution.md` are visible in `git log scripts/tier-distribution.md`.
 
 ### TASK-008: Gate `__sudokuGameStore` behind `import.meta.env.DEV`
-- **Status**: pending
+- **Status**: done
 - **Type**: fix
 - **Dependencies**: none
 - **Description**: Implement requirements §11.1. In `src/main.tsx:14`, wrap the `(window as any).__sudokuGameStore = useGameStore` assignment in `if (import.meta.env.DEV) { … }`. The four E2E specs that read the hook (`hint-learn-more`, `new-game`, `notes-and-conflicts`, `resume`) all run against `vite dev`, where `DEV === true`, so they are unaffected. The `pwa-update` spec runs against `vite preview` (production build) and does not read the hook.
 - **Verification**: `npm run build` succeeds, then `grep -r "__sudokuGameStore" dist/` returns no matches (the hook does not appear in production bundles). Run `npm test -- src/App.test.tsx` to confirm no regression in app initialization (the store assignment happens at module load and is exercised by the App test).
 
 ### TASK-009: Hide Stats filter pill row when `tiers.length <= 1`
-- **Status**: pending
+- **Status**: done
 - **Type**: fix
 - **Dependencies**: none
 - **Description**: Implement requirements §11.2. In `src/screens/Stats.tsx` (around lines 86-110, where the `[All] [Easy]` filter pill row is rendered per variant), wrap the pill-row JSX in a conditional that returns `null` (or omits the element) when the variant's `tiers.length <= 1`. The single-tier table renders without a useless filter row above it. Update or add a Vitest case in `src/screens/Stats.test.tsx` that asserts the pill row is *not* rendered for a variant with one tier, and *is* rendered for a variant with multiple tiers.
 - **Verification**: `npm test -- src/screens/Stats.test.tsx` passes including the new case.
 
 ### TASK-010: Delete the placeholder real-worker vitest test
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: none
 - **Description**: Implement requirements §11.3. Delete `src/workers/generator-client.real-worker.test.ts`. The actual real-worker smoke check is `tests/e2e/worker-smoke.spec.ts`, which remains. The placeholder test file currently asserts only that `Worker` is undefined under jsdom — misleading by appearance.

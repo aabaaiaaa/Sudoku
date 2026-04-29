@@ -83,31 +83,36 @@ function VariantStats({ variant, entries }: VariantStatsProps) {
   return (
     <section key={variant.id}>
       <h2 className="text-lg font-medium mb-2">{variant.id.toUpperCase()}</h2>
-      <div className="flex flex-wrap gap-1 mb-2">
-        <button
-          type="button"
-          data-testid={`stats-filter-${variant.id}-all`}
-          onClick={() => setSelected(null)}
-          className={`${pillBase} ${selected === null ? pillSelected : pillUnselected}`}
+      {tiers.length > 1 ? (
+        <div
+          data-testid={`stats-filter-row-${variant.id}`}
+          className="flex flex-wrap gap-1 mb-2"
         >
-          All
-        </button>
-        {tiers.map((tier) => {
-          const slug = tierSlug(tier);
-          const isSelected = selected === tier;
-          return (
-            <button
-              key={slug}
-              type="button"
-              data-testid={`stats-filter-${variant.id}-${slug}`}
-              onClick={() => setSelected(tier)}
-              className={`${pillBase} ${isSelected ? pillSelected : pillUnselected}`}
-            >
-              {tier}
-            </button>
-          );
-        })}
-      </div>
+          <button
+            type="button"
+            data-testid={`stats-filter-${variant.id}-all`}
+            onClick={() => setSelected(null)}
+            className={`${pillBase} ${selected === null ? pillSelected : pillUnselected}`}
+          >
+            All
+          </button>
+          {tiers.map((tier) => {
+            const slug = tierSlug(tier);
+            const isSelected = selected === tier;
+            return (
+              <button
+                key={slug}
+                type="button"
+                data-testid={`stats-filter-${variant.id}-${slug}`}
+                onClick={() => setSelected(tier)}
+                className={`${pillBase} ${isSelected ? pillSelected : pillUnselected}`}
+              >
+                {tier}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       <table
         data-testid={`stats-variant-${variant.id}`}
         className="w-full text-left border-collapse"

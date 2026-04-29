@@ -33,7 +33,7 @@ import {
   miniVariant,
   sixVariant,
 } from '../src/engine/variants';
-import type { Variant } from '../src/engine/types';
+import type { Board, Variant } from '../src/engine/types';
 
 interface CellResult {
   variantId: string;
@@ -41,8 +41,10 @@ interface CellResult {
   clueFloor: number;
   histogram: Record<Difficulty, number>;
   firstHitSeed: number | null;
+  firstHitBoard: string | null;
   matchCount: number;
   sampleSize: number;
+  advertised: boolean;
 }
 
 interface SummaryEntry {
@@ -50,6 +52,7 @@ interface SummaryEntry {
   advertised: boolean;
   sampleSize: number;
   firstHitSeed: number | null;
+  firstHitBoard: string | null;
 }
 
 function parseN(argv: readonly string[]): number {
@@ -63,23 +66,40 @@ function parseN(argv: readonly string[]): number {
   return 20;
 }
 
+function parseAllTiers(argv: readonly string[]): boolean {
+  return argv.includes('--all-tiers');
+}
+
 function emptyHistogram(): Record<Difficulty, number> {
   const h = {} as Record<Difficulty, number>;
   for (const tier of DIFFICULTY_ORDER) h[tier] = 0;
   return h;
 }
 
-const N = parseN(process.argv.slice(2));
+/**
+ * Encode a Board as the row-major dotted-digit string convention used by the
+ * test fixtures (and parsed by each `parseBoardString` helper): '.' for empty,
+ * '1'..'9' for filled cells. Givens-only boards (like the puzzle returned from
+ * `generate()`) are the typical input — non-given filled cells are still
+ * encoded as their digit, matching `parseBoardString`'s round-trip behaviour.
+ */
+function boardToDottedString(board: Board): string {
+  const { variant, cells } = board;
+  let out = '';
+  for (let r = 0; r < variant.size; r++) {
+    for (let c = 0; c < variant.size; c++) {
+      const cell = cells[r][c];
+      out += cell.value == null ? '.' : String(cell.value);
+    }
+  }
+  return out;
+}
+
+const ARGV = process.argv.slice(2);
+const N = parseN(ARGV);
+const ALL_TIERS = parseAllTiers(ARGV);
 const startedAt = Date.now();
 
-// IMPORTANT (requirements §4.3 + iteration 3 plumbing): the eventual
-// `GenerateOptions` rename calls this hint `clueFloor`. At this point
-// in the iteration the field is still `minClues`, which is exactly the
-// lower clue floor we want to bias generation toward. We intentionally
-// avoid `maxClues` because its current semantic acts as a *secondary*
-// floor when supplied — see generate.ts ~L183-188 — so passing the
-// tier's lower bound there would be a no-op (or worse, push generation
-// toward more clues, the opposite of what we want for harder tiers).
 const VARIANTS_IN_ORDER: readonly Variant[] = [
   classicVariant,
   sixVariant,
@@ -90,15 +110,18 @@ const cells: CellResult[] = [];
 
 for (let variantIndex = 0; variantIndex < VARIANTS_IN_ORDER.length; variantIndex++) {
   const variant = VARIANTS_IN_ORDER[variantIndex];
-  const tiers = availableTiers(variant);
-  for (let tierIndex = 0; tierIndex < tiers.length; tierIndex++) {
-    const tier = tiers[tierIndex];
+  const advertisedTiers = availableTiers(variant);
+  const tiersForVariant = ALL_TIERS ? DIFFICULTY_ORDER : advertisedTiers;
+  for (let tierIndex = 0; tierIndex < tiersForVariant.length; tierIndex++) {
+    const tier = tiersForVariant[tierIndex];
     const bounds = CLUE_BOUNDS[variant.id]?.[tier];
     if (!bounds) continue; // skip if no clue window defined for this cell
     const clueFloor = bounds[0];
+    const advertised = advertisedTiers.includes(tier);
 
     const histogram = emptyHistogram();
     let firstHitSeed: number | null = null;
+    let firstHitBoard: string | null = null;
     let matchCount = 0;
 
     // Seed offset is keyed on the tier's *position in `DIFFICULTY_ORDER`*,
@@ -112,15 +135,16 @@ for (let variantIndex = 0; variantIndex < VARIANTS_IN_ORDER.length; variantIndex
     const tierRank = DIFFICULTY_ORDER.indexOf(tier);
     for (let i = 0; i < N; i++) {
       const seed = variantIndex * 1000 + tierRank * 100 + i;
-      // Use `minClues` as the floor — this corresponds to what the
-      // post-rename API will call `clueFloor`.
-      const generated = generate(variant, { seed, minClues: clueFloor });
+      const generated = generate(variant, { seed, clueFloor });
       const result = rate(generated.puzzle);
       const rated = result.difficulty;
       histogram[rated] += 1;
       if (rated === tier) {
         matchCount += 1;
-        if (firstHitSeed === null) firstHitSeed = seed;
+        if (firstHitSeed === null) {
+          firstHitSeed = seed;
+          firstHitBoard = boardToDottedString(generated.puzzle);
+        }
       }
       process.stdout.write(`${variant.id} ${tier} ${i + 1}/${N}\r`);
     }
@@ -133,8 +157,10 @@ for (let variantIndex = 0; variantIndex < VARIANTS_IN_ORDER.length; variantIndex
       clueFloor,
       histogram,
       firstHitSeed,
+      firstHitBoard,
       matchCount,
       sampleSize: N,
+      advertised,
     });
   }
 }
@@ -186,9 +212,10 @@ for (const cell of cells) {
   const key = `${cell.variantId}:${cell.tier}`;
   summary[key] = {
     rate: cell.sampleSize > 0 ? cell.matchCount / cell.sampleSize : 0,
-    advertised: true,
+    advertised: cell.advertised,
     sampleSize: cell.sampleSize,
     firstHitSeed: cell.firstHitSeed,
+    firstHitBoard: cell.firstHitBoard,
   };
 }
 

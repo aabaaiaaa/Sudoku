@@ -11,8 +11,11 @@ import './themes/space.css';
 
 // Test hook: expose the singleton game store for Playwright E2E tests to seed
 // near-complete board states without relying on the puzzle generator.
-(window as unknown as { __sudokuGameStore?: typeof gameStore }).__sudokuGameStore =
-  gameStore;
+// DEV-only — tree-shaken from production builds.
+if (import.meta.env.DEV) {
+  (window as unknown as { __sudokuGameStore?: typeof gameStore }).__sudokuGameStore =
+    gameStore;
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

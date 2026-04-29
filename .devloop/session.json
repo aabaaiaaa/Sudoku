@@ -1,8 +1,14 @@
 {
-  "phase": "init",
+  "phase": "run",
   "sessionId": null,
   "lastIteration": 0,
-  "startedAt": "2026-04-29T15:03:17.998Z",
+  "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
-  "devloopVersion": "4.2.0"
+  "devloopVersion": "4.2.0",
+  "activeTask": {
+    "taskId": "TASK-001",
+    "taskTitle": "Batch: TASK-001, TASK-008, TASK-009, TASK-010",
+    "iterationNumber": 1,
+    "startedAt": "2026-04-29T16:33:59.502Z"
+  }
 }
