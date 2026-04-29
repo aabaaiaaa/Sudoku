@@ -101,7 +101,7 @@ const TECHNIQUE_TIER: Record<TechniqueId, Difficulty> = {
 /**
  * Clue-count bounds per variant per difficulty tier. These are advisory
  * windows used as a secondary signal — the primary filter is strict tier
- * matching against the rated technique chain. Format: `[minClues, maxClues]`
+ * matching against the rated technique chain. Format: `[lowerBound, upperBound]`
  * inclusive. Variants only define entries for tiers their grid size can
  * realistically support; the UI hides infeasible tiers per variant.
  */

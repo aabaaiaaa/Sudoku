@@ -38,7 +38,7 @@ is actually fixed.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` (Hard/Master remain skipped via `SKIPPED_TIERS` until TASK-011; this run exercises every other test in the file)
 
 ### TASK-006: Update remaining `generate()` / `generate-for-difficulty()` callers + tests
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-005
 - **Description**: Search for any remaining `maxClues` references in `src/` and `tests/` (`grep -rn "maxClues" src tests`). Update each call site to use `clueFloor` (with appropriate value — the lower bound, not the upper). Update any test fixtures or unit tests that referenced the old name. The rename is purely mechanical at this stage; semantic tuning happens in TASK-007.
 - **Verification**: `! grep -rn "maxClues" src tests && npx vitest run src/engine/generator/`

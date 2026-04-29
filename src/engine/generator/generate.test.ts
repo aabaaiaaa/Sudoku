@@ -88,7 +88,7 @@ describe('generate — clueFloor option', () => {
     // Regression guard for the parameter's semantics: `clueFloor` is the
     // floor on remaining givens, so the resulting puzzle keeps at least
     // that many. Locks the meaning in so a future re-inversion (the
-    // pre-iteration-4 `maxClues` bug) is caught directly.
+    // pre-iteration-4 inverted-floor bug) is caught directly.
     const floor = 30;
     const { puzzle } = generate(classicVariant, {
       seed: 0xc1a551c,

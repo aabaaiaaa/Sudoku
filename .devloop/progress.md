@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 22
-- **Completed**: 11
-- **Remaining**: 11
-- **Last Updated**: 2026-04-29T13:13:34.990Z
+- **Completed**: 12
+- **Remaining**: 10
+- **Last Updated**: 2026-04-29T13:16:11.870Z
 
 ## Iteration Log
 
@@ -52,4 +52,13 @@
 - **Exit Status**: success
 - **Tokens**: 714,924 total (15 in, 3,931 out, 62,352 cache-create, 648,626 cache-read)
 - **Cost**: $0.8124
+
+### Iteration 6 - 2026-04-29T13:16:11.865Z
+- **Task Attempted**: TASK-006
+- **Task Completed**: TASK-006
+- **Summary**: Completed Update remaining `generate()` / `generate-for-difficulty()` callers + tests
+- **Duration**: 2m 33s
+- **Exit Status**: success
+- **Tokens**: 455,033 total (13 in, 3,957 out, 40,086 cache-create, 410,977 cache-read)
+- **Cost**: $0.5550
 
