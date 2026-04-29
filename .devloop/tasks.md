@@ -246,7 +246,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts` passes (FakeWorker tests unaffected — they construct requests without the field). Manual: `npm run dev`, open `http://localhost:5179/?slowGenerate=2000`, click New Game, observe the overlay is held visible for ≥2 s before the board renders.
 
 ### TASK-037: Re-enable difficulty-loading.spec.ts via slow-generate
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-036
 - **Description**: In `tests/e2e/difficulty-loading.spec.ts`, remove `test.skip(...)` and rewrite the test to navigate to `/?slowGenerate=15000` (covers 200ms overlay debounce + 10s Cancel reveal). Assert the spinner appears, the Cancel button reveals after 10s, clicking Cancel returns to Home. Bump the test timeout to a comfortable 30s. See requirements §9.3.
 - **Verification**: `npx playwright test difficulty-loading.spec.ts --project=chromium` passes. The test should not be `.skip`'d.
@@ -264,25 +264,25 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/hooks/useDebouncedFlag.test.ts` (or correct path) passes.
 
 ### TASK-040: Async newGame failure-path test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: In `src/store/game.test.ts`, add a case that supplies a fake generator returning `kind: 'failed'` with `lastError: 'oops'`; asserts `loading` becomes false, `generationFailure` is populated, and `lastError === 'oops'`. Add a second case for `kind: 'error'` with the same assertions. See requirements §9.6.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes including the two new cases.
 
 ### TASK-041: Cancel-in-flight newGame test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/store/game.test.ts`, add a case that calls `newGame` with a never-resolving fake generator handle, then calls `cancelGeneration()` before the promise resolves; asserts `loading` is false and the fake handle's `cancel()` was invoked. See requirements §9.6.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
 
 ### TASK-042: Fixture round-trip test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-009, TASK-014c
 - **Description**: In `src/engine/solver/techniques/catalog.test.ts` (or a new `fixture-roundtrip.test.ts`), iterate every entry in the technique catalog. Load its fixture's board, call `rate(fixture.board)`, and assert `result.difficulty === entry.tier`. This protects against fixture drift from rater behaviour. See requirements §9.6.
 - **Verification**: `npx vitest run src/engine/solver/techniques/catalog.test.ts` passes including the new round-trip cases.
 
 ### TASK-043: WebKit Playwright project
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `playwright.config.ts`, add a second project entry: `{ name: 'webkit', use: { ...devices['Desktop Safari'] } }`. The full project list becomes Chromium + WebKit. CI is unchanged (still unit-tests-only). See requirements §9.5.
 - **Verification**: `npx playwright test --project=webkit smoke.spec.ts` passes.

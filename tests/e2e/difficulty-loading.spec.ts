@@ -1,42 +1,38 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * TASK-059: E2E — generate Demonic, observe spinner and cancel.
+ * TASK-059 / TASK-037: E2E — observe spinner and cancel via the slow-generate
+ * test hatch.
  *
- * Picks Classic + Demonic on Home and starts a new game. Demonic generation
- * requires advanced inferences (XY-Chain, ALS-XZ, Unique Rectangle, ...) and
- * empirically takes well over 10 seconds in the Web Worker, so the loading
- * overlay's spinner is visible long enough for the §7.2 Cancel button to fade
- * in. Clicking Cancel must terminate the worker and return the user to Home.
+ * Picks Classic + Demonic on Home and starts a new game with the
+ * `?slowGenerate=15000` query param, which the worker client honours in DEV
+ * builds (see `src/workers/generator-client.ts`) by pausing the worker for the
+ * configured number of milliseconds before generating. That gives us a
+ * deterministic 15-second window — well past the 200ms overlay debounce and
+ * the 10s Cancel-button reveal threshold — during which the loading overlay
+ * is observable and the Cancel button can be exercised.
  *
- * The 10-second cancel-button threshold and the 200ms overlay debounce are
- * hardcoded constants in `LoadingOverlay`/`useDebouncedFlag`; rather than
- * thread test-only props through the component tree, this test simply waits
- * with a generous Playwright timeout.
+ * The hatch is a DEV-only branch (`import.meta.env.DEV`) and is stripped from
+ * production bundles by Vite. `playwright.config.ts` runs the dev server, so
+ * the hatch is active here.
  */
 
-// Demonic generation can run all the way to the 60s hard timeout in pessimistic
-// cases, plus we wait at least 10s for the Cancel button to appear. Give the
-// whole test a wide budget so it doesn't fail on slower CI hardware.
-const TEST_TIMEOUT_MS = 90_000;
+// 15s slow-generate + ~10s cancel-button wait + overhead. 30s is plenty.
+const TEST_TIMEOUT_MS = 30_000;
 
-// SKIPPED: this test depends on Demonic generation reliably taking longer than
-// the 200ms debounce + 10s cancel-button threshold. With the current generator
-// + rater, generation often completes (or fails) much faster, so the loading
-// overlay never appears for the test to interact with. The cancel-button
-// behavior is exercised in unit tests via `LoadingOverlay.test.tsx`. Re-enable
-// once the test grows a hook for forcing a slow generation.
-test.skip('Classic + Demonic shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
+test('Classic + Demonic shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
   page,
 }) => {
   test.setTimeout(TEST_TIMEOUT_MS);
 
   // Clean slate so an existing save doesn't trigger the "replace?" confirm.
+  // We clear localStorage on a plain navigation first, then reload with the
+  // slow-generate query param so the worker client picks it up.
   await page.goto('/');
   await page.evaluate(() => {
     window.localStorage.clear();
   });
-  await page.reload();
+  await page.goto('/?slowGenerate=15000');
 
   await expect(page.getByTestId('home-new-game')).toBeVisible();
 

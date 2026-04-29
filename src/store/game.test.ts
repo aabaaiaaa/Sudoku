@@ -262,6 +262,63 @@ describe('game store', () => {
       // The newly-created slot exists too.
       expect(getSavedGame('classic', 'medium')).not.toBeNull();
     });
+
+    it('records a generationFailure when the worker reports kind: "failed"', async () => {
+      const failedResult: GenResult = {
+        kind: 'failed',
+        closestRating: null,
+        attempts: 5,
+        elapsedMs: 1000,
+        lastError: 'oops',
+      };
+      const store = createGameStore(classicVariant, {
+        generator: stubGenerator(failedResult),
+      });
+
+      await store.getState().newGame(classicVariant, 'easy');
+
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().generationFailure).not.toBeNull();
+      expect(store.getState().generationFailure!.lastError).toBe('oops');
+      expect(store.getState().generationFailure!.difficulty).toBe('easy');
+    });
+
+    it('records a generationFailure when the worker reports kind: "error"', async () => {
+      const errorResult: GenResult = {
+        kind: 'error',
+        message: 'oops',
+      };
+      const store = createGameStore(classicVariant, {
+        generator: stubGenerator(errorResult),
+      });
+
+      await store.getState().newGame(classicVariant, 'easy');
+
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().generationFailure).not.toBeNull();
+      expect(store.getState().generationFailure!.lastError).toBe('oops');
+    });
+
+    it('cancelGeneration terminates the in-flight worker and clears loading', () => {
+      const cancelSpy = vi.fn();
+      const factory: GeneratorFactory = () => ({
+        // Never-resolving promise so the newGame coroutine stays parked.
+        promise: new Promise<GenResult>(() => {}),
+        cancel: cancelSpy,
+        onProgress: () => {},
+      });
+      const store = createGameStore(classicVariant, { generator: factory });
+
+      // Start generation without awaiting — it will hang on the never-resolving
+      // promise, leaving the store in the loading state.
+      void store.getState().newGame(classicVariant, 'easy');
+      expect(store.getState().loading).toBe(true);
+
+      store.getState().cancelGeneration();
+
+      expect(store.getState().loading).toBe(false);
+      expect(cancelSpy).toHaveBeenCalled();
+    });
   });
 
   describe('resumeSavedGame', () => {
