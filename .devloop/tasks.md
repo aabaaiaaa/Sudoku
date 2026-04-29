@@ -76,7 +76,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/store/migration.test.ts` passes after TASK-019 updates the v3 cases.
 
 ### TASK-011: Retune `DifficultyBadge` swatch ramp
-- **Status**: pending
+- **Status**: done
 - **Type**: style
 - **Dependencies**: TASK-001
 - **Description**: In `src/components/DifficultyBadge.tsx`, rewrite `TIER_SWATCH` to the six-tier ramp in requirements §10: `easy` green-700, `medium` blue-700, `hard` amber-700, `expert` orange-700, `master` red-900 (deeper than the old `master` red-700 to preserve the visual escalation), `nightmare` near-black indigo. Drop `diabolical` and `demonic` entries. Refresh the docblock to cite the iteration-7 ramp and remove the "eight tiers" language.

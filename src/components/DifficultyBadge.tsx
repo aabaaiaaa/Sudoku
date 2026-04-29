@@ -18,8 +18,15 @@ interface DifficultyBadgeProps {
 
 /**
  * Per-tier swatch (background + foreground). The ramp escalates visually
- * through the eight tiers per requirements §4 — cool greens/blues at the
- * easy end, deepening reds and purples through Nightmare.
+ * through the six tiers per iteration-7 requirements §10 — cool calm
+ * (green/blue) at the easy end, warming through amber/orange, then deep
+ * red into a near-black indigo at Nightmare.
+ *
+ * The renamed `master` slot uses red-900 (deeper than the old
+ * red-700) to preserve the visual escalation between Expert and
+ * Nightmare; the orange→red-900 jump matches the corresponding
+ * semantic jump (chains and ALS are a meaningful step harder than
+ * wings and fish).
  *
  * Colours are inline rather than Tailwind classes because Tailwind is
  * configured with no safelist, and the plugin would need every concrete
@@ -27,14 +34,12 @@ interface DifficultyBadgeProps {
  * badge render correctly under any theme without re-mapping CSS variables.
  */
 const TIER_SWATCH: Record<string, { background: string; color: string }> = {
-  easy: { background: '#15803d', color: '#ffffff' },        // green-700
-  medium: { background: '#1d4ed8', color: '#ffffff' },      // blue-700
-  hard: { background: '#b45309', color: '#ffffff' },        // amber-700
-  expert: { background: '#c2410c', color: '#ffffff' },      // orange-700
-  master: { background: '#b91c1c', color: '#ffffff' },      // red-700
-  diabolical: { background: '#7f1d1d', color: '#ffffff' },  // red-900
-  demonic: { background: '#581c87', color: '#ffffff' },     // purple-900
-  nightmare: { background: '#0f0f1f', color: '#ffffff' },   // near-black indigo
+  easy: { background: '#15803d', color: '#ffffff' },      // green-700
+  medium: { background: '#1d4ed8', color: '#ffffff' },    // blue-700
+  hard: { background: '#b45309', color: '#ffffff' },      // amber-700
+  expert: { background: '#c2410c', color: '#ffffff' },    // orange-700
+  master: { background: '#7f1d1d', color: '#ffffff' },    // red-900
+  nightmare: { background: '#0f0f1f', color: '#ffffff' }, // near-black indigo
 };
 
 const NEUTRAL_SWATCH = { background: '#6b7280', color: '#ffffff' }; // gray-500
