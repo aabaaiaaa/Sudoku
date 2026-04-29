@@ -154,6 +154,35 @@ describe('App migration prompt', () => {
     expect(screen.getByTestId('confirm-dialog')).toBeTruthy();
   });
 
+  it('renders the migration ConfirmDialog when a legacy v3 save key exists', () => {
+    // v3 became legacy under iteration-7's tier rename — the
+    // `OLD_SAVE_KEY_PATTERN` regex now matches v3 keys, so the existing
+    // `App` migration prompt picks them up automatically. The detector
+    // matches on key alone, so the value can be any string; a structurally-
+    // valid v3 payload is seeded here for the same reason as the v2 case.
+    const VALID_V3_SAVE = JSON.stringify({
+      version: 3,
+      appVersion: '0.5.0',
+      saves: {
+        'classic:diabolical': {
+          variant: 'classic',
+          difficulty: 'diabolical',
+          cells: Array.from({ length: 9 }, () =>
+            Array.from({ length: 9 }, () => ({ value: null, notes: [], given: false })),
+          ),
+          mistakes: 0,
+          elapsedMs: 0,
+          savedAt: 1700000000000,
+        },
+      },
+    });
+    window.localStorage.setItem('sudoku.save.v3', VALID_V3_SAVE);
+
+    render(<App />);
+
+    expect(screen.getByTestId('confirm-dialog')).toBeTruthy();
+  });
+
   it('hides the dialog and leaves the v2 key in place when "Decide later" is clicked', () => {
     window.localStorage.setItem('sudoku.save.v2', VALID_V2_SAVE);
 

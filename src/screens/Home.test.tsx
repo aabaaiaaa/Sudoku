@@ -16,15 +16,15 @@ function makeSavedGame(overrides: Partial<SavedGame> = {}): SavedGame {
   };
 }
 
-// Classic descopes Hard and Master (iteration-4 §6 lever 3). Six advertises
-// Easy and Medium after the iteration-6 lever-2 rescue. Mini stays Easy-only.
-// See variant-tiers.ts.
+// Classic advertises all six tiers under the iteration-7 ladder. Six
+// advertises Easy and Medium after the iteration-6 lever-2 rescue. Mini stays
+// Easy-only. See variant-tiers.ts.
 const CLASSIC_TIERS = [
   'easy',
   'medium',
+  'hard',
   'expert',
-  'diabolical',
-  'demonic',
+  'master',
   'nightmare',
 ] as const;
 const SIX_TIERS = ['easy', 'medium'] as const;
@@ -54,9 +54,10 @@ describe('Home screen', () => {
     for (const tier of CLASSIC_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // Hard and Master are descoped from Classic post-tuning.
-    expect(queryByTestId('home-difficulty-hard')).toBeNull();
-    expect(queryByTestId('home-difficulty-master')).toBeNull();
+    // The renamed Diabolical/Demonic tiers are gone under the iteration-7
+    // ladder.
+    expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
+    expect(queryByTestId('home-difficulty-demonic')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeTruthy();
   });
 
@@ -78,7 +79,7 @@ describe('Home screen', () => {
     // Hard+ remain descoped from Six post-tuning.
     expect(queryByTestId('home-difficulty-hard')).toBeNull();
     expect(queryByTestId('home-difficulty-expert')).toBeNull();
-    expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
+    expect(queryByTestId('home-difficulty-master')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeNull();
   });
 
@@ -101,7 +102,7 @@ describe('Home screen', () => {
     expect(queryByTestId('home-difficulty-medium')).toBeNull();
     expect(queryByTestId('home-difficulty-hard')).toBeNull();
     expect(queryByTestId('home-difficulty-expert')).toBeNull();
-    expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
+    expect(queryByTestId('home-difficulty-master')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeNull();
   });
 

@@ -124,6 +124,19 @@ describe('Settings screen', () => {
       expect(queryByTestId('settings-remove-old-saves')).toBeTruthy();
     });
 
+    it('renders the Storage section when only v3 keys are present (iteration-7 regex bump)', () => {
+      window.localStorage.setItem(
+        'sudoku.save.v3',
+        JSON.stringify({ version: 3, appVersion: '0.5.0', saves: {} }),
+      );
+
+      const store = createSettingsStore();
+      const { queryByTestId } = render(<Settings store={store} />);
+
+      expect(queryByTestId('settings-storage')).toBeTruthy();
+      expect(queryByTestId('settings-remove-old-saves')).toBeTruthy();
+    });
+
     it('cancelling the confirm dialog leaves the Storage section and the legacy keys intact', () => {
       window.localStorage.setItem('sudoku.save.v2', '{}');
       window.localStorage.setItem('sudoku.settings.v2', '{}');
@@ -142,17 +155,26 @@ describe('Settings screen', () => {
       expect(window.localStorage.getItem('sudoku.settings.v2')).toBe('{}');
     });
 
-    it('removes every matching v1/v2 key when the user confirms', () => {
+    it('removes every matching v1/v2/v3 key when the user confirms', () => {
       window.localStorage.setItem('sudoku.save.v1', '{}');
       window.localStorage.setItem('sudoku.save.v2', '{}');
       window.localStorage.setItem('sudoku.stats.v1', '{}');
       window.localStorage.setItem('sudoku.stats.v2', '{}');
       window.localStorage.setItem('sudoku.settings.v1', '{}');
       window.localStorage.setItem('sudoku.settings.v2', '{}');
-      // v3 keys must be untouched.
+      // v3 is now legacy under the iteration-7 regex bump.
       window.localStorage.setItem(
         'sudoku.save.v3',
-        JSON.stringify({ version: 3, appVersion: '0.3.0', saves: {} }),
+        JSON.stringify({ version: 3, appVersion: '0.5.0', saves: {} }),
+      );
+      window.localStorage.setItem(
+        'sudoku.stats.v3',
+        JSON.stringify({ version: 3, appVersion: '0.5.0', entries: {} }),
+      );
+      // v4 keys (current) must be untouched.
+      window.localStorage.setItem(
+        'sudoku.save.v4',
+        JSON.stringify({ version: 4, appVersion: '0.6.0', saves: {} }),
       );
 
       const store = createSettingsStore();
@@ -163,12 +185,14 @@ describe('Settings screen', () => {
 
       expect(window.localStorage.getItem('sudoku.save.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.save.v2')).toBeNull();
+      expect(window.localStorage.getItem('sudoku.save.v3')).toBeNull();
       expect(window.localStorage.getItem('sudoku.stats.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.stats.v2')).toBeNull();
+      expect(window.localStorage.getItem('sudoku.stats.v3')).toBeNull();
       expect(window.localStorage.getItem('sudoku.settings.v1')).toBeNull();
       expect(window.localStorage.getItem('sudoku.settings.v2')).toBeNull();
-      // The v3 key survives — only legacy versions are wiped.
-      expect(window.localStorage.getItem('sudoku.save.v3')).not.toBeNull();
+      // The v4 key survives — only legacy versions are wiped.
+      expect(window.localStorage.getItem('sudoku.save.v4')).not.toBeNull();
       // After removal the section disappears even though hasOldSaves was
       // truthy on initial render.
       expect(queryByTestId('settings-storage')).toBeNull();

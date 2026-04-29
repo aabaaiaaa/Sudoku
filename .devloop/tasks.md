@@ -83,7 +83,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/components/DifficultyBadge.test.tsx` passes after TASK-018 updates the test cases.
 
 ### TASK-012: Update screen tests for new tier scheme and v3 migration
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-005, TASK-008, TASK-009, TASK-010, TASK-011
 - **Description**: Update `src/screens/Home.test.tsx` (classic picker now has six options); `src/screens/Stats.test.tsx` (filter pill rule unchanged but classic now exposes six pills — adjust any hard-coded tier-list assertions); `src/screens/Settings.test.tsx` (storage section gating unchanged but add a case asserting v3 keys trigger the section); `src/App.test.tsx` (add a v3-save case alongside the existing v2-save case for the migration prompt). Existing tests that reference `'diabolical'` or `'demonic'` are updated to use the renamed tiers per requirements §4.1.

@@ -21,15 +21,16 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Classic post-tuning advertises 6 tiers (Hard, Master descoped per
-    // iteration-4 §6 lever 3 — see variant-tiers.ts).
-    const classicTiers = ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'];
+    // Classic advertises all six tiers under the iteration-7 ladder
+    // (see variant-tiers.ts).
+    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
       expect(getByTestId(`stats-cell-classic-${slug}-games`)).toBeTruthy();
     }
-    expect(queryByTestId('stats-header-classic-hard')).toBeNull();
-    expect(queryByTestId('stats-header-classic-master')).toBeNull();
+    // The renamed Diabolical/Demonic tiers are gone under the iteration-7 ladder.
+    expect(queryByTestId('stats-header-classic-diabolical')).toBeNull();
+    expect(queryByTestId('stats-header-classic-demonic')).toBeNull();
 
     // Six advertises Easy and Medium post-iteration-6 lever-2 rescue;
     // harder tiers remain descoped. Mini stays Easy-only.
@@ -38,7 +39,7 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-header-six-medium')).toBeTruthy();
     expect(getByTestId('stats-cell-six-medium-games')).toBeTruthy();
     expect(queryByTestId('stats-header-six-hard')).toBeNull();
-    expect(queryByTestId('stats-header-six-diabolical')).toBeNull();
+    expect(queryByTestId('stats-header-six-master')).toBeNull();
 
     expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
     expect(getByTestId('stats-cell-mini-easy-games')).toBeTruthy();
@@ -53,7 +54,7 @@ describe('Stats screen', () => {
     const dash = '—';
     // Top-tier cells with no completions should still render gracefully.
     expect(getByTestId('stats-cell-classic-nightmare-games').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-classic-demonic-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-master-best').textContent).toBe(dash);
     expect(getByTestId('stats-cell-six-easy-avg').textContent).toBe(dash);
     expect(getByTestId('stats-cell-mini-easy-mistakes').textContent).toBe(dash);
   });
@@ -139,8 +140,8 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Default: all advertised classic tiers visible (Hard/Master descoped).
-    const classicTiers = ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'];
+    // Default: all six advertised classic tiers visible.
+    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
     }
