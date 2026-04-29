@@ -88,7 +88,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm test` passes with zero failures.
 
 ### TASK-013: Type-check and production build sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-012
 - **Description**: Run a clean type-check and production build to confirm no type-level regressions or build breaks.
