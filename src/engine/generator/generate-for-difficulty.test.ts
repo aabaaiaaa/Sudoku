@@ -1,9 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
   generateForDifficulty,
-  DEFAULT_MAX_ATTEMPTS,
-  DEFAULT_TIMEOUT_MS,
-  MAX_ATTEMPTS_BY_TIER,
+  TIER_BUDGETS,
   defaultMaxAttemptsForTier,
   type GenerationProgress,
 } from './generate-for-difficulty';
@@ -15,21 +13,19 @@ describe('generateForDifficulty — classic 9x9', () => {
   // Per-tier seeds chosen so the generator's natural distribution hits the
   // requested tier within the retry budget. Seeds are deterministic via
   // `mulberry32` inside `generate`, and `generateForDifficulty` derives
-  // distinct seeds per attempt. The seeds for Easy/Medium/Expert/Diabolical/
-  // Demonic/Nightmare are taken from `scripts/tier-distribution.summary.json`'s
-  // baseline `firstHitSeed` values, which are proven to land on the target
-  // tier. Hard and Master have no `firstHitSeed` in the baseline — those
-  // tiers are validated below using a `vi.spyOn(rateModule, 'rate')` mock
-  // fallback (see the dedicated `it()` blocks after the loop). The seed
-  // values for Hard/Master here are placeholders only and unused.
+  // distinct seeds per attempt. The seeds for Easy/Medium/Expert/Nightmare
+  // are taken from `scripts/tier-distribution.summary.json`'s baseline
+  // `firstHitSeed` values, which are proven to land on the target tier.
+  // Hard and Master have no `firstHitSeed` in the baseline — those tiers
+  // are validated below using a `vi.spyOn(rateModule, 'rate')` mock fallback
+  // (see the dedicated `it()` blocks after the loop). The seed values for
+  // Hard/Master here are placeholders only and unused.
   const TIER_SEEDS: Record<Difficulty, number> = {
     Easy: 0,
     Medium: 102,
     Hard: 3,
     Expert: 301,
     Master: 5,
-    Diabolical: 502,
-    Demonic: 600,
     Nightmare: 703,
   };
 
@@ -177,28 +173,32 @@ describe('generateForDifficulty — strict exact tier rule', () => {
 });
 
 describe('generateForDifficulty — default budget constants', () => {
-  it('exposes the documented defaults (50 attempts, 60s timeout)', () => {
-    expect(DEFAULT_MAX_ATTEMPTS).toBe(50);
-    expect(DEFAULT_TIMEOUT_MS).toBe(60_000);
-  });
+  it('per-tier budget table matches the iteration-7 baseline tuning', () => {
+    // Iteration-7 corrected baseline drives the worst-case (variant, tier,
+    // solvedRate) tuple per tier. Tiers whose formula N falls below 50 are
+    // hard-floored; the rest widen to the formula's N. See
+    // generate-for-difficulty.ts for driver citations.
+    expect(TIER_BUDGETS.Easy.maxAttempts).toBe(50);
+    expect(TIER_BUDGETS.Easy.timeoutMs).toBe(150_000);
 
-  it('per-tier attempt table matches the iteration-6 baseline tuning', () => {
-    // Iteration-6 corrected baseline + lever-2 sweep drive the worst-case
-    // (variant, tier, solvedRate) tuple per tier. Tiers whose worst-case
-    // formula N is below 50 keep the default 50 floor; the rest widen to
-    // the formula's N. See generate-for-difficulty.ts:11-32 for citations.
-    expect(MAX_ATTEMPTS_BY_TIER.Easy).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Medium).toBe(122);
-    expect(MAX_ATTEMPTS_BY_TIER.Hard).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Expert).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Master).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Diabolical).toBe(50);
-    expect(MAX_ATTEMPTS_BY_TIER.Demonic).toBe(122);
-    expect(MAX_ATTEMPTS_BY_TIER.Nightmare).toBe(59);
+    expect(TIER_BUDGETS.Medium.maxAttempts).toBe(308);
+    expect(TIER_BUDGETS.Medium.timeoutMs).toBe(924_000);
+
+    expect(TIER_BUDGETS.Hard.maxAttempts).toBe(50);
+    expect(TIER_BUDGETS.Hard.timeoutMs).toBe(150_000);
+
+    expect(TIER_BUDGETS.Expert.maxAttempts).toBe(101);
+    expect(TIER_BUDGETS.Expert.timeoutMs).toBe(303_000);
+
+    expect(TIER_BUDGETS.Master.maxAttempts).toBe(153);
+    expect(TIER_BUDGETS.Master.timeoutMs).toBe(459_000);
+
+    expect(TIER_BUDGETS.Nightmare.maxAttempts).toBe(59);
+    expect(TIER_BUDGETS.Nightmare.timeoutMs).toBe(177_000);
 
     // Helper agrees with the table for every tier in DIFFICULTY_ORDER.
     for (const tier of DIFFICULTY_ORDER) {
-      expect(defaultMaxAttemptsForTier(tier)).toBe(MAX_ATTEMPTS_BY_TIER[tier]);
+      expect(defaultMaxAttemptsForTier(tier)).toBe(TIER_BUDGETS[tier].maxAttempts);
     }
   });
 
@@ -208,7 +208,7 @@ describe('generateForDifficulty — default budget constants', () => {
       // Force every attempt to be rejected by mocking `rate` to return a
       // fixed off-target tier. The loop then runs until the attempts budget
       // is exhausted, so `result.attempts` equals the per-tier default.
-      // Nightmare's per-tier budget is widened to 59 per the iteration-6
+      // Nightmare's per-tier budget is widened to 59 per the iteration-7
       // formula (classic:Nightmare solvedRate=0.10 → N=59); this assertion
       // pins that wiring end-to-end.
       const rateModule = await import('./rate');

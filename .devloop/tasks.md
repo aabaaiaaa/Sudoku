@@ -111,7 +111,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/tier-fixtures.test.ts` passes — round-trips all nine entries, asserts `result.solved === true` and the rated tier matches the fixture key for each.
 
 ### TASK-016: Update `generate-for-difficulty.test.ts` for `TIER_BUDGETS`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-007, TASK-014
 - **Description**: In `src/engine/generator/generate-for-difficulty.test.ts`, replace the iteration-6 per-tier table assertion (which reads `MAX_ATTEMPTS_BY_TIER` keyed by 8-tier names with explicit Medium=122 / Demonic=122 / Nightmare=59) with an assertion that destructures `TIER_BUDGETS` and pins each of the six tiers' `maxAttempts` and `timeoutMs` values to whatever TASK-014 wrote. The "Nightmare defaults to 59 attempts when maxRetries is omitted" wiring test stays — the value updates if TASK-014 changed it. The `solved=false` reject branch tests from iteration 6 are unchanged. Drop any test importing `MAX_ATTEMPTS_BY_TIER` / `TIMEOUT_MS_BY_TIER` / `DEFAULT_MAX_ATTEMPTS` / `DEFAULT_TIMEOUT_MS`.
