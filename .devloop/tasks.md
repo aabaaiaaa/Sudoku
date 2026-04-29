@@ -27,7 +27,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/generator/rate.ts` exits 0.
 
 ### TASK-004: Update `TECHNIQUE_CATALOG` tier strings
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001, TASK-002
 - **Description**: In `src/engine/solver/techniques/catalog.ts`, change every `tier:` field on `TECHNIQUE_CATALOG` entries to match the new mapping in requirements §4.1. The catalog must agree with `TECHNIQUE_TIER`. Sanity-check by eye: every technique imported in catalog.ts has its `tier:` updated. Display names unchanged.
