@@ -3,6 +3,14 @@ import { render } from '@testing-library/react';
 import { DifficultyBadge } from './DifficultyBadge';
 import { DIFFICULTY_ORDER } from '../engine/generator/rate';
 
+function hexToRgb(hex: string): string {
+  const value = hex.replace('#', '');
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 describe('DifficultyBadge', () => {
   it('renders the difficulty label as text', () => {
     const { getByTestId } = render(
@@ -39,8 +47,8 @@ describe('DifficultyBadge', () => {
       <DifficultyBadge difficulty={slug} data-testid="badge" />,
     );
     const style = getByTestId('badge').getAttribute('style') ?? '';
-    // jsdom serializes CSS hex values as the original token (lowercased).
-    expect(style.toLowerCase()).toContain(expectedHex.toLowerCase());
+    // jsdom serializes inline-style hex colours as `rgb(r, g, b)`.
+    expect(style).toContain(hexToRgb(expectedHex));
   });
 
   it('escalates from green at Easy to dark indigo at Nightmare (ramp ordering)', () => {
@@ -64,7 +72,7 @@ describe('DifficultyBadge', () => {
       <DifficultyBadge difficulty="Wat" data-testid="badge" />,
     );
     const style = getByTestId('badge').getAttribute('style') ?? '';
-    expect(style.toLowerCase()).toContain('#6b7280');
+    expect(style).toContain(hexToRgb('#6b7280'));
   });
 
   it('renders a swatch for every tier in DIFFICULTY_ORDER', () => {
@@ -74,7 +82,7 @@ describe('DifficultyBadge', () => {
       );
       const style = getByTestId(`badge-${tier}`).getAttribute('style') ?? '';
       // Neutral fallback would mean the tier has no dedicated styling.
-      expect(style.toLowerCase()).not.toContain('#6b7280');
+      expect(style).not.toContain(hexToRgb('#6b7280'));
       unmount();
     }
   });

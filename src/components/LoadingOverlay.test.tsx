@@ -36,10 +36,14 @@ describe('LoadingOverlay', () => {
     expect(style).toMatch(/blur\(8px\)/);
   });
 
-  it('renders no text content before the cancel threshold elapses', () => {
-    const { getByTestId } = render(<LoadingOverlay visible={true} />);
-    const overlay = getByTestId('loading-overlay');
-    expect(overlay.textContent?.trim() ?? '').toBe('');
+  it('renders no user-visible text content before the cancel threshold elapses', () => {
+    const { getByTestId, queryByTestId } = render(<LoadingOverlay visible={true} />);
+    // The overlay itself exists but the cancel actions (note + button) are
+    // the only user-visible text and must not render until the threshold.
+    expect(getByTestId('loading-overlay')).toBeTruthy();
+    expect(queryByTestId('loading-cancel-actions')).toBeNull();
+    expect(queryByTestId('loading-cancel-note')).toBeNull();
+    expect(queryByTestId('loading-cancel')).toBeNull();
   });
 
   describe('cancel button (10s threshold)', () => {

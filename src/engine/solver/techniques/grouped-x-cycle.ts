@@ -365,6 +365,7 @@ function dfs(
   path: GroupedXCycleNode[],
   edges: GroupedXCycleEdge[],
   visited: Set<string>,
+  acceptType: GroupedXCycleType,
 ): GroupedXCycleResult | null {
   const current = path[path.length - 1];
   const list = ctx.adj.get(nodeKey(current));
@@ -409,6 +410,7 @@ function dfs(
         cycleType = 'discontinuous-weak';
       }
       if (cycleType === null) continue;
+      if (cycleType !== acceptType) continue;
       let hasGroup = false;
       for (const n of path) {
         if (n.isGroup) {
@@ -454,7 +456,7 @@ function dfs(
     edges.push(newEdge);
     for (const cell of next.cells) visited.add(posKey(cell));
 
-    const result = dfs(ctx, start, startType, path, edges, visited);
+    const result = dfs(ctx, start, startType, path, edges, visited, acceptType);
     if (result !== null) return result;
 
     path.pop();
@@ -590,6 +592,17 @@ export function findGroupedXCycle(board: Board): GroupedXCycleResult | null {
   const grid = buildCandidatesGrid(board);
   const houses = buildHouses(variant);
 
+  // Three passes prioritise cycle quality: continuous > discontinuous-strong
+  // (placement) > discontinuous-weak (eliminations from the start node only).
+  // Without this, the search would return whichever pattern happens to anchor
+  // at the lowest row-major start node, even if a more useful cycle exists
+  // elsewhere on the board.
+  const passes: Array<{ accept: GroupedXCycleType; startType: 'strong' | 'weak' }> = [
+    { accept: 'continuous', startType: 'strong' },
+    { accept: 'discontinuous-strong', startType: 'strong' },
+    { accept: 'discontinuous-weak', startType: 'weak' },
+  ];
+
   for (const digit of variant.digits) {
     const nodes = buildNodes(variant, grid, digit);
     if (nodes.length === 0) continue;
@@ -606,14 +619,22 @@ export function findGroupedXCycle(board: Board): GroupedXCycleResult | null {
 
     const ctx: SearchContext = { variant, grid, digit, adj };
 
-    for (const start of nodes) {
-      if (!adj.has(nodeKey(start))) continue;
-      for (const startType of ['strong', 'weak'] as const) {
+    for (const pass of passes) {
+      for (const start of nodes) {
+        if (!adj.has(nodeKey(start))) continue;
         const path: GroupedXCycleNode[] = [start];
         const edges: GroupedXCycleEdge[] = [];
         const visited = new Set<string>();
         for (const cell of start.cells) visited.add(posKey(cell));
-        const result = dfs(ctx, start, startType, path, edges, visited);
+        const result = dfs(
+          ctx,
+          start,
+          pass.startType,
+          path,
+          edges,
+          visited,
+          pass.accept,
+        );
         if (result !== null) return result;
       }
     }

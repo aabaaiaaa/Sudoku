@@ -29,8 +29,20 @@ test('Hint Learn-more link navigates to the Naked Single detail page', async ({
   await page.getByTestId('home-new-game').click();
 
   // Easy generation completes well under the 200ms loading-overlay debounce,
-  // so the board appears directly without a spinner intercepting clicks.
+  // so the board appears directly without a spinner intercepting clicks. We
+  // additionally wait for the loading flag to clear so the board has actual
+  // givens before we ask for a hint — otherwise nextStep runs against the
+  // empty placeholder board and returns null.
   await expect(page.getByTestId('sudoku-board')).toBeVisible();
+  await page.waitForFunction(() => {
+    const store = (window as unknown as {
+      __sudokuGameStore?: { getState: () => { loading: boolean; board: { cells: Array<Array<{ given: boolean }>> } } };
+    }).__sudokuGameStore;
+    if (!store) return false;
+    const state = store.getState();
+    if (state.loading) return false;
+    return state.board.cells.some((row) => row.some((cell) => cell.given));
+  });
 
   // --- Click Hint and wait for the panel. ----------------------------------
   await page.getByTestId('hint-button').click();

@@ -23,7 +23,7 @@ describe('Game screen', () => {
   });
 
   it('renders Board, NumberPad, Timer, and Hint when a game is active', () => {
-    const store = createGameStore();
+    const store = createGameStore('classic', { generator: pendingGenerator });
     // Start an active game.
     store.getState().newGame('classic', 'easy');
 
@@ -44,7 +44,7 @@ describe('Game screen', () => {
   });
 
   it('clicking the back button invokes the onBack handler', () => {
-    const store = createGameStore();
+    const store = createGameStore('classic', { generator: pendingGenerator });
     store.getState().newGame('classic', 'easy');
 
     const onBack = vi.fn();
@@ -55,7 +55,7 @@ describe('Game screen', () => {
   });
 
   it('renders without crashing when no onBack handler is provided', () => {
-    const store = createGameStore();
+    const store = createGameStore('classic', { generator: pendingGenerator });
     store.getState().newGame('classic', 'easy');
 
     const { getByTestId } = render(<Game store={store} />);

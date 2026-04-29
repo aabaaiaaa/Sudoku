@@ -103,6 +103,15 @@ function clueBoundsLowerForTier(
   return window[0];
 }
 
+function normalizeDifficulty(value: string): Difficulty | null {
+  if (value == null) return null;
+  const lc = String(value).toLowerCase();
+  for (const tier of DIFFICULTY_ORDER) {
+    if (tier.toLowerCase() === lc) return tier;
+  }
+  return null;
+}
+
 /**
  * Generate a puzzle and try to hit the requested difficulty tier.
  *
@@ -125,6 +134,16 @@ export function generateForDifficulty(
   difficulty: Difficulty,
   options: GenerateForDifficultyOptions = {},
 ): GenerateForDifficultyResult {
+  // Defensive normalisation: callers from the UI layer (Home → store →
+  // worker) pass slugs like 'easy', while DIFFICULTY_ORDER and rate() use
+  // Title Case. Without this, strict tier matching would never succeed for
+  // requests originating from the UI.
+  const normalized = normalizeDifficulty(difficulty);
+  if (normalized == null) {
+    throw new Error(`Unknown difficulty tier: ${String(difficulty)}`);
+  }
+  difficulty = normalized;
+
   const maxRetries = Math.max(1, options.maxRetries ?? DEFAULT_MAX_ATTEMPTS);
   const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const targetRank = tierRank(difficulty);

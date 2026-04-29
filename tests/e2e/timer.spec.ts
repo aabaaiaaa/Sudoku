@@ -56,10 +56,17 @@ test('timer advances, pauses, resumes, and auto-pauses on visibility', async ({
   expect(runningText).toMatch(/^\d{2}:\d{2}(:\d{2})?$/);
   expect(runningText).not.toBe('00:00');
 
-  // --- Manual pause freezes the timer and hides the board. -----------------
+  // --- Manual pause freezes the timer and blurs the board. ----------------
+  // The board is rendered behind a blur+overlay rather than being unmounted
+  // (per the v0.1.0 pause-mechanism refinement), so we assert the overlay
+  // is shown and the board is marked aria-hidden.
   await toggle.click();
   await expect(toggle).toHaveText(/resume/i);
-  await expect(board).toBeHidden();
+  await expect(page.getByTestId('pause-overlay')).toBeVisible();
+  await expect(page.getByTestId('board-wrapper')).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
 
   const pausedSnapshot = await readDisplay(page);
   await page.waitForTimeout(1200);
@@ -70,6 +77,7 @@ test('timer advances, pauses, resumes, and auto-pauses on visibility', async ({
   await toggle.click();
   await expect(toggle).toHaveText(/pause/i);
   await expect(board).toBeVisible();
+  await expect(page.getByTestId('pause-overlay')).toHaveCount(0);
 
   // Confirm the display starts ticking again.
   await expect.poll(() => readDisplay(page), { timeout: 3000 }).not.toBe(
