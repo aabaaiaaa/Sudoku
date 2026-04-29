@@ -81,7 +81,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `cat package.json | grep '"version"'` shows the new version. `npm run build` succeeds with the new version (Vite injects `__APP_VERSION__` at build time).
 
 ### TASK-012: Full unit-test sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-011
 - **Description**: Run the full unit-test suite to confirm no regressions across the iteration's changes.

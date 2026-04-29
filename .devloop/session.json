@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 7,
+  "lastIteration": 8,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-011",
-    "taskTitle": "Bump package.json version",
-    "iterationNumber": 8,
-    "startedAt": "2026-04-29T16:55:09.533Z"
+    "taskId": "TASK-012",
+    "taskTitle": "Full unit-test sweep",
+    "iterationNumber": 9,
+    "startedAt": "2026-04-29T16:56:44.741Z"
   }
 }

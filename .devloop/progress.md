@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 14
-- **Completed**: 11
-- **Remaining**: 3
-- **Last Updated**: 2026-04-29T16:56:42.630Z
+- **Completed**: 12
+- **Remaining**: 2
+- **Last Updated**: 2026-04-29T16:57:21.798Z
 
 ## Iteration Log
 
@@ -79,4 +79,13 @@
 - **Exit Status**: success
 - **Tokens**: 415,710 total (623 in, 2,364 out, 36,258 cache-create, 376,465 cache-read)
 - **Cost**: $0.4771
+
+### Iteration 9 - 2026-04-29T16:57:21.796Z
+- **Task Attempted**: TASK-012
+- **Task Completed**: TASK-012
+- **Summary**: Completed Full unit-test sweep
+- **Duration**: 37s
+- **Exit Status**: success
+- **Tokens**: 100,347 total (7 in, 869 out, 33,197 cache-create, 66,274 cache-read)
+- **Cost**: $0.2624
 
