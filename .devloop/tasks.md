@@ -32,7 +32,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm test -- src/engine/generator/variant-tiers` passes (existing tests). `npm test -- src/screens/Home.test.tsx` passes — restored tiers should now appear in the difficulty picker without breaking existing assertions. The `VARIANT_TIERS` doc-block does not reference "TASK-003" of iteration-4 anywhere.
 
 ### TASK-005: Add fixtures for any restored tiers
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-004
 - **Description**: Implement requirements §8. For each tier added to `VARIANT_TIERS` in TASK-004 that does not already have a `TIER_FIXTURES` entry: read `firstHitSeed` and `firstHitBoard` from the iteration-5 baseline `scripts/tier-distribution.summary.json` and add a `TierFixture` entry to `src/engine/solver/techniques/tier-fixtures.ts`. Use the variant whose cell first hit the target tier (typically `classic` if that's where the rate is highest). Keep the file's existing comment style. If no tier was restored in TASK-004, this task is a no-op.

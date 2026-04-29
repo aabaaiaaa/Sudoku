@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 14
-- **Completed**: 7
-- **Remaining**: 7
-- **Last Updated**: 2026-04-29T16:49:19.902Z
+- **Completed**: 8
+- **Remaining**: 6
+- **Last Updated**: 2026-04-29T16:50:44.370Z
 
 ## Iteration Log
 
@@ -43,4 +43,13 @@
 - **Exit Status**: success
 - **Tokens**: 768,185 total (17 in, 6,398 out, 53,834 cache-create, 707,936 cache-read)
 - **Cost**: $0.8505
+
+### Iteration 5 - 2026-04-29T16:50:44.367Z
+- **Task Attempted**: TASK-005
+- **Task Completed**: TASK-005
+- **Summary**: Completed Add fixtures for any restored tiers
+- **Duration**: 1m 22s
+- **Exit Status**: success
+- **Tokens**: 390,237 total (12 in, 2,879 out, 40,460 cache-create, 346,886 cache-read)
+- **Cost**: $0.4984
 

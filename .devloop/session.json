@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 3,
+  "lastIteration": 4,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-004",
-    "taskTitle": "Restore tiers in `VARIANT_TIERS` and refresh its doc-block",
-    "iterationNumber": 4,
-    "startedAt": "2026-04-29T16:46:50.313Z"
+    "taskId": "TASK-005",
+    "taskTitle": "Add fixtures for any restored tiers",
+    "iterationNumber": 5,
+    "startedAt": "2026-04-29T16:49:22.055Z"
   }
 }
