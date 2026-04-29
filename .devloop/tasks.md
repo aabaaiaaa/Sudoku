@@ -56,7 +56,7 @@ is actually fixed.
 - **Verification**: `node --input-type=commonjs -e "const s=JSON.parse(require('fs').readFileSync('./scripts/tier-distribution.summary.json','utf8')); for(const k in s){const e=s[k]; if(e.advertised && e.rate<0.05){console.error('Below threshold:',k,e); process.exit(1);}}"`
 
 ### TASK-009: Tighten `difficulty-matrix.spec.ts` to strict-success contract
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008
 - **Description**: In `tests/e2e/difficulty-matrix.spec.ts`: change the `expect.poll` race so success requires `[data-testid=sudoku-board]` visible. The failure-dialog branch becomes a hard test failure: assert that `[data-testid=generation-failed-dialog]` is **not** visible at the end of the per-tier flow. Remove the `lastErrorText` checks and the dialog title `tier` check (those existed only because the failure branch was acceptable). The success-cell-count assertion (top-left 3×3 region) stays. See requirements §7.
 - **Verification**: `npx playwright test tests/e2e/difficulty-matrix.spec.ts --project=chromium -g "classic.*Easy"` (smoke a single Easy combo to confirm the new contract still admits the obvious success case)
@@ -68,13 +68,13 @@ is actually fixed.
 - **Verification**: `! grep -q "Decision rule when TASK-052" tests/e2e/difficulty-matrix.spec.ts && npx tsc --noEmit -p tsconfig.app.json`
 
 ### TASK-011: Un-skip Hard and Master in `generate-for-difficulty.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008
 - **Description**: In `src/engine/generator/generate-for-difficulty.test.ts`, the skip mechanism is `const SKIPPED_TIERS = new Set<Difficulty>(['Hard', 'Master'])` followed by `const runner = SKIPPED_TIERS.has(tier) ? it.skip : it;` (around lines 37-40). Empty the set: `const SKIPPED_TIERS = new Set<Difficulty>([])`. Update `TIER_SEEDS` for Hard and Master with the seeds recorded in `scripts/tier-distribution.summary.json` under `classic:Hard.firstHitSeed` and `classic:Master.firstHitSeed` (these seeds are the ones profiling proved hit those tiers). If after TASK-007 tuning either tier still cannot reliably hit inside the test's 80-attempt `maxRetries`, fall back for that tier to a `vi.spyOn(rateModule, 'rate')` mock returning a `RateResult` with `difficulty: 'Hard'` (or 'Master'), `solved: true` so the strict-tier acceptance path is still exercised. Comment any fallback explicitly.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts -t "Hard|Master"`
 
 ### TASK-012: Create `tier-fixtures.ts` with one fixture per advertised tier
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-008
 - **Description**: Create `src/engine/solver/techniques/tier-fixtures.ts` exporting `TIER_FIXTURES: Partial<Record<Difficulty, { variant: VariantId; board: string; seed: number }>>`. For each tier in `['Easy','Medium','Hard','Expert','Master','Diabolical','Demonic','Nightmare']`: read `firstHitSeed` for the classic variant from `scripts/tier-distribution.summary.json`. Regenerate the puzzle locally via `generate(classicVariant, { seed: firstHitSeed, clueFloor: clueBoundsLowerForTier(classicVariant, tier) })` and capture its givens grid as a dotted-digit string (same convention as catalog fixtures, e.g. `"..3.5...8..."`). Add the entry. **If `firstHitSeed` is null for classic, source the seed from another variant** (`six` or `mini`) where the tier was hit — match the variant in the entry. **If no variant has a `firstHitSeed` for tier T**, omit the entry entirely (`Partial<Record>` allows this) and add a `// <Tier>: omitted — unobtainable in any variant after iteration-4 tuning` comment in the file. See requirements §9.
 - **Verification**: `test -f src/engine/solver/techniques/tier-fixtures.ts && npx tsc --noEmit -p tsconfig.app.json && grep -q "TIER_FIXTURES" src/engine/solver/techniques/tier-fixtures.ts`
