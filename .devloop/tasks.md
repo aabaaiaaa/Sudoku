@@ -97,7 +97,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `scripts/tier-distribution.summary.json` contains 18 cell entries; the 9 advertised cells (classic Easy/Medium/Hard/Expert/Master/Nightmare, six Easy/Medium, mini Easy) all show `sampleSize: 50` and `solvedRate >= 0.05`. No `Diabolical` or `Demonic` keys remain anywhere in the file.
 
 ### TASK-014: Re-pin `TIER_BUDGETS` against iteration-7 baseline
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-013
 - **Description**: Read `scripts/tier-distribution.summary.json`. For each `Difficulty`, compute the maximum required `N` across variants advertising that tier using `N = ceil(log(0.002) / log(1 - solvedRate))`. Apply the floor of 50 attempts as the small-sample-variance guard. Compute `timeoutMs = max(60_000, maxAttempts × 2000 × 1.5)`. Update each `TIER_BUDGETS` entry in `generate-for-difficulty.ts` to the formula-derived values. Rewrite the docblock above `TIER_BUDGETS` to cite the iteration-7 baseline by date and, for each non-default budget, the (variant, tier, solvedRate) driver tuple. State explicitly that the timeout rule applies to every advertised tier — closing iteration-6 review G3.

@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 24
-- **Completed**: 13
-- **Remaining**: 11
-- **Last Updated**: 2026-04-29T23:38:18.189Z
+- **Completed**: 14
+- **Remaining**: 10
+- **Last Updated**: 2026-04-29T23:41:05.687Z
 
 ## Iteration Log
 
@@ -124,4 +124,13 @@
 - **Exit Status**: success
 - **Tokens**: 2,032,797 total (41 in, 13,736 out, 129,620 cache-create, 1,889,400 cache-read)
 - **Cost**: $2.0984
+
+### Iteration 14 - 2026-04-29T23:41:05.685Z
+- **Task Attempted**: TASK-014
+- **Task Completed**: TASK-014
+- **Summary**: Completed Re-pin `TIER_BUDGETS` against iteration-7 baseline
+- **Duration**: 2m 45s
+- **Exit Status**: success
+- **Tokens**: 450,730 total (1,142 in, 7,627 out, 65,155 cache-create, 376,806 cache-read)
+- **Cost**: $0.4752
 

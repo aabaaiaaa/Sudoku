@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 12,
+  "lastIteration": 13,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-013",
-    "taskTitle": "Run iteration-7 corrected baseline profile (n=50)",
-    "iterationNumber": 13,
-    "startedAt": "2026-04-29T23:33:09.570Z"
+    "taskId": "TASK-014",
+    "taskTitle": "Re-pin `TIER_BUDGETS` against iteration-7 baseline",
+    "iterationNumber": 14,
+    "startedAt": "2026-04-29T23:38:20.238Z"
   }
 }

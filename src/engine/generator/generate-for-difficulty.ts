@@ -15,20 +15,28 @@ import {
  * the per-tier shape is impossible to skew (no chance of widening one but
  * forgetting the other).
  *
- * Sized via the requirements §6 reliability formula
- * `maxAttempts = ceil(log(0.002) / log(1 - solvedRate))` (99.8% reliability)
- * with `timeoutMs = max(60_000, maxAttempts × 2000ms × 1.5)`. A floor of
- * 50 attempts is kept for tiers whose formula N falls below 50
- * (small-sample variance protection). The `timeoutMs` rule applies whenever
- * the attempt cap is widened above the default — the timeout is a backstop
- * against pathological single-attempt runtime, not the primary budget.
+ * Values are derived from the iteration-7 corrected baseline
+ * (`scripts/tier-distribution.summary.json`, committed 2026-04-29, n=50)
+ * using the requirements §6 reliability formula:
  *
- * The values below are translated from the iteration-6 budgets under the
- * iteration-7 tier rename (Diabolical→Expert, Demonic→Master) and act as
- * placeholders. They will be re-pinned against the iteration-7 corrected
- * baseline (`scripts/tier-distribution.summary.json`) by a subsequent
- * task once the `--all-tiers --n=50` profile sweep completes. Tiers with
- * no advertised cell keep the default 50 / 150_000.
+ *   maxAttempts = ceil(log(0.002) / log(1 − solvedRate))   // 99.8% reliability
+ *   timeoutMs   = max(60_000, maxAttempts × 2000ms × 1.5)
+ *
+ * A floor of 50 attempts is applied when the formula N falls below 50
+ * (small-sample variance protection). The `timeoutMs` rule applies to every
+ * advertised tier whose attempt cap is widened above the default floor —
+ * the timeout is a backstop against pathological single-attempt runtime,
+ * not the primary budget (closes iteration-6 review G3).
+ *
+ * Driver tuples for non-default entries:
+ *   Medium:    six:Medium,        solvedRate=0.02, N=308  (worst-case driver)
+ *   Expert:    classic:Expert,    solvedRate=0.06, N=101
+ *   Master:    classic:Master,    solvedRate=0.04, N=153
+ *   Nightmare: classic:Nightmare, solvedRate=0.10, N=59
+ *
+ * Floor-capped entries (formula N < 50):
+ *   Easy:  classic:Easy@0.96 → N=2,  hard-floored to 50
+ *   Hard:  classic:Hard@0.18 → N=32, hard-floored to 50
  */
 export interface TierBudget {
   maxAttempts: number;
@@ -36,12 +44,12 @@ export interface TierBudget {
 }
 
 export const TIER_BUDGETS: Record<Difficulty, TierBudget> = {
-  Easy: { maxAttempts: 50, timeoutMs: 150_000 },
-  Medium: { maxAttempts: 122, timeoutMs: 370_000 },
-  Hard: { maxAttempts: 50, timeoutMs: 150_000 },
-  Expert: { maxAttempts: 50, timeoutMs: 150_000 },
-  Master: { maxAttempts: 122, timeoutMs: 370_000 },
-  Nightmare: { maxAttempts: 59, timeoutMs: 180_000 },
+  Easy:      { maxAttempts:  50, timeoutMs: 150_000 },
+  Medium:    { maxAttempts: 308, timeoutMs: 924_000 },
+  Hard:      { maxAttempts:  50, timeoutMs: 150_000 },
+  Expert:    { maxAttempts: 101, timeoutMs: 303_000 },
+  Master:    { maxAttempts: 153, timeoutMs: 459_000 },
+  Nightmare: { maxAttempts:  59, timeoutMs: 177_000 },
 };
 
 /**
