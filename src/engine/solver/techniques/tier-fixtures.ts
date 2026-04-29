@@ -40,17 +40,22 @@ export const TIER_FIXTURES: Partial<Record<Difficulty, TierFixture>> = {
     seed: 301,
   },
   // Master: omitted — unobtainable in any variant after iteration-4 tuning
+  // Diabolical/Demonic firstHitBoards from the iteration-5 baseline rated
+  // correctly but stalled the rater (solved=false) — the puzzles required
+  // reasoning beyond the implemented technique chain. The seeds below are
+  // the next firstHitBoard whose rate(...) returned both the target tier
+  // AND solved=true, found by scanning forward from the baseline seed.
   Diabolical: {
     variant: 'classic',
     board:
-      '....4..8..6....1..8..3.2......2..3645.68....9.....9...12.......3.5..7......1.8.9.',
-    seed: 502,
+      '.....29.5....7.32.7...9.....3..86....8.9..1.7....4.8..25...8.....8...4...4..6..3.',
+    seed: 504,
   },
   Demonic: {
     variant: 'classic',
     board:
-      '9....67.3...51.8....68....1.9..2....7.8.6..2.4.......7.54.........1.7..9....8....',
-    seed: 600,
+      '62..8.....5..4.2...4..5..131..9.4..773......1.......5.8....56.9...7..........3...',
+    seed: 612,
   },
   Nightmare: {
     variant: 'classic',
