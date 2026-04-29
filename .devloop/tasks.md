@@ -4,7 +4,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
 ~10–20 minute automated execution; dependencies run sequentially.
 
 ### TASK-001: Add `solvedRate` to profile-tiers.ts and refresh header docblock
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: none
 - **Description**: In `scripts/profile-tiers.ts`, extend `SummaryEntry`
@@ -26,7 +26,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   include `Solved` and `Solved %` columns.
 
 ### TASK-002: Add `--out` and `--clue-floor-override` flags to profile-tiers.ts
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: none
 - **Description**: In `scripts/profile-tiers.ts`, add two CLI flags.
@@ -53,7 +53,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   `solvedRate`. Delete the smoke output files after verifying.
 
 ### TASK-003: Add TIMEOUT_MS_BY_TIER infrastructure
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: none
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`,
@@ -70,7 +70,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   src/engine/generator/generate-for-difficulty` passes.
 
 ### TASK-004: Add regression test for `solved=false` reject branch
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: none
 - **Description**: Add a vitest test (in

@@ -42,6 +42,28 @@ export const DEFAULT_MAX_ATTEMPTS = 50;
 export const DEFAULT_TIMEOUT_MS = 60_000;
 
 /**
+ * Per-tier wall-clock timeout in milliseconds. Mirrors the structure of
+ * {@link MAX_ATTEMPTS_BY_TIER} so each tier can be sized independently.
+ * Sized so the attempt cap (not the wall clock) is the limiting factor on
+ * generation termination — i.e. the timeout is a backstop against pathological
+ * single-attempt runtime, not the primary budget.
+ *
+ * The table currently holds {@link DEFAULT_TIMEOUT_MS} (60 000) uniformly
+ * across all tiers as a placeholder; per-tier values are recalibrated against
+ * the iteration-6 baseline in a follow-up task.
+ */
+export const TIMEOUT_MS_BY_TIER: Record<Difficulty, number> = {
+  Easy: DEFAULT_TIMEOUT_MS,
+  Medium: DEFAULT_TIMEOUT_MS,
+  Hard: DEFAULT_TIMEOUT_MS,
+  Expert: DEFAULT_TIMEOUT_MS,
+  Master: DEFAULT_TIMEOUT_MS,
+  Diabolical: DEFAULT_TIMEOUT_MS,
+  Demonic: DEFAULT_TIMEOUT_MS,
+  Nightmare: DEFAULT_TIMEOUT_MS,
+};
+
+/**
  * Returns the default attempts budget for the given target tier from
  * {@link MAX_ATTEMPTS_BY_TIER}. Callers can still override via
  * `options.maxRetries`.
@@ -193,7 +215,10 @@ export function generateForDifficulty(
     1,
     options.maxRetries ?? defaultMaxAttemptsForTier(difficulty),
   );
-  const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  const timeoutMs = Math.max(
+    0,
+    options.timeoutMs ?? TIMEOUT_MS_BY_TIER[difficulty] ?? DEFAULT_TIMEOUT_MS,
+  );
   const targetRank = tierRank(difficulty);
   const clueFloorHint = clueBoundsLowerForTier(variant.id, difficulty);
 

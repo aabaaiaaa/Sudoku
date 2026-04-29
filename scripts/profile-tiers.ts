@@ -1,20 +1,42 @@
 /**
  * profile-tiers.ts — diagnostic generator profiling harness.
  *
- * For each (variant, advertised tier) cell, generates N puzzles seeded
- * deterministically from the tier's lower clue bound and reports the
- * distribution of *rated* tiers among the produced puzzles. Used to
- * surface tier-window misalignment surfaced during iteration 3 manual
- * testing — see requirements §4.2 (rater hardening) and §4.3 (per-tier
- * attempt budgets / clue-bound heuristics).
+ * For each (variant, tier) cell, generates N puzzles seeded deterministically
+ * from the tier's lower clue bound and reports the distribution of *rated*
+ * tiers among the produced puzzles. Each cell records two rates:
+ *
+ *   - `rate`: fraction of attempts whose `result.difficulty === tier`,
+ *     regardless of `result.solved`. Retained as a diagnostic so the
+ *     divergence between rated-but-unsolved and rated-and-solved remains
+ *     visible — a future regression that biases the counter (see
+ *     iteration-5 review C1) shows up directly in the JSON.
+ *   - `solvedRate`: fraction of attempts where `result.difficulty === tier
+ *     AND result.solved === true`. This is the **load-bearing** rate —
+ *     production (`generate-for-difficulty.ts`) rejects unsolved ratings, so
+ *     `solvedRate` is what `MAX_ATTEMPTS_BY_TIER` budgets must be sized
+ *     against. `firstHitSeed` and `firstHitBoard` likewise track the first
+ *     solved-aware hit so any consumer (e.g. `tier-fixtures.ts`) gets a
+ *     puzzle the production path would accept.
+ *
+ * Iteration history:
+ *   - Iteration 5 §4 added the `--all-tiers` flag (profile descoped tiers
+ *     too) and the `firstHitBoard` field (copy-paste fixture extraction).
+ *   - Iteration 6 §4 added `solvedRate` (this file's load-bearing rate),
+ *     the `Solved` / `Solved %` markdown columns, the `--out=<basename>`
+ *     flag, and the repeatable `--clue-floor-override=variant:tier:N` flag
+ *     for lever-2 exploration at floors below `CLUE_BOUNDS`.
  *
  * Run via `npm run profile-tiers -- --n=20` (defaults to N=20). With
  * N=1 the smoke run completes well under 60s.
  *
- * Outputs:
+ * Outputs (default, overridable via `--out=<basename>`):
  *   - scripts/tier-distribution.md         human-readable histograms
  *   - scripts/tier-distribution.summary.json  flat summary keyed by
- *                                          `${variantId}:${tierName}`
+ *                                          `${variantId}:${tierName}` for
+ *                                          canonical cells, or
+ *                                          `${variantId}:${tierName}@${floor}`
+ *                                          for synthetic
+ *                                          `--clue-floor-override` cells.
  */
 
 import { writeFileSync } from 'node:fs';
@@ -40,19 +62,32 @@ interface CellResult {
   tier: Difficulty;
   clueFloor: number;
   histogram: Record<Difficulty, number>;
+  solvedHistogram: Record<Difficulty, number>;
   firstHitSeed: number | null;
   firstHitBoard: string | null;
   matchCount: number;
+  matchCountSolved: number;
   sampleSize: number;
   advertised: boolean;
+  /** Synthetic cells (from `--clue-floor-override`) carry their own floor in
+   *  the summary key (`variant:tier@floor`) so multiple floors for a single
+   *  (variant, tier) don't collide. Null for canonical cells. */
+  synthetic: boolean;
 }
 
 interface SummaryEntry {
   rate: number;
+  solvedRate: number;
   advertised: boolean;
   sampleSize: number;
   firstHitSeed: number | null;
   firstHitBoard: string | null;
+}
+
+interface CluefloorOverride {
+  variantId: string;
+  tier: Difficulty;
+  floor: number;
 }
 
 function parseN(argv: readonly string[]): number {
@@ -68,6 +103,55 @@ function parseN(argv: readonly string[]): number {
 
 function parseAllTiers(argv: readonly string[]): boolean {
   return argv.includes('--all-tiers');
+}
+
+function parseOut(argv: readonly string[]): string {
+  for (const arg of argv) {
+    const m = /^--out=(.+)$/.exec(arg);
+    if (m) {
+      const basename = m[1].trim();
+      if (basename.length > 0) return basename;
+    }
+  }
+  return 'tier-distribution';
+}
+
+function parseClueFloorOverrides(
+  argv: readonly string[],
+  knownVariantIds: readonly string[],
+): CluefloorOverride[] {
+  const overrides: CluefloorOverride[] = [];
+  for (const arg of argv) {
+    const m = /^--clue-floor-override=([^:]+):([^:]+):(\d+)$/.exec(arg);
+    if (!m) continue;
+    const [, variantId, tierStr, nStr] = m;
+    if (!knownVariantIds.includes(variantId)) {
+      throw new Error(
+        `--clue-floor-override: unknown variant '${variantId}' (expected one of: ${knownVariantIds.join(
+          ', ',
+        )})`,
+      );
+    }
+    if (!(DIFFICULTY_ORDER as readonly string[]).includes(tierStr)) {
+      throw new Error(
+        `--clue-floor-override: unknown tier '${tierStr}' (expected one of: ${DIFFICULTY_ORDER.join(
+          ', ',
+        )})`,
+      );
+    }
+    const floor = Number.parseInt(nStr, 10);
+    if (!Number.isFinite(floor) || floor <= 0) {
+      throw new Error(
+        `--clue-floor-override: floor must be a positive integer, got '${nStr}'`,
+      );
+    }
+    overrides.push({
+      variantId,
+      tier: tierStr as Difficulty,
+      floor,
+    });
+  }
+  return overrides;
 }
 
 function emptyHistogram(): Record<Difficulty, number> {
@@ -98,6 +182,7 @@ function boardToDottedString(board: Board): string {
 const ARGV = process.argv.slice(2);
 const N = parseN(ARGV);
 const ALL_TIERS = parseAllTiers(ARGV);
+const OUT_BASENAME = parseOut(ARGV);
 const startedAt = Date.now();
 
 const VARIANTS_IN_ORDER: readonly Variant[] = [
@@ -106,63 +191,139 @@ const VARIANTS_IN_ORDER: readonly Variant[] = [
   miniVariant,
 ];
 
+const KNOWN_VARIANT_IDS = VARIANTS_IN_ORDER.map((v) => v.id);
+const CLUE_FLOOR_OVERRIDES = parseClueFloorOverrides(ARGV, KNOWN_VARIANT_IDS);
+const HAS_OVERRIDES = CLUE_FLOOR_OVERRIDES.length > 0;
+
+interface ProfileTarget {
+  variant: Variant;
+  variantIndex: number;
+  tier: Difficulty;
+  clueFloor: number;
+  advertised: boolean;
+  synthetic: boolean;
+}
+
+const targets: ProfileTarget[] = [];
+
+if (HAS_OVERRIDES) {
+  // Synthetic-only mode: profile *exactly* the override cells; the canonical
+  // loop driven by `--all-tiers` / advertised tiers is suppressed for this
+  // run. This keeps lever-2 exploration cleanly separate from canonical
+  // baseline runs.
+  for (const override of CLUE_FLOOR_OVERRIDES) {
+    const variantIndex = VARIANTS_IN_ORDER.findIndex(
+      (v) => v.id === override.variantId,
+    );
+    if (variantIndex < 0) {
+      throw new Error(
+        `--clue-floor-override: variant '${override.variantId}' not in VARIANTS_IN_ORDER`,
+      );
+    }
+    const variant = VARIANTS_IN_ORDER[variantIndex];
+    const advertised = availableTiers(variant).includes(override.tier);
+    targets.push({
+      variant,
+      variantIndex,
+      tier: override.tier,
+      clueFloor: override.floor,
+      advertised,
+      synthetic: true,
+    });
+  }
+} else {
+  for (
+    let variantIndex = 0;
+    variantIndex < VARIANTS_IN_ORDER.length;
+    variantIndex++
+  ) {
+    const variant = VARIANTS_IN_ORDER[variantIndex];
+    const advertisedTiers = availableTiers(variant);
+    const tiersForVariant = ALL_TIERS ? DIFFICULTY_ORDER : advertisedTiers;
+    for (const tier of tiersForVariant) {
+      const bounds = CLUE_BOUNDS[variant.id]?.[tier];
+      if (!bounds) continue; // skip if no clue window defined for this cell
+      const clueFloor = bounds[0];
+      const advertised = advertisedTiers.includes(tier);
+      targets.push({
+        variant,
+        variantIndex,
+        tier,
+        clueFloor,
+        advertised,
+        synthetic: false,
+      });
+    }
+  }
+}
+
 const cells: CellResult[] = [];
 
-for (let variantIndex = 0; variantIndex < VARIANTS_IN_ORDER.length; variantIndex++) {
-  const variant = VARIANTS_IN_ORDER[variantIndex];
-  const advertisedTiers = availableTiers(variant);
-  const tiersForVariant = ALL_TIERS ? DIFFICULTY_ORDER : advertisedTiers;
-  for (let tierIndex = 0; tierIndex < tiersForVariant.length; tierIndex++) {
-    const tier = tiersForVariant[tierIndex];
-    const bounds = CLUE_BOUNDS[variant.id]?.[tier];
-    if (!bounds) continue; // skip if no clue window defined for this cell
-    const clueFloor = bounds[0];
-    const advertised = advertisedTiers.includes(tier);
+for (const target of targets) {
+  const { variant, variantIndex, tier, clueFloor, advertised, synthetic } =
+    target;
 
-    const histogram = emptyHistogram();
-    let firstHitSeed: number | null = null;
-    let firstHitBoard: string | null = null;
-    let matchCount = 0;
+  const histogram = emptyHistogram();
+  const solvedHistogram = emptyHistogram();
+  let firstHitSeed: number | null = null;
+  let firstHitBoard: string | null = null;
+  let matchCount = 0;
+  let matchCountSolved = 0;
 
-    // Seed offset is keyed on the tier's *position in `DIFFICULTY_ORDER`*,
-    // not the local index inside `availableTiers(variant)`. Local indexing
-    // shifts every time a tier is descoped (lever 3 in requirements §6),
-    // which causes already-profiled tiers to silently sample a *different*
-    // seed range — a classic source of false-positive verification failures
-    // when the natural rate at a given (variant, tier, clueFloor) is itself
-    // healthy but the new seed range happens to be unlucky. Keying on the
-    // global tier rank keeps each tier's seed range stable across iterations.
-    const tierRank = DIFFICULTY_ORDER.indexOf(tier);
-    for (let i = 0; i < N; i++) {
-      const seed = variantIndex * 1000 + tierRank * 100 + i;
-      const generated = generate(variant, { seed, clueFloor });
-      const result = rate(generated.puzzle);
-      const rated = result.difficulty;
-      histogram[rated] += 1;
-      if (rated === tier) {
-        matchCount += 1;
+  // Seed offset is keyed on the tier's *position in `DIFFICULTY_ORDER`*,
+  // not the local index inside `availableTiers(variant)`. Local indexing
+  // shifts every time a tier is descoped (lever 3 in requirements §6),
+  // which causes already-profiled tiers to silently sample a *different*
+  // seed range — a classic source of false-positive verification failures
+  // when the natural rate at a given (variant, tier, clueFloor) is itself
+  // healthy but the new seed range happens to be unlucky. Keying on the
+  // global tier rank keeps each tier's seed range stable across iterations.
+  // Synthetic (`--clue-floor-override`) cells share the same scheme —
+  // multiple floors for a single (variant, tier) sample the same seed range
+  // but generate at different `clueFloor`s, so produce different puzzles.
+  const tierRank = DIFFICULTY_ORDER.indexOf(tier);
+  for (let i = 0; i < N; i++) {
+    const seed = variantIndex * 1000 + tierRank * 100 + i;
+    const generated = generate(variant, { seed, clueFloor });
+    const result = rate(generated.puzzle);
+    const rated = result.difficulty;
+    histogram[rated] += 1;
+    if (result.solved) {
+      solvedHistogram[rated] += 1;
+    }
+    if (rated === tier) {
+      matchCount += 1;
+      if (result.solved) {
+        matchCountSolved += 1;
+        // `firstHit*` tracks the first *solved-aware* hit. The production
+        // path (`generate-for-difficulty.ts`) rejects unsolved ratings, so
+        // any downstream consumer (notably `TIER_FIXTURES`) needs a seed
+        // whose puzzle would actually survive the production filter.
         if (firstHitSeed === null) {
           firstHitSeed = seed;
           firstHitBoard = boardToDottedString(generated.puzzle);
         }
       }
-      process.stdout.write(`${variant.id} ${tier} ${i + 1}/${N}\r`);
     }
-    // Newline after the inline progress for this cell.
-    process.stdout.write(`${variant.id} ${tier} ${N}/${N} done\n`);
-
-    cells.push({
-      variantId: variant.id,
-      tier,
-      clueFloor,
-      histogram,
-      firstHitSeed,
-      firstHitBoard,
-      matchCount,
-      sampleSize: N,
-      advertised,
-    });
+    process.stdout.write(`${variant.id} ${tier} ${i + 1}/${N}\r`);
   }
+  // Newline after the inline progress for this cell.
+  process.stdout.write(`${variant.id} ${tier} ${N}/${N} done\n`);
+
+  cells.push({
+    variantId: variant.id,
+    tier,
+    clueFloor,
+    histogram,
+    solvedHistogram,
+    firstHitSeed,
+    firstHitBoard,
+    matchCount,
+    matchCountSolved,
+    sampleSize: N,
+    advertised,
+    synthetic,
+  });
 }
 
 const totalRuntimeSec = (Date.now() - startedAt) / 1000;
@@ -183,24 +344,40 @@ mdLines.push(`- N per cell: ${N}`);
 mdLines.push('');
 
 for (const cell of cells) {
-  mdLines.push(
-    `## ${cell.variantId} — clueFloor=${cell.clueFloor} (${cell.tier}.lower)`,
-  );
+  if (cell.synthetic) {
+    mdLines.push(
+      `## ${cell.variantId}:${cell.tier}@${cell.clueFloor} — synthetic clueFloor=${cell.clueFloor} override`,
+    );
+  } else {
+    mdLines.push(
+      `## ${cell.variantId} — clueFloor=${cell.clueFloor} (${cell.tier}.lower)`,
+    );
+  }
   mdLines.push('');
-  mdLines.push('| Rated tier | Count | %     |');
-  mdLines.push('|------------|-------|-------|');
+  mdLines.push('| Rated tier | Count | %     | Solved | Solved % |');
+  mdLines.push('|------------|-------|-------|--------|----------|');
   for (const tier of DIFFICULTY_ORDER) {
     const count = cell.histogram[tier];
+    const solvedCount = cell.solvedHistogram[tier];
     const pct = cell.sampleSize > 0 ? (count / cell.sampleSize) * 100 : 0;
+    const solvedPct =
+      cell.sampleSize > 0 ? (solvedCount / cell.sampleSize) * 100 : 0;
     const tierCol = tier.padEnd(10, ' ');
     const countCol = String(count).padEnd(5, ' ');
     const pctCol = `${pct.toFixed(1)}%`.padEnd(5, ' ');
-    mdLines.push(`| ${tierCol} | ${countCol} | ${pctCol} |`);
+    const solvedCol = String(solvedCount).padEnd(6, ' ');
+    const solvedPctCol = `${solvedPct.toFixed(1)}%`.padEnd(8, ' ');
+    mdLines.push(
+      `| ${tierCol} | ${countCol} | ${pctCol} | ${solvedCol} | ${solvedPctCol} |`,
+    );
   }
   mdLines.push('');
 }
 
-const mdPath = resolve(import.meta.dirname ?? '.', 'tier-distribution.md');
+const mdPath = resolve(
+  import.meta.dirname ?? '.',
+  `${OUT_BASENAME}.md`,
+);
 writeFileSync(mdPath, mdLines.join('\n'), 'utf8');
 
 // ---------------------------------------------------------------------------
@@ -209,9 +386,13 @@ writeFileSync(mdPath, mdLines.join('\n'), 'utf8');
 
 const summary: Record<string, SummaryEntry> = {};
 for (const cell of cells) {
-  const key = `${cell.variantId}:${cell.tier}`;
+  const key = cell.synthetic
+    ? `${cell.variantId}:${cell.tier}@${cell.clueFloor}`
+    : `${cell.variantId}:${cell.tier}`;
   summary[key] = {
     rate: cell.sampleSize > 0 ? cell.matchCount / cell.sampleSize : 0,
+    solvedRate:
+      cell.sampleSize > 0 ? cell.matchCountSolved / cell.sampleSize : 0,
     advertised: cell.advertised,
     sampleSize: cell.sampleSize,
     firstHitSeed: cell.firstHitSeed,
@@ -221,12 +402,12 @@ for (const cell of cells) {
 
 const jsonPath = resolve(
   import.meta.dirname ?? '.',
-  'tier-distribution.summary.json',
+  `${OUT_BASENAME}.summary.json`,
 );
 writeFileSync(jsonPath, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
 
 console.log(
-  `Wrote scripts/tier-distribution.md and scripts/tier-distribution.summary.json (${totalRuntimeSec.toFixed(
+  `Wrote scripts/${OUT_BASENAME}.md and scripts/${OUT_BASENAME}.summary.json (${totalRuntimeSec.toFixed(
     1,
   )}s, ${totalPuzzles} puzzles).`,
 );

@@ -526,3 +526,84 @@ describe('generateForDifficulty — wall-clock timeout', () => {
     10_000,
   );
 });
+
+describe('generateForDifficulty — solved=false reject branch (regression guard)', () => {
+  // Requirements (iteration-6) §8: pin the `if (!rating.solved) continue;`
+  // reject branch in `generate-for-difficulty.ts`. Production rejects unsolved
+  // ratings before the strict-tier comparison — this contract is exercised
+  // indirectly by the strict-tier tests, but no test explicitly pinned it.
+  // The two tests below force the branch via `vi.spyOn(rateModule, 'rate')`
+  // and assert the observable behavior.
+
+  it(
+    'rejects an attempt with solved=false; the next solved attempt is accepted',
+    async () => {
+      const rateModule = await import('./rate');
+      const realRate = rateModule.rate;
+      let callCount = 0;
+      const spy = vi.spyOn(rateModule, 'rate').mockImplementation((puzzle) => {
+        callCount++;
+        const real = realRate(puzzle);
+        // First call: rate returns Easy but unsolved — production must reject.
+        // Subsequent calls: rate returns Easy and solved — production accepts.
+        if (callCount === 1) {
+          return { ...real, difficulty: 'Easy', solved: false };
+        }
+        return { ...real, difficulty: 'Easy', solved: true };
+      });
+
+      try {
+        const result = generateForDifficulty(classicVariant, 'Easy', {
+          seed: 0,
+          maxRetries: 5,
+          timeoutMs: 60_000,
+        });
+
+        expect(result.kind).toBe('success');
+        // The spy must have been called at least twice — proving the first
+        // attempt was rejected (solved=false) and a subsequent attempt was
+        // accepted (solved=true). The success result type
+        // (`DifficultyGeneratedPuzzle`) does not expose the internal `attempts`
+        // counter; the spy call count is the public proxy.
+        expect(callCount).toBe(2);
+      } finally {
+        spy.mockRestore();
+      }
+    },
+    60_000,
+  );
+
+  it(
+    'fails with attempts === maxRetries and closestRating === null when every attempt is solved=false',
+    async () => {
+      const rateModule = await import('./rate');
+      const realRate = rateModule.rate;
+      const spy = vi.spyOn(rateModule, 'rate').mockImplementation((puzzle) => {
+        const real = realRate(puzzle);
+        return { ...real, difficulty: 'Easy', solved: false };
+      });
+
+      try {
+        const maxRetries = 3;
+        const result = generateForDifficulty(classicVariant, 'Easy', {
+          seed: 0,
+          maxRetries,
+          timeoutMs: 60_000,
+        });
+
+        expect(result.kind).toBe('failed');
+        if (result.kind !== 'failed') return;
+
+        expect(result.attempts).toBe(maxRetries);
+        // Per the source comment at `generate-for-difficulty.ts:249-254`, the
+        // solved=false branch does NOT update `closestRating` because the rated
+        // tier on an unsolved puzzle is not trustworthy. With every attempt
+        // rejected for solved=false, closestRating must remain null.
+        expect(result.closestRating).toBeNull();
+      } finally {
+        spy.mockRestore();
+      }
+    },
+    60_000,
+  );
+});
