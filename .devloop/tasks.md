@@ -34,7 +34,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/catalog.ts` exits 0 and `npx vitest run src/engine/solver/techniques/catalog.test.ts` passes.
 
 ### TASK-005: Rewrite `VARIANT_TIERS` and docblock
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/generator/variant-tiers.ts`, set `VARIANT_TIERS.classic = ['Easy', 'Medium', 'Hard', 'Expert', 'Master', 'Nightmare']` (all six). Six and mini lists unchanged from iteration 6. Rewrite the file-level docblock to cite iteration 7's corrected baseline (which TASK-013 will produce) and the rationale for collapsing the empty bands. Keep the iteration-6 lever-2 sweep ranges in the docblock as historical record so iteration 8 has the trail.
