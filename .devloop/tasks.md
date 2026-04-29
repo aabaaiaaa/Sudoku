@@ -139,7 +139,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/store/save.test.ts src/store/stats.test.ts src/store/migration.test.ts` passes.
 
 ### TASK-020: Bump `package.json` to 0.6.0
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-001
 - **Description**: Bump `package.json` version from `0.5.0` to `0.6.0`. The minor bump reflects the player-visible difficulty-ramp change.
