@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 24
-- **Completed**: 8
-- **Remaining**: 16
-- **Last Updated**: 2026-04-29T23:24:02.345Z
+- **Completed**: 9
+- **Remaining**: 15
+- **Last Updated**: 2026-04-29T23:25:27.892Z
 
 ## Iteration Log
 
@@ -79,4 +79,13 @@
 - **Exit Status**: success
 - **Tokens**: 326,652 total (11 in, 2,360 out, 37,380 cache-create, 286,901 cache-read)
 - **Cost**: $0.4361
+
+### Iteration 9 - 2026-04-29T23:25:27.886Z
+- **Task Attempted**: TASK-009
+- **Task Completed**: TASK-009
+- **Summary**: Completed Bump stats schema to v4 and lowercase `entryKey`
+- **Duration**: 1m 23s
+- **Exit Status**: success
+- **Tokens**: 473,062 total (14 in, 2,281 out, 35,309 cache-create, 435,458 cache-read)
+- **Cost**: $0.4955
 

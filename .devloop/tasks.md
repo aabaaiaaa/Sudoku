@@ -62,7 +62,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/store/save.test.ts` passes after TASK-019 updates the test literals. For this task in isolation: type-check passes.
 
 ### TASK-009: Bump stats schema to v4 and lowercase `entryKey`
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: none
 - **Description**: In `src/store/stats.ts`, change `STATS_STORAGE_KEY` to `'sudoku.stats.v4'` and `STATS_SCHEMA_VERSION` to `4`. Add `.toLowerCase()` to the difficulty argument in `entryKey` so it matches `slotKey` in `save.ts` (closes review §5.1). Update the comment block at lines 53-57 to cite the iteration-7 tier names (`'easy', 'medium', 'hard', 'expert', 'master', 'nightmare'`).

@@ -3,8 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { variants } from '../engine/variants';
 import { availableTiers } from '../engine/generator/variant-tiers';
 
-export const STATS_STORAGE_KEY = 'sudoku.stats.v3';
-export const STATS_SCHEMA_VERSION = 3;
+export const STATS_STORAGE_KEY = 'sudoku.stats.v4';
+export const STATS_SCHEMA_VERSION = 4;
 
 export interface StatsEntry {
   gamesCompleted: number;
@@ -35,7 +35,7 @@ export interface StatsActions {
 export type StatsStore = StatsState & StatsActions;
 
 export function entryKey(variant: string, difficulty: string): string {
-  return `${variant}:${difficulty}`;
+  return `${variant}:${difficulty.toLowerCase()}`;
 }
 
 function emptyEntry(): StatsEntry {
@@ -52,9 +52,10 @@ function emptyEntry(): StatsEntry {
 
 // Pre-populates an entry per (variant, tier) pair the UI exposes, keyed in the
 // same lowercase form the Stats screen renders. Ensures the persisted shape
-// includes the new tier names ('master', 'diabolical', 'demonic', 'nightmare')
-// from the moment the store is created, so consumers can rely on a stable
-// entry-keyed shape regardless of whether the user has played that tier yet.
+// includes the iteration-7 tier names ('easy', 'medium', 'hard', 'expert',
+// 'master', 'nightmare') from the moment the store is created, so consumers
+// can rely on a stable entry-keyed shape regardless of whether the user has
+// played that tier yet.
 export function initialStatsEntries(): Record<string, StatsEntry> {
   const result: Record<string, StatsEntry> = {};
   for (const variant of Object.values(variants)) {
