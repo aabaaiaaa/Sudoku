@@ -20,7 +20,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes after TASK-015 lands its assertions. For this task in isolation: `npx tsc --noEmit src/engine/generator/rate.ts` exits 0.
 
 ### TASK-003: Rewrite `CLUE_BOUNDS`
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `rate.ts`, rewrite `CLUE_BOUNDS` per requirements §4.2: classic gets `Easy/Medium/Hard/Expert/Master/Nightmare` windows (the old `Expert/Diabolical/Demonic/Nightmare` windows shift in by name); the old classic `Hard` and `Master` windows are dropped. Six keeps `Easy[22,26]`, `Medium[14,21]`. Mini keeps `Easy[12,14]` only. Refresh the comment above the `six` and `mini` blocks to cite iteration 7.

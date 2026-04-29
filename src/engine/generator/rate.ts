@@ -131,32 +131,29 @@ export const CLUE_BOUNDS: Record<
   classic: {
     Easy: [38, 45],
     Medium: [32, 37],
-    Hard: [28, 31],
-    Expert: [24, 27],
-    Master: [26, 31],
-    Diabolical: [24, 28],
-    Demonic: [22, 26],
+    Hard: [24, 27],
+    Expert: [24, 28],
+    Master: [22, 26],
     Nightmare: [20, 24],
   },
   // Mini = 4x4 = 16 cells total. Subsets and fish degenerate at this size, so
-  // the cap is Hard — higher tiers are not generatable.
+  // only Easy is advertised. Iteration 7 dropped the Medium and Hard entries
+  // since the iteration-6 corrected baseline showed `solvedRate=0` for every
+  // mini cell above Easy and the lever-2 sweep at lower clue floors did not
+  // rescue any of them.
   mini: {
     Easy: [12, 14],
-    Medium: [10, 11],
-    Hard: [8, 9],
   },
-  // Six = 6x6 = 36 cells total. Wings/chains are possible up to Diabolical;
-  // Demonic+ patterns are statistically unreachable on this grid. The Medium
-  // lower bound was lowered from 18 to 14 in iteration 6 per the lever-2
-  // sweep (`scripts/tier-distribution.lever2.summary.json`,
-  // `six:Medium@14` solvedRate=0.05).
+  // Six = 6x6 = 36 cells total. Iteration 7 dropped the Hard+ entries since
+  // the iteration-6 corrected baseline showed `solvedRate=0` for every six
+  // cell above Medium and the lever-2 sweep at lower clue floors did not
+  // rescue any of them. The Medium lower bound was lowered from 18 to 14 in
+  // iteration 6 per the lever-2 sweep
+  // (`scripts/tier-distribution.lever2.summary.json`, `six:Medium@14`
+  // solvedRate=0.05); that bound is preserved here.
   six: {
     Easy: [22, 26],
     Medium: [14, 21],
-    Hard: [15, 17],
-    Expert: [12, 14],
-    Master: [13, 16],
-    Diabolical: [11, 14],
   },
 };
 

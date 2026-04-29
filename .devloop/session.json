@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 1,
+  "lastIteration": 2,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-002",
-    "taskTitle": "Remap `TECHNIQUE_TIER`",
-    "iterationNumber": 2,
-    "startedAt": "2026-04-29T23:07:29.880Z"
+    "taskId": "TASK-003",
+    "taskTitle": "Rewrite `CLUE_BOUNDS`",
+    "iterationNumber": 3,
+    "startedAt": "2026-04-29T23:09:45.925Z"
   }
 }
