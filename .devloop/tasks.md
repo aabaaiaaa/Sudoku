@@ -20,7 +20,7 @@ is actually fixed.
 - **Verification**: `npm run profile-tiers -- --n=1 && test -f scripts/tier-distribution.md && test -f scripts/tier-distribution.summary.json`
 
 ### TASK-003: Run baseline profile and commit `scripts/tier-distribution.md`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-002
 - **Description**: Run `npm run profile-tiers -- --n=20` against the **current code (with the inverted `maxClues` semantics still in place)**. The output is the iteration's empirical baseline — it documents the bug on disk. Commit `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json`. Do NOT make any code changes besides running the script. The histogram should show that Hard / Master / etc. are rare-or-absent at their advertised clue floors with current behaviour — that is the expected baseline (TASK-003 does not enforce any threshold; threshold enforcement happens in TASK-008 after tuning).
 - **Verification**: `node --input-type=commonjs -e "const s=JSON.parse(require('fs').readFileSync('./scripts/tier-distribution.summary.json','utf8')); if(Object.keys(s).length<10)throw new Error('summary missing entries');"`
