@@ -39,7 +39,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/workers/generator-client.test.ts` passes.
 
 ### TASK-006: Plumb lastError into GenerationFailure store state
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-005
 - **Description**: In `src/store/game.ts`, add `lastError?: string` to the `GenerationFailure` interface and copy it across in the failure-handling branch of `newGame`. See requirements §4.1.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
@@ -69,7 +69,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/rate.test.ts` passes.
 
 ### TASK-011: Reject unsolved puzzles in generateForDifficulty
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-009, TASK-010
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, after rating each generated puzzle, treat `rating.solved === false` as an automatic rejection regardless of difficulty match. The puzzle still counts toward the attempt budget and contributes to `closestRating` only if `solved`. See requirements §4.4.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes including a new case that asserts an unsolved-rating puzzle is rejected even when its `difficulty` field matches the target.
@@ -99,7 +99,7 @@ their early prerequisites land.
 - **Verification**: same pattern as TASK-014a.
 
 ### TASK-014c: Green the fuzz harness across all variants
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-014b
 - **Description**: Run the fuzz harness, fix every remaining throwing finder, and add a regression fixture per finder to the corresponding `<name>.test.ts`. If more than one finder remains throwing after TASK-014b, do not balloon this task — split into additional sub-tasks (TASK-014d, TASK-014e, …) during execution, one per throwing finder, and treat this task as the final "green-the-harness" gate that lands once everything else is fixed. See requirements §4.2.
 - **Verification**: `npx vitest run src/engine/solver/techniques/fuzz.test.ts` passes with zero failures across `classic`, `mini`, and `six`.
@@ -117,7 +117,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes including a new case asserting Hard/Expert/Master use 100 attempts by default.
 
 ### TASK-017: Wire upper clue-bounds hint for mid-range tiers
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-015, TASK-016
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`, after `clueBoundsLowerForTier`, also extract the upper bound from `CLUE_BOUNDS[variantId][tier][1]` and pass it as `maxClues` to `generate()`. The bound is advisory — if no entry exists, no `maxClues` is passed. The dependency on TASK-016 is sequencing-only: both tasks edit `generate-for-difficulty.ts`, so doing them in order avoids a merge conflict. See requirements §4.3.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
@@ -129,7 +129,7 @@ their early prerequisites land.
 - **Verification**: `npx tsc --noEmit` exits zero. Manual smoke: `npm run dev`, open at a desktop viewport (≥640 px wide), assert the tab bar is visible. Automated regression coverage lands with TASK-044.
 
 ### TASK-019: Create reusable ConfirmDialog component
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Create `src/components/ConfirmDialog.tsx` exporting `<ConfirmDialog>` with props `{ open, title, body, confirmLabel, cancelLabel, onConfirm, onCancel }`. Style follows the existing `GenerationFailedDialog` (backdrop overlay, card, primary/secondary buttons). Uses `role="dialog"`, `aria-modal="true"`, `aria-labelledby`. Test ids: `confirm-dialog`, `confirm-dialog-confirm`, `confirm-dialog-cancel`. Defer focus management to TASK-038. See requirements §5.4.
 - **Verification**: `npx vitest run src/components/ConfirmDialog.test.tsx` passes — covers render with open=true/false, click handlers fire correctly.

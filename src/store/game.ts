@@ -47,6 +47,12 @@ export interface GenerationFailure {
   attempts: number;
   /** Wall-clock time elapsed when failure was reported. */
   elapsedMs: number;
+  /**
+   * Best-effort message from the most recent attempt that threw inside the
+   * generator. Surfaced verbatim by the GenerationFailedDialog (requirements
+   * §4.1, §10).
+   */
+  lastError?: string;
 }
 
 export interface GameState {
@@ -313,12 +319,14 @@ export function createGameStore(
               closestRating: result.closestRating,
               attempts: result.attempts,
               elapsedMs: result.elapsedMs,
+              lastError: result.lastError,
             }
           : {
               difficulty: diff,
               closestRating: null,
               attempts: 0,
               elapsedMs: 0,
+              lastError: result.message,
             };
       set({ loading: false, generationFailure: failure });
     },

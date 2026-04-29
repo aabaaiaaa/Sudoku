@@ -141,6 +141,23 @@ function clueBoundsLowerForTier(
   return window[0];
 }
 
+/**
+ * Returns the clue-count upper bound for the given variant/difficulty, or
+ * `undefined` if the variant isn't listed in `CLUE_BOUNDS`. Passed as the
+ * `maxClues` hint to `generate` so mid-range tiers don't over-aggressively
+ * remove clues and overshoot into a harder tier (requirements §4.3).
+ */
+function clueBoundsUpperForTier(
+  variantId: string,
+  difficulty: Difficulty,
+): number | undefined {
+  const entry = CLUE_BOUNDS[variantId];
+  if (entry == null) return undefined;
+  const window = entry[difficulty];
+  if (window == null) return undefined;
+  return window[1];
+}
+
 function normalizeDifficulty(value: string): Difficulty | null {
   if (value == null) return null;
   const lc = String(value).toLowerCase();
@@ -189,6 +206,7 @@ export function generateForDifficulty(
   const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const targetRank = tierRank(difficulty);
   const minCluesHint = clueBoundsLowerForTier(variant.id, difficulty);
+  const maxCluesHint = clueBoundsUpperForTier(variant.id, difficulty);
 
   const startedAt = Date.now();
   let attempts = 0;
@@ -205,6 +223,9 @@ export function generateForDifficulty(
     if (minCluesHint != null) {
       genOpts.minClues = minCluesHint;
     }
+    if (maxCluesHint != null) {
+      genOpts.maxClues = maxCluesHint;
+    }
 
     // Per-attempt try/catch (requirements §4.1): a finder bug must never
     // throw out of generateForDifficulty. Count the failed attempt against
@@ -213,6 +234,17 @@ export function generateForDifficulty(
       const result = generate(variant, genOpts);
       const rating = rate(result.puzzle);
       attempts++;
+
+      // Reject any puzzle the cascade couldn't fully solve (requirements §4.4).
+      // After removing the 'Expert' fallback in rate.ts, `solved: false` is the
+      // authoritative "stalled" signal — we must not accept such puzzles even
+      // when the difficulty field happens to match the target. Unsolved
+      // ratings also do not contribute to closestRating since the rated tier
+      // is not trustworthy.
+      if (!rating.solved) {
+        options.onProgress?.({ attempt: attempts, max: maxRetries });
+        continue;
+      }
 
       // Strict tier rule (requirements §6.1): accept iff the rating matches the
       // target tier exactly. Easier or harder ratings are rejected and we retry.
