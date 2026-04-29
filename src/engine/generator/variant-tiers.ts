@@ -28,7 +28,7 @@ import { DIFFICULTY_ORDER, type Difficulty } from './rate';
  */
 const VARIANT_TIERS: Record<string, readonly Difficulty[]> = {
   classic: ['Easy', 'Medium', 'Expert', 'Diabolical', 'Demonic', 'Nightmare'],
-  six: ['Easy'],
+  six: ['Easy', 'Medium'],
   mini: ['Easy'],
 };
 

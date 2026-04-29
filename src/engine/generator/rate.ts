@@ -127,10 +127,13 @@ export const CLUE_BOUNDS: Record<
     Hard: [8, 9],
   },
   // Six = 6x6 = 36 cells total. Wings/chains are possible up to Diabolical;
-  // Demonic+ patterns are statistically unreachable on this grid.
+  // Demonic+ patterns are statistically unreachable on this grid. The Medium
+  // lower bound was lowered from 18 to 14 in iteration 6 per the lever-2
+  // sweep (`scripts/tier-distribution.lever2.summary.json`,
+  // `six:Medium@14` solvedRate=0.05).
   six: {
     Easy: [22, 26],
-    Medium: [18, 21],
+    Medium: [14, 21],
     Hard: [15, 17],
     Expert: [12, 14],
     Master: [13, 16],

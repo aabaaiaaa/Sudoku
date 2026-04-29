@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { TIER_FIXTURES } from './tier-fixtures';
-import { rate, type Difficulty } from '../../generator/rate';
+import { TIER_FIXTURES, tierFromKey } from './tier-fixtures';
+import { rate } from '../../generator/rate';
 import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant, miniVariant, sixVariant } from '../../variants';
 import type { Board, Digit, Variant } from '../../types';
@@ -34,18 +34,17 @@ function parseBoardString(name: 'classic' | 'six' | 'mini', s: string): Board {
 }
 
 describe('TIER_FIXTURES round-trip', () => {
-  const cases = Object.entries(TIER_FIXTURES) as Array<
-    [Difficulty, NonNullable<(typeof TIER_FIXTURES)[Difficulty]>]
-  >;
+  const cases = Object.entries(TIER_FIXTURES);
 
   it.each(cases)(
-    '%s fixture rates as %s',
-    (tier, fixture) => {
+    '%s fixture rates correctly',
+    (key, fixture) => {
+      const tier = tierFromKey(key);
       const board = parseBoardString(fixture.variant, fixture.board);
       const result = rate(board);
       expect(
         result.difficulty,
-        `${tier} fixture (variant=${fixture.variant}, seed=${fixture.seed}) rated as ${result.difficulty}`,
+        `${key} fixture (variant=${fixture.variant}, seed=${fixture.seed}) rated as ${result.difficulty}`,
       ).toBe(tier);
       expect(result.solved).toBe(true);
     },

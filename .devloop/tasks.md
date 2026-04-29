@@ -131,7 +131,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   solvedRate) tuples for each non-default entry.
 
 ### TASK-007: Update Diabolical/Demonic fixtures and refresh tier-fixtures docblock
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-005
 - **Description**: Read `scripts/tier-distribution.summary.json`
@@ -192,7 +192,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   `solvedRate` and `sampleSize === 20` for each.
 
 ### TASK-009: Apply lever-2 restorations
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-008
 - **Description**: Read
