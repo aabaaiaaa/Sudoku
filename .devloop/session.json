@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 5,
+  "lastIteration": 6,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-006",
-    "taskTitle": "Add `solved === true` assertion to tier-fixtures round-trip",
-    "iterationNumber": 6,
-    "startedAt": "2026-04-29T16:50:46.461Z"
+    "taskId": "TASK-007",
+    "taskTitle": "Re-run profile post-tuning and commit iteration-5 final snapshot",
+    "iterationNumber": 7,
+    "startedAt": "2026-04-29T16:51:43.722Z"
   }
 }

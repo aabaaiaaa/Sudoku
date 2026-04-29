@@ -1,8 +1,8 @@
 # Tier distribution
 
 - Variants: classic, six, mini
-- Generated: 2026-04-29T16:41:21.567Z
-- Total runtime: 2.1s
+- Generated: 2026-04-29T16:53:03.028Z
+- Total runtime: 1.9s
 - N per cell: 20
 
 ## classic — clueFloor=38 (Easy.lower)

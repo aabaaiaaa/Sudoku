@@ -46,7 +46,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm test -- src/engine/solver/techniques/tier-fixtures.test.ts` passes. Inspecting the test source shows both `difficulty` and `solved` are asserted in the round-trip loop.
 
 ### TASK-007: Re-run profile post-tuning and commit iteration-5 final snapshot
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-006
 - **Description**: Implement requirements §10. Run `npm run profile-tiers -- --all-tiers --n=20` and commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json` (overwriting the TASK-002 baseline). This is the iteration-5 **final** snapshot, reflecting the state shipping with this iteration (post lever-1 widening, post any tier restorations). Verify that every cell now in `availableTiers(variant)` has `rate ≥ 0.05` in the new summary; if any restored tier dropped below 5% due to seed-range variance, revert that tier's restoration in `VARIANT_TIERS` and re-run.
