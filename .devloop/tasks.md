@@ -95,7 +95,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm run build` succeeds (the script runs `tsc -b && vite build`). The `dist/` directory contains a built `index.html` and asset bundles.
 
 ### TASK-014: Full E2E sweep on Chromium and WebKit
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-013
 - **Description**: Run the full Playwright suite on both Chromium and WebKit to confirm the strict difficulty matrix passes for the (possibly larger) `availableTiers` set, and that the `__sudokuGameStore`-consuming specs still pass against `vite dev`.
