@@ -119,6 +119,30 @@ describe('GenerationFailedDialog', () => {
     expect(getByTestId('generation-failed-cancel')).toBeTruthy();
   });
 
+  it('renders failure.lastError as a muted technical-details line when present', () => {
+    const store = createGameStore('classic');
+    store.setState({
+      generationFailure: {
+        ...makeFailure('Demonic'),
+        lastError: 'Solver bailed out: cells exhausted',
+      },
+    });
+
+    const { getByTestId } = render(<GenerationFailedDialog store={store} />);
+
+    const errEl = getByTestId('failure-last-error');
+    expect(errEl.textContent).toBe('Solver bailed out: cells exhausted');
+  });
+
+  it('does not render failure.lastError when it is absent', () => {
+    const store = createGameStore('classic');
+    store.setState({ generationFailure: makeFailure('Demonic') });
+
+    const { queryByTestId } = render(<GenerationFailedDialog store={store} />);
+
+    expect(queryByTestId('failure-last-error')).toBeNull();
+  });
+
   it('handles a lowercase difficulty value (Home picker convention) for the heading', () => {
     const store = createGameStore('classic');
     store.setState({

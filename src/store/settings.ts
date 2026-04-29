@@ -3,8 +3,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type Theme = 'light' | 'dark' | 'notepad' | 'space';
 
-export const SETTINGS_STORAGE_KEY = 'sudoku.settings.v2';
-export const SETTINGS_SCHEMA_VERSION = 2;
+export const SETTINGS_STORAGE_KEY = 'sudoku.settings.v3';
+export const SETTINGS_SCHEMA_VERSION = 3;
 
 export interface SettingsState {
   theme: Theme;

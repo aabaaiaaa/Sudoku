@@ -207,9 +207,9 @@ describe('stats store', () => {
     expect(entries[entryKey('mini', 'hard')].gamesCompleted).toBe(0);
   });
 
-  it('uses the v2 storage key and bumped schema version', () => {
-    expect(STATS_STORAGE_KEY).toBe('sudoku.stats.v2');
-    expect(STATS_SCHEMA_VERSION).toBe(2);
+  it('uses the v3 storage key and bumped schema version', () => {
+    expect(STATS_STORAGE_KEY).toBe('sudoku.stats.v3');
+    expect(STATS_SCHEMA_VERSION).toBe(3);
   });
 
   it('silently ignores legacy v1 entries on load', () => {
@@ -236,12 +236,12 @@ describe('stats store', () => {
     const store = createStatsStore();
     const easy = store.getState().entries[entryKey('classic', 'easy')];
 
-    // The v1 payload is sitting under the old key, but the v2 store starts fresh.
+    // The v1 payload is sitting under the old key, but the v3 store starts fresh.
     expect(easy.gamesCompleted).toBe(0);
     expect(easy.bestTimeMs).toBeNull();
   });
 
-  it('stamps writes with the current appVersion under the v2 key', () => {
+  it('stamps writes with the current appVersion under the v3 key', () => {
     const store = createStatsStore();
     store.getState().recordCompletion({
       variant: 'classic',

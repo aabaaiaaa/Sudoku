@@ -112,6 +112,14 @@ export function GenerationFailedDialog({
             Cancel
           </button>
         </div>
+        {failure.lastError && (
+          <p
+            data-testid="failure-last-error"
+            className="text-xs opacity-70 mt-2 break-words"
+          >
+            {failure.lastError}
+          </p>
+        )}
       </div>
     </div>
   );

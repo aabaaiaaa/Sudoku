@@ -69,9 +69,9 @@ describe('settings store', () => {
     expect(store.getState().theme).toBe('notepad');
   });
 
-  it('uses the v2 storage key and bumped schema version', () => {
-    expect(SETTINGS_STORAGE_KEY).toBe('sudoku.settings.v2');
-    expect(SETTINGS_SCHEMA_VERSION).toBe(2);
+  it('uses the v3 storage key and bumped schema version', () => {
+    expect(SETTINGS_STORAGE_KEY).toBe('sudoku.settings.v3');
+    expect(SETTINGS_SCHEMA_VERSION).toBe(3);
   });
 
   it('silently ignores legacy v1 entries on load', () => {
@@ -85,12 +85,12 @@ describe('settings store', () => {
 
     const store = createSettingsStore();
 
-    // The v1 payload sits under the old key; the v2 store starts fresh.
+    // The v1 payload sits under the old key; the v3 store starts fresh.
     expect(store.getState().theme).toBe('light');
     expect(store.getState().followSystem).toBe(false);
   });
 
-  it('stamps writes with the current appVersion under the v2 key', () => {
+  it('stamps writes with the current appVersion under the v3 key', () => {
     const store = createSettingsStore();
     store.getState().setTheme('notepad');
 

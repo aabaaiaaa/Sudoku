@@ -45,7 +45,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
 
 ### TASK-007: Render lastError in GenerationFailedDialog
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: In `src/components/GenerationFailedDialog.tsx`, when the `failure.lastError` is non-empty render a small muted technical-details line below the existing buttons (e.g. `<p data-testid="failure-last-error" className="text-xs opacity-70 mt-2 break-words">`). Always visible — no toggle. See requirements §4.1, §10.
 - **Verification**: `npx vitest run src/components/GenerationFailedDialog.test.tsx` passes including a new case asserting `lastError` is rendered when present and not rendered when null.
@@ -135,7 +135,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/components/ConfirmDialog.test.tsx` passes — covers render with open=true/false, click handlers fire correctly.
 
 ### TASK-020: Define save schema v3 storage shape
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/store/save.ts`, change `SAVE_STORAGE_KEY` from `sudoku.save.v2` to `sudoku.save.v3`, `SAVE_SCHEMA_VERSION` to 3. Add a `slotKey(variantId, difficulty)` helper that returns `${variantId}:${difficultySlug}`. Internal `saves` map stays a `Record<string, SavedGame>` but is now keyed by slot. Update `loadSaveFile` to skip mismatched versions (existing pattern). The existing tests in `save.test.ts` use the v2-keyed signatures and will fail after this change — that is expected and is repaired in TASK-021. See requirements §5.1.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-021, which lands in the same commit chain immediately after.
@@ -147,13 +147,13 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/store/save.test.ts` passes.
 
 ### TASK-022: Bump stats schema to v3
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/store/stats.ts`, bump the storage key from `sudoku.stats.v2` to `sudoku.stats.v3` and `SCHEMA_VERSION` to 3. No structural change beyond the key bump and a fresh `appVersion` stamp at write time. Update existing tests. See requirements §5.1.
 - **Verification**: `npx vitest run src/store/stats.test.ts` passes.
 
 ### TASK-023: Bump settings schema to v3
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: In `src/store/settings.ts`, bump the storage key from `sudoku.settings.v2` to `sudoku.settings.v3` and `SCHEMA_VERSION` to 3. No structural change. Update existing tests. See requirements §5.1.
 - **Verification**: `npx vitest run src/store/settings.test.ts` passes.
@@ -183,7 +183,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx` passes.
 
 ### TASK-028: Migration detector for old localStorage keys
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Create `src/store/migration.ts` exporting `hasOldSaves(storage?: Storage): boolean` and `removeOldSaves(storage?: Storage): void`. The detector enumerates `localStorage` keys and returns true iff any matches `^sudoku\.(save|stats|settings)\.v[12]$`. The remover deletes every matching key. See requirements §5.5.
 - **Verification**: `npx vitest run src/store/migration.test.ts` passes — covers detection of mixed v1/v2 entries, no-op when only v3 entries, and removal correctness.

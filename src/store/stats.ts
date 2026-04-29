@@ -3,8 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { variants } from '../engine/variants';
 import { availableTiers } from '../engine/generator/variant-tiers';
 
-export const STATS_STORAGE_KEY = 'sudoku.stats.v2';
-export const STATS_SCHEMA_VERSION = 2;
+export const STATS_STORAGE_KEY = 'sudoku.stats.v3';
+export const STATS_SCHEMA_VERSION = 3;
 
 export interface StatsEntry {
   gamesCompleted: number;
