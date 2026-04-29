@@ -1,7 +1,16 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { classicVariant } from '../engine/variants';
+import { createEmptyBoard, type Board } from '../engine/types';
 import { createGameStore, type GeneratorFactory } from './game';
 import type { GenResult, GeneratorHandle } from '../workers/generator-client';
+import {
+  getSavedGame,
+  hasSavedGame,
+  loadSaveFile,
+  putSavedGame,
+  slotKey,
+  type SavedGame,
+} from './save';
 
 /**
  * Generator stub that resolves immediately with the supplied result, never
@@ -27,7 +36,56 @@ function stubGenerator(
   };
 }
 
+/**
+ * Generator stub that resolves with a `success` result built around an empty
+ * board for the supplied variant, exercising the save-write path of `newGame`.
+ */
+function stubSuccessGenerator(): GeneratorFactory {
+  return (variant) => {
+    const board: Board = createEmptyBoard(variant);
+    const result: GenResult = {
+      kind: 'success',
+      puzzle: board,
+      solution: board,
+      rating: {
+        difficulty: 'Easy',
+        hardestTechnique: null,
+        techniquesUsed: [],
+        solved: true,
+        clueCount: 0,
+      },
+    };
+    const handle: GeneratorHandle = {
+      promise: Promise.resolve(result),
+      cancel: () => {},
+      onProgress: () => {},
+    };
+    return handle;
+  };
+}
+
+function makeSavedGame(overrides: Partial<SavedGame> = {}): SavedGame {
+  return {
+    variant: 'classic',
+    difficulty: 'easy',
+    cells: [
+      [
+        { value: 5, notes: [], given: true },
+        { value: null, notes: [1, 3, 7], given: false },
+      ],
+    ],
+    mistakes: 0,
+    elapsedMs: 0,
+    savedAt: 1_700_000_000_000,
+    ...overrides,
+  };
+}
+
 describe('game store', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   describe('placeDigit', () => {
     it('auto-removes the placed digit from pencil marks of peer cells', () => {
       const store = createGameStore(classicVariant);
@@ -131,7 +189,7 @@ describe('game store', () => {
       // Run the timer a bit.
       store.getState().resume();
 
-      await store.getState().newGame(classicVariant);
+      await store.getState().newGame(classicVariant, 'easy');
       expect(store.getState().mistakes).toBe(0);
       expect(store.getState().timer.accumulatedMs).toBe(0);
       expect(store.getState().timer.startTs).toBeNull();
@@ -141,8 +199,173 @@ describe('game store', () => {
 
     it('accepts a variant id string', async () => {
       const store = createGameStore(classicVariant, { generator: stubGenerator() });
-      await store.getState().newGame('mini');
+      await store.getState().newGame('mini', 'easy');
       expect(store.getState().board.variant.id).toBe('mini');
+    });
+
+    it('writes a save snapshot to the (variant, difficulty) slot on success', async () => {
+      const store = createGameStore(classicVariant, {
+        generator: stubSuccessGenerator(),
+      });
+
+      await store.getState().newGame(classicVariant, 'medium');
+
+      // The new game wrote into the (classic, medium) slot.
+      expect(hasSavedGame('classic', 'medium')).toBe(true);
+      const saved = getSavedGame('classic', 'medium');
+      expect(saved).not.toBeNull();
+      expect(saved!.variant).toBe('classic');
+      expect(saved!.difficulty).toBe('medium');
+    });
+
+    it('starting a new game in one (variant, difficulty) slot leaves other slots untouched', async () => {
+      // Two pre-existing saves for the same variant at different difficulties.
+      const classicEasy = makeSavedGame({
+        variant: 'classic',
+        difficulty: 'easy',
+        mistakes: 1,
+        savedAt: 1_700_000_000_000,
+      });
+      const classicHard = makeSavedGame({
+        variant: 'classic',
+        difficulty: 'hard',
+        mistakes: 4,
+        savedAt: 1_700_000_500_000,
+      });
+      putSavedGame(classicEasy);
+      putSavedGame(classicHard);
+
+      // Start a brand-new game in a third slot for the same variant.
+      const store = createGameStore(classicVariant, {
+        generator: stubSuccessGenerator(),
+      });
+      await store.getState().newGame(classicVariant, 'medium');
+
+      // All three slots should now coexist in the save file.
+      const file = loadSaveFile();
+      expect(Object.keys(file.saves).sort()).toEqual([
+        slotKey('classic', 'easy'),
+        slotKey('classic', 'hard'),
+        slotKey('classic', 'medium'),
+      ]);
+
+      // The pre-existing saves are unchanged — same mistakes and savedAt.
+      const easy = getSavedGame('classic', 'easy');
+      const hard = getSavedGame('classic', 'hard');
+      expect(easy).not.toBeNull();
+      expect(easy!.mistakes).toBe(1);
+      expect(easy!.savedAt).toBe(1_700_000_000_000);
+      expect(hard).not.toBeNull();
+      expect(hard!.mistakes).toBe(4);
+      expect(hard!.savedAt).toBe(1_700_000_500_000);
+
+      // The newly-created slot exists too.
+      expect(getSavedGame('classic', 'medium')).not.toBeNull();
+    });
+  });
+
+  describe('resumeSavedGame', () => {
+    it('restores the saved game for the given (variant, difficulty) slot', () => {
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
+
+      const saved = makeSavedGame({
+        variant: 'classic',
+        difficulty: 'hard',
+        cells: createEmptyBoard(classicVariant).cells.map((row) =>
+          row.map((cell) => ({
+            value: cell.value,
+            notes: [],
+            given: cell.given,
+          })),
+        ),
+        mistakes: 3,
+        elapsedMs: 12_000,
+      });
+      putSavedGame(saved);
+
+      const ok = store.getState().resumeSavedGame('classic', 'hard');
+      expect(ok).toBe(true);
+      expect(store.getState().mistakes).toBe(3);
+      expect(store.getState().timer.accumulatedMs).toBe(12_000);
+      expect(store.getState().difficulty).toBe('hard');
+    });
+
+    it('returns false when no save exists for the given slot', () => {
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
+
+      // A save in a *different* slot for the same variant must not satisfy the
+      // resume call.
+      putSavedGame(
+        makeSavedGame({
+          variant: 'classic',
+          difficulty: 'easy',
+          cells: createEmptyBoard(classicVariant).cells.map((row) =>
+            row.map((cell) => ({
+              value: cell.value,
+              notes: [],
+              given: cell.given,
+            })),
+          ),
+        }),
+      );
+
+      const ok = store.getState().resumeSavedGame('classic', 'hard');
+      expect(ok).toBe(false);
+    });
+  });
+
+  describe('hasSavedGame', () => {
+    it('returns true only for the slot that was written', () => {
+      const store = createGameStore(classicVariant, { generator: stubGenerator() });
+
+      putSavedGame(makeSavedGame({ variant: 'classic', difficulty: 'easy' }));
+
+      expect(store.getState().hasSavedGame('classic', 'easy')).toBe(true);
+      expect(store.getState().hasSavedGame('classic', 'hard')).toBe(false);
+      expect(store.getState().hasSavedGame('mini', 'easy')).toBe(false);
+    });
+  });
+
+  describe('saveCurrent', () => {
+    it('writes a snapshot to the slot for the current (variant, difficulty)', async () => {
+      const store = createGameStore(classicVariant, {
+        generator: stubSuccessGenerator(),
+      });
+      await store.getState().newGame(classicVariant, 'medium');
+
+      // Place a digit so the save snapshot has something distinctive.
+      store.getState().select({ row: 0, col: 0 });
+      store.getState().placeDigit(7);
+
+      const saved = getSavedGame('classic', 'medium');
+      expect(saved).not.toBeNull();
+      expect(saved!.variant).toBe('classic');
+      expect(saved!.difficulty).toBe('medium');
+      expect(saved!.cells[0][0].value).toBe(7);
+    });
+  });
+
+  describe('completeGame', () => {
+    it('clears only the current (variant, difficulty) slot', async () => {
+      // Pre-existing save in a different slot for the same variant.
+      putSavedGame(
+        makeSavedGame({ variant: 'classic', difficulty: 'easy', mistakes: 9 }),
+      );
+
+      const store = createGameStore(classicVariant, {
+        generator: stubSuccessGenerator(),
+      });
+      await store.getState().newGame(classicVariant, 'hard');
+      expect(getSavedGame('classic', 'hard')).not.toBeNull();
+
+      store.getState().completeGame();
+
+      // Only the (classic, hard) slot was cleared; the (classic, easy) slot
+      // remains intact.
+      expect(getSavedGame('classic', 'hard')).toBeNull();
+      const easy = getSavedGame('classic', 'easy');
+      expect(easy).not.toBeNull();
+      expect(easy!.mistakes).toBe(9);
     });
   });
 

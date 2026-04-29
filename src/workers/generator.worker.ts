@@ -1,3 +1,17 @@
+/**
+ * Slow-generate test hatch (requirements §9.3): the inbound `GenerateRequest`
+ * carries an optional `slowGenerateMs` field. When set to a positive integer
+ * the worker awaits that many milliseconds before invoking the generator,
+ * letting deterministic E2E tests observe the loading overlay and cancel
+ * affordances without depending on the wall-clock cost of real generation.
+ *
+ * The hatch is read from `window.location.search` on the main thread (a
+ * worker's `self.location` is the worker URL, not the page URL, so the
+ * worker cannot read the page query string itself) and forwarded here only
+ * in DEV builds — see `src/workers/generator-client.ts`.
+ *
+ * Consumer: `tests/e2e/difficulty-loading.spec.ts`.
+ */
 import {
   generateForDifficulty,
   type GenerateForDifficultyResult,
@@ -14,6 +28,13 @@ export interface GenerateRequest {
   type: 'generate';
   variantId: string;
   difficulty: Difficulty;
+  /**
+   * Optional test hatch (requirements §9.3). When set to a positive integer,
+   * the worker `await`s `setTimeout(..., slowGenerateMs)` once before
+   * invoking `generateForDifficulty`. Silently ignored otherwise. Only ever
+   * forwarded by the main-thread client in DEV builds; see file header.
+   */
+  slowGenerateMs?: number;
 }
 
 export type WorkerRequest = GenerateRequest;
@@ -79,6 +100,10 @@ const ctx = self as unknown as WorkerScope;
 let busy = false;
 
 ctx.addEventListener('message', (event) => {
+  void handleMessage(event);
+});
+
+async function handleMessage(event: { data: WorkerRequest }): Promise<void> {
   const data = event.data;
   if (!data || data.type !== 'generate') {
     const received = (data as { type?: unknown } | null | undefined)?.type;
@@ -108,6 +133,19 @@ ctx.addEventListener('message', (event) => {
 
   busy = true;
   try {
+    // Test hatch (requirements §9.3): pause before generating so E2E tests can
+    // deterministically observe the loading overlay and cancel button. Only
+    // honoured when the field is a positive finite integer.
+    const slowMs = data.slowGenerateMs;
+    if (
+      typeof slowMs === 'number' &&
+      Number.isFinite(slowMs) &&
+      Number.isInteger(slowMs) &&
+      slowMs > 0
+    ) {
+      await new Promise<void>((resolve) => setTimeout(resolve, slowMs));
+    }
+
     const result: GenerateForDifficultyResult = generateForDifficulty(
       variant,
       data.difficulty,
@@ -149,4 +187,4 @@ ctx.addEventListener('message', (event) => {
   } finally {
     busy = false;
   }
-});
+}

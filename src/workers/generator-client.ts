@@ -1,3 +1,15 @@
+/**
+ * Slow-generate test hatch (requirements §9.3): when a `?slowGenerate=N`
+ * query parameter is present on the page URL during a DEV build, the request
+ * posted to the worker carries a `slowGenerateMs: N` field which makes the
+ * worker pause for N milliseconds before generating. This lets deterministic
+ * E2E tests observe the loading overlay and cancel button without depending
+ * on the wall-clock cost of real generation. The reader is gated by
+ * `import.meta.env.DEV` so the entire branch — and thus any `window.location`
+ * access — is dead-code-eliminated by Vite in production builds.
+ *
+ * Consumer: `tests/e2e/difficulty-loading.spec.ts`.
+ */
 import type { Difficulty, RateResult } from '../engine/generator/rate';
 import type { Board, Variant } from '../engine/types';
 import type { WorkerMessage, WorkerRequest } from './generator.worker';
@@ -150,7 +162,17 @@ export function generateInWorker(
     };
 
     worker.addEventListener('message', handler);
-    worker.postMessage({ type: 'generate', variantId, difficulty });
+
+    const request: WorkerRequest = { type: 'generate', variantId, difficulty };
+    // Slow-generate test hatch: read `?slowGenerate=N` from the page URL in
+    // DEV builds only. The `import.meta.env.DEV` guard ensures Vite strips
+    // this entire branch — including the `window.location` read — from
+    // production bundles. See file header for context.
+    if (import.meta.env.DEV) {
+      const m = /[?&]slowGenerate=(\d+)/.exec(window.location.search);
+      if (m) request.slowGenerateMs = Number(m[1]);
+    }
+    worker.postMessage(request);
 
     cancel = () => finish({ kind: 'cancelled' });
   });

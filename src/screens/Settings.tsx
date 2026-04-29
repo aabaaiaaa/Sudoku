@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { settingsStore, type Theme } from '../store/settings';
 import { themes } from '../themes';
 import { hasOldSaves, removeOldSaves } from '../store/migration';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { usePwaUpdate } from '../pwa/useUpdate';
+
+type CheckForUpdates = () => Promise<'updated' | 'idle' | 'error'>;
 
 interface SettingsProps {
   store?: typeof settingsStore;
+  /**
+   * Optional override for the PWA update check, primarily for testing. When
+   * not provided, falls back to the `usePwaUpdate` hook.
+   */
+  checkForUpdates?: CheckForUpdates;
 }
+
+type UpdatesButtonState = 'idle' | 'checking' | 'up-to-date' | 'error';
 
 const themeOrder: Theme[] = ['light', 'dark', 'notepad', 'space'];
 
@@ -82,7 +92,10 @@ function ThemePreview({ theme }: { theme: Theme }) {
   );
 }
 
-export function Settings({ store = settingsStore }: SettingsProps) {
+export function Settings({
+  store = settingsStore,
+  checkForUpdates: checkForUpdatesProp,
+}: SettingsProps) {
   const theme = useStore(store, (s) => s.theme);
   const followSystem = useStore(store, (s) => s.followSystem);
   const setTheme = useStore(store, (s) => s.setTheme);
@@ -90,6 +103,63 @@ export function Settings({ store = settingsStore }: SettingsProps) {
 
   const [hasOld, setHasOld] = useState(() => hasOldSaves());
   const [confirmRemove, setConfirmRemove] = useState(false);
+
+  // Always call the hook so the rules-of-hooks invariant holds; prefer the
+  // injected prop when one is supplied (tests can avoid driving the SW
+  // registration this way).
+  const hookUpdate = usePwaUpdate();
+  const checkForUpdates: CheckForUpdates =
+    checkForUpdatesProp ?? hookUpdate.checkForUpdates;
+
+  const [updatesState, setUpdatesState] =
+    useState<UpdatesButtonState>('idle');
+  const revertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (revertTimerRef.current !== null) {
+        clearTimeout(revertTimerRef.current);
+        revertTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleCheckForUpdates = async () => {
+    if (updatesState === 'checking') return;
+    if (revertTimerRef.current !== null) {
+      clearTimeout(revertTimerRef.current);
+      revertTimerRef.current = null;
+    }
+    setUpdatesState('checking');
+    let result: 'updated' | 'idle' | 'error';
+    try {
+      result = await checkForUpdates();
+    } catch {
+      result = 'error';
+    }
+    if (result === 'updated') {
+      // The update banner handles the user-facing notification, so we just
+      // return the button to its default label.
+      setUpdatesState('idle');
+      return;
+    }
+    const next: UpdatesButtonState =
+      result === 'idle' ? 'up-to-date' : 'error';
+    setUpdatesState(next);
+    revertTimerRef.current = setTimeout(() => {
+      revertTimerRef.current = null;
+      setUpdatesState('idle');
+    }, 2000);
+  };
+
+  const updatesButtonLabel =
+    updatesState === 'checking'
+      ? 'Checking…'
+      : updatesState === 'up-to-date'
+        ? 'Up to date'
+        : updatesState === 'error'
+          ? "Couldn't check — try again"
+          : 'Check for updates';
 
   const version =
     typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '0.0.0';
@@ -133,6 +203,21 @@ export function Settings({ store = settingsStore }: SettingsProps) {
           />
           <span>Follow system theme</span>
         </label>
+      </section>
+
+      <section data-testid="settings-updates" className="space-y-2">
+        <h2 className="text-lg font-medium">Updates</h2>
+        <button
+          type="button"
+          data-testid="settings-check-updates"
+          onClick={() => {
+            void handleCheckForUpdates();
+          }}
+          disabled={updatesState === 'checking'}
+          className="btn"
+        >
+          {updatesButtonLabel}
+        </button>
       </section>
 
       {hasOld && (

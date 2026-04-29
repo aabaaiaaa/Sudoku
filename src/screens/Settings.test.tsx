@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createSettingsStore } from '../store/settings';
 import { Settings } from './Settings';
 
@@ -111,5 +111,115 @@ describe('Settings screen', () => {
     const { queryByTestId } = render(<Settings store={store} />);
 
     expect(queryByTestId('settings-remove-old-saves')).toBeNull();
+  });
+
+  describe('Updates section', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('renders the Check for updates button by default', () => {
+      const store = createSettingsStore();
+      const { getByTestId } = render(<Settings store={store} />);
+
+      const button = getByTestId('settings-check-updates');
+      expect(button.textContent).toBe('Check for updates');
+    });
+
+    it('shows "Checking…" while the check is in flight', async () => {
+      const store = createSettingsStore();
+      let resolve!: (value: 'updated' | 'idle' | 'error') => void;
+      const checkForUpdates = vi.fn(
+        () =>
+          new Promise<'updated' | 'idle' | 'error'>((r) => {
+            resolve = r;
+          }),
+      );
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+      fireEvent.click(button);
+
+      expect(button.textContent).toBe('Checking…');
+      expect((button as HTMLButtonElement).disabled).toBe(true);
+
+      // Resolve so we don't leak the pending promise into the next test.
+      await act(async () => {
+        resolve('idle');
+      });
+    });
+
+    it('shows "Up to date" then reverts after 2s when result is "idle"', async () => {
+      vi.useFakeTimers();
+      const store = createSettingsStore();
+      const checkForUpdates = vi.fn().mockResolvedValue('idle' as const);
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+
+      await act(async () => {
+        fireEvent.click(button);
+        // Let the resolved promise's then-callback run.
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(button.textContent).toBe('Up to date');
+
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(button.textContent).toBe('Check for updates');
+    });
+
+    it('returns to default label without "Up to date" when result is "updated"', async () => {
+      const store = createSettingsStore();
+      const checkForUpdates = vi.fn().mockResolvedValue('updated' as const);
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(button.textContent).toBe('Check for updates');
+      });
+      expect(checkForUpdates).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows "Couldn\'t check — try again" then reverts after 2s when result is "error"', async () => {
+      vi.useFakeTimers();
+      const store = createSettingsStore();
+      const checkForUpdates = vi.fn().mockResolvedValue('error' as const);
+
+      const { getByTestId } = render(
+        <Settings store={store} checkForUpdates={checkForUpdates} />,
+      );
+
+      const button = getByTestId('settings-check-updates');
+
+      await act(async () => {
+        fireEvent.click(button);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(button.textContent).toBe("Couldn't check — try again");
+
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(button.textContent).toBe('Check for updates');
+    });
   });
 });

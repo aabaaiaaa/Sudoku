@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import { DIFFICULTY_ORDER, type Difficulty } from '../engine/generator/rate';
+import { useFocusTrap } from './useFocusTrap';
 
 interface GenerationFailedDialogProps {
   /** Optional game store override, primarily for tests. */
@@ -43,6 +45,17 @@ export function GenerationFailedDialog({
   const difficulty = useStore(store, (s) => s.difficulty);
   const newGame = useStore(store, (s) => s.newGame);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  const handleCancel = () => {
+    store.setState({ generationFailure: null });
+    onCancel?.();
+  };
+
+  // Hook must run unconditionally; pass `failure != null` so it activates
+  // exactly when the dialog is rendered.
+  useFocusTrap(failure != null, dialogRef, handleCancel);
+
   if (!failure) return null;
 
   const targetLabel = tierLabel(failure.difficulty);
@@ -60,13 +73,9 @@ export function GenerationFailedDialog({
     newGame(variant, easierTier.toLowerCase());
   };
 
-  const handleCancel = () => {
-    store.setState({ generationFailure: null });
-    onCancel?.();
-  };
-
   return (
     <div
+      ref={dialogRef}
       data-testid="generation-failed-dialog"
       role="dialog"
       aria-modal="true"

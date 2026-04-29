@@ -225,4 +225,61 @@ describe('GenerationFailedDialog', () => {
       expect(store.getState().generationFailure).toBeNull();
     });
   });
+
+  describe('focus management', () => {
+    it('Escape closes the dialog and invokes onCancel', () => {
+      const store = createGameStore('classic');
+      store.setState({ generationFailure: makeFailure('Demonic') });
+      const onCancel = vi.fn();
+
+      const { queryByTestId } = render(
+        <GenerationFailedDialog store={store} onCancel={onCancel} />,
+      );
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      expect(onCancel).toHaveBeenCalledTimes(1);
+      expect(store.getState().generationFailure).toBeNull();
+      expect(queryByTestId('generation-failed-dialog')).toBeNull();
+    });
+
+    it('focuses the first action button when the dialog opens', () => {
+      const store = createGameStore('classic');
+      store.setState({ generationFailure: makeFailure('Demonic') });
+
+      const { getByTestId } = render(<GenerationFailedDialog store={store} />);
+
+      // First focusable button is "Try again".
+      expect(document.activeElement).toBe(
+        getByTestId('generation-failed-try-again'),
+      );
+    });
+
+    it('restores focus to the previously-focused element after closing', () => {
+      // Stage a focusable element outside the dialog.
+      const trigger = document.createElement('button');
+      trigger.setAttribute('data-testid', 'external-trigger');
+      document.body.appendChild(trigger);
+      trigger.focus();
+      expect(document.activeElement).toBe(trigger);
+
+      const store = createGameStore('classic');
+      store.setState({ generationFailure: makeFailure('Demonic') });
+
+      const { getByTestId } = render(<GenerationFailedDialog store={store} />);
+
+      // Trap moved focus into the dialog.
+      expect(document.activeElement).toBe(
+        getByTestId('generation-failed-try-again'),
+      );
+
+      // Cancelling clears the failure → the dialog returns null and the trap
+      // deactivates, restoring focus to `trigger`.
+      fireEvent.click(getByTestId('generation-failed-cancel'));
+
+      expect(document.activeElement).toBe(trigger);
+
+      trigger.remove();
+    });
+  });
 });

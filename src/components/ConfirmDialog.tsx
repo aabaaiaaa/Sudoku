@@ -2,8 +2,14 @@
  * `<ConfirmDialog>` is the in-app replacement for `window.confirm`, used by
  * `<Home>` for save-replacement prompts and by `<App>` for the migration
  * prompt (requirements §5.4).
+ *
+ * Focus is trapped inside the dialog while it's open and restored to the
+ * previously-focused element on close (requirements §10). Escape triggers
+ * the cancel action.
  */
+import { useRef } from 'react';
 import type React from 'react';
+import { useFocusTrap } from './useFocusTrap';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -24,10 +30,14 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, dialogRef, onCancel);
+
   if (!open) return null;
 
   return (
     <div
+      ref={dialogRef}
       data-testid="confirm-dialog"
       role="dialog"
       aria-modal="true"

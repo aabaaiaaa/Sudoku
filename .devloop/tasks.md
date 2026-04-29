@@ -165,7 +165,7 @@ their early prerequisites land.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-025, which lands in the same commit chain immediately after.
 
 ### TASK-025: Update game store tests for slot signatures
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-024
 - **Description**: Update `src/store/game.test.ts` cases that exercise resume/complete/save flows to pass difficulty alongside variant. Add a new test asserting two simultaneous saves for the same variant but different difficulties coexist after `newGame` is called for a third (variant, difficulty) collision. See requirements §5.2.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
@@ -225,7 +225,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/pwa/useUpdate.test.ts` passes including a case asserting the resolved status values for each scenario.
 
 ### TASK-035: Settings — Updates section with Check for updates button
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-034
 - **Description**: In `src/screens/Settings.tsx`, add an "Updates" section with a single button. Label cycles based on the resolved status from `checkForUpdates`:
   - **Check for updates** (idle, default) → **Checking…** (while the promise is in flight) →
@@ -236,7 +236,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/screens/Settings.test.tsx` passes including new cases for each of the three result states (`'idle'`, `'updated'`, `'error'`).
 
 ### TASK-036: Slow-generate test hatch — request payload + main-thread plumbing
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004, TASK-005
 - **Description**: The hatch must flow page → main thread → worker; a Web Worker's `self.location` is the worker file URL, not the page URL, so the worker cannot read the query string itself. Implementation:
   1. In `src/workers/generator.worker.ts`, extend `GenerateRequest` with an optional `slowGenerateMs?: number`. On receipt, when the field is a positive integer, `await new Promise(r => setTimeout(r, slowGenerateMs))` once **before** invoking `generateForDifficulty`. Field is silently ignored otherwise.
@@ -252,13 +252,13 @@ their early prerequisites land.
 - **Verification**: `npx playwright test difficulty-loading.spec.ts --project=chromium` passes. The test should not be `.skip`'d.
 
 ### TASK-038: Focus management on dialogs
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-007, TASK-019
 - **Description**: Create `src/components/useFocusTrap.ts` exporting a hook that, when active, traps Tab focus within a container element and returns focus to the previously-focused element on deactivation. Apply it in both `<ConfirmDialog>` and `<GenerationFailedDialog>`. Add a keyboard handler for Escape that triggers the cancel/dismiss action. The dependency on TASK-007 is sequencing-only: both tasks edit `GenerationFailedDialog.tsx`, so doing them in order avoids a merge conflict. See requirements §10.
 - **Verification**: `npx vitest run src/components/useFocusTrap.test.ts src/components/ConfirmDialog.test.tsx src/components/GenerationFailedDialog.test.tsx` passes — covers Tab cycling, Escape closing, and focus restoration.
 
 ### TASK-039: useDebouncedFlag unit test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: none
 - **Description**: Create `src/hooks/useDebouncedFlag.test.ts` (or wherever `useDebouncedFlag.ts` resides) that uses `vi.useFakeTimers()` to verify the hook never returns true before `ms` ms have elapsed and returns false instantly when the source flag flips false. Cover edge cases: flag flipping true then false within the debounce window. See requirements §9.6.
 - **Verification**: `npx vitest run src/hooks/useDebouncedFlag.test.ts` (or correct path) passes.
