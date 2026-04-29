@@ -3,35 +3,32 @@ import { availableTiers } from './variant-tiers';
 import { classicVariant, miniVariant, sixVariant } from '../variants';
 
 describe('availableTiers', () => {
-  it('returns all eight tiers for Classic', () => {
+  it('returns the post-tuning classic tier list (Hard and Master descoped)', () => {
+    // Iteration 4 §6 third lever: classic:Hard and classic:Master had rate=0
+    // in the baseline summary and could not be rescued by levers 1 or 2.
     expect(availableTiers(classicVariant)).toEqual([
       'Easy',
       'Medium',
-      'Hard',
       'Expert',
-      'Master',
       'Diabolical',
       'Demonic',
       'Nightmare',
     ]);
   });
 
-  it('caps Six at Diabolical (six tiers)', () => {
-    expect(availableTiers(sixVariant)).toEqual([
-      'Easy',
-      'Medium',
-      'Hard',
-      'Expert',
-      'Master',
-      'Diabolical',
-    ]);
+  it('reduces Six to Easy only after iteration 4 tuning', () => {
+    // Baseline summary showed Medium/Hard/Expert/Master/Diabolical all at
+    // rate=0 on the 6x6 grid; only Easy reaches usable rate.
+    expect(availableTiers(sixVariant)).toEqual(['Easy']);
   });
 
-  it('caps Mini at Hard (three tiers)', () => {
-    expect(availableTiers(miniVariant)).toEqual(['Easy', 'Medium', 'Hard']);
+  it('reduces Mini to Easy only after iteration 4 tuning', () => {
+    // Baseline summary showed Medium/Hard at rate=0 on the 4x4 grid; only
+    // Easy reaches usable rate.
+    expect(availableTiers(miniVariant)).toEqual(['Easy']);
   });
 
-  it('returns tiers in ascending difficulty order', () => {
+  it('returns tiers starting at Easy', () => {
     for (const variant of [classicVariant, miniVariant, sixVariant]) {
       const tiers = availableTiers(variant);
       expect(tiers[0]).toBe('Easy');

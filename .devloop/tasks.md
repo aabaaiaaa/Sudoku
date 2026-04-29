@@ -44,7 +44,7 @@ is actually fixed.
 - **Verification**: `! grep -rn "maxClues" src tests && npx vitest run src/engine/generator/`
 
 ### TASK-007: Apply data-driven tuning per baseline `tier-distribution.summary.json`
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-006
 - **Description**: Read `scripts/tier-distribution.summary.json` (committed in TASK-003). For each entry where `advertised: true` and `rate < 0.05`, apply tuning per requirements §6: (a) **first lever** — compute `N = ceil(log(0.002) / log(1 - rate))`. If `N ≤ 200`, set `MAX_ATTEMPTS_BY_TIER[tier] = N`. If `N > 200`, fall to lever 2 (the practical breakpoint is approximately rate=0.031). (b) **second lever** — lower `clueBoundsLowerForTier(variant, tier)` toward the inner edge of `CLUE_BOUNDS[tier]`. (c) **third lever** — if neither lever helps, remove the tier from `availableTiers(variant)` (in `variant-tiers.ts`). Each change must reference the summary entry that justified it (in code comment OR commit message). This task makes the changes; TASK-008 verifies them by re-profiling.
 - **Verification**: `npx vitest run src/engine/generator/` (sanity check unit suite still compiles and existing non-skipped cases pass)
