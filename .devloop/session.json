@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 4,
+  "lastIteration": 5,
   "startedAt": "2026-04-29T20:15:28.692Z",
   "iteration": 5,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-011",
-    "taskTitle": "Re-run final profile and commit iteration-6 final snapshot",
-    "iterationNumber": 5,
-    "startedAt": "2026-04-29T20:42:08.766Z"
+    "taskId": "TASK-012",
+    "taskTitle": "Bump package.json to 0.5.0",
+    "iterationNumber": 6,
+    "startedAt": "2026-04-29T20:44:02.312Z"
   }
 }

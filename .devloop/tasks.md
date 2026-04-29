@@ -252,7 +252,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   `availableTiers` has `solvedRate ≥ 0.05` in the snapshot.
 
 ### TASK-012: Bump package.json to 0.5.0
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-011
 - **Description**: Bump the version field in `package.json` from
