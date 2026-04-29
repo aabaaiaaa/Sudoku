@@ -35,6 +35,18 @@ import { findForcingChains } from '../solver/techniques/forcing-chains';
  * defined by the hardest technique required to solve it using only logical
  * deductions (no guessing). Clue-count acts as a secondary bound — see
  * `CLUE_BOUNDS` below.
+ *
+ * Iteration 7 collapsed the ladder from eight tiers to six. The iteration-6
+ * corrected baseline (`scripts/tier-distribution.summary.json`) showed
+ * `classic:Hard` and `classic:Master` with `solvedRate=0` over n=20 — the
+ * "intersection" techniques (`pointing`, `box-line-reduction`) always
+ * co-occur with subsets in real puzzles, and the "fish" techniques
+ * (`x-wing`, `swordfish`, `jellyfish`) always co-occur with wings or
+ * colorings. Both bands are statistically empty. The fix folds the empty
+ * tiers' technique members into the next band up and renames the resulting
+ * six tiers to `Easy / Medium / Hard / Expert / Master / Nightmare`. No
+ * actually-occurring puzzle is reclassified — only the labels move. See
+ * requirements §4 for the full rationale.
  */
 export type Difficulty =
   | 'Easy'
@@ -42,8 +54,6 @@ export type Difficulty =
   | 'Hard'
   | 'Expert'
   | 'Master'
-  | 'Diabolical'
-  | 'Demonic'
   | 'Nightmare';
 
 export const DIFFICULTY_ORDER: readonly Difficulty[] = [
@@ -52,8 +62,6 @@ export const DIFFICULTY_ORDER: readonly Difficulty[] = [
   'Hard',
   'Expert',
   'Master',
-  'Diabolical',
-  'Demonic',
   'Nightmare',
 ];
 

@@ -6,7 +6,7 @@ Verification fields are scoped to the touched suites only — the
 full unit / type / build / E2E sweeps run as final tasks.
 
 ### TASK-001: Collapse `Difficulty` type and `DIFFICULTY_ORDER`
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: none
 - **Description**: In `src/engine/generator/rate.ts`, drop the `'Diabolical'` and `'Demonic'` literals from the `Difficulty` union and from `DIFFICULTY_ORDER`. The new order is `['Easy', 'Medium', 'Hard', 'Expert', 'Master', 'Nightmare']`. See requirements §4. Type-check will fail in dependent files until subsequent tasks land — that is expected. This task only edits `rate.ts`. Update the docblock above the type to cite iteration-7.

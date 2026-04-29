@@ -1,8 +1,14 @@
 {
-  "phase": "init",
+  "phase": "run",
   "sessionId": null,
   "lastIteration": 0,
-  "startedAt": "2026-04-29T21:17:50.191Z",
+  "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
-  "devloopVersion": "4.2.0"
+  "devloopVersion": "4.2.0",
+  "activeTask": {
+    "taskId": "TASK-001",
+    "taskTitle": "Collapse `Difficulty` type and `DIFFICULTY_ORDER`",
+    "iterationNumber": 1,
+    "startedAt": "2026-04-29T23:03:47.459Z"
+  }
 }
