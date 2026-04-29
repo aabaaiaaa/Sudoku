@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 22
-- **Completed**: 9
-- **Remaining**: 13
-- **Last Updated**: 2026-04-29T13:06:31.652Z
+- **Completed**: 10
+- **Remaining**: 12
+- **Last Updated**: 2026-04-29T13:10:33.305Z
 
 ## Iteration Log
 
@@ -34,4 +34,13 @@
 - **Exit Status**: success
 - **Tokens**: 1,156,832 total (565 in, 4,669 out, 130,408 cache-create, 1,021,190 cache-read)
 - **Cost**: $1.4452
+
+### Iteration 4 - 2026-04-29T13:10:33.302Z
+- **Task Attempted**: TASK-004
+- **Task Completed**: TASK-004
+- **Summary**: Completed Rename `maxClues` → `clueFloor` in `generate.ts` + clueFloor regression test
+- **Duration**: 3m 58s
+- **Exit Status**: success
+- **Tokens**: 975,957 total (18 in, 7,422 out, 66,406 cache-create, 902,111 cache-read)
+- **Cost**: $1.0517
 

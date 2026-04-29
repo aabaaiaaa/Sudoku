@@ -83,17 +83,17 @@ describe('generate — minClues floor', () => {
   });
 });
 
-describe('generate — maxClues floor', () => {
-  it('honors the maxClues option (does not remove below the higher floor)', () => {
-    // maxClues is a secondary floor used to prevent mid-tier puzzles from
-    // overshooting into a harder tier. With a value clearly above the natural
-    // classic minClues default (30), the resulting puzzle must keep at least
-    // that many givens.
-    const ceiling = 40;
+describe('generate — clueFloor option', () => {
+  it('honors clueFloor as the removal stop condition', () => {
+    // Regression guard for the parameter's semantics: `clueFloor` is the
+    // floor on remaining givens, so the resulting puzzle keeps at least
+    // that many. Locks the meaning in so a future re-inversion (the
+    // pre-iteration-4 `maxClues` bug) is caught directly.
+    const floor = 30;
     const { puzzle } = generate(classicVariant, {
       seed: 0xc1a551c,
-      maxClues: ceiling,
+      clueFloor: floor,
     });
-    expect(countGivens(puzzle)).toBeGreaterThanOrEqual(ceiling);
+    expect(countGivens(puzzle)).toBeGreaterThanOrEqual(floor);
   }, 30_000);
 });

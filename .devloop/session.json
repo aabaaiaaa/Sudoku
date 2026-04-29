@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 2,
+  "lastIteration": 3,
   "startedAt": "2026-04-29T12:44:11.456Z",
   "iteration": 3,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-003",
-    "taskTitle": "Run baseline profile and commit `scripts/tier-distribution.md`",
-    "iterationNumber": 3,
-    "startedAt": "2026-04-29T13:02:52.837Z"
+    "taskId": "TASK-004",
+    "taskTitle": "Rename `maxClues` → `clueFloor` in `generate.ts` + clueFloor regression test",
+    "iterationNumber": 4,
+    "startedAt": "2026-04-29T13:06:35.647Z"
   }
 }

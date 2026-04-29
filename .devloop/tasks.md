@@ -26,7 +26,7 @@ is actually fixed.
 - **Verification**: `node --input-type=commonjs -e "const s=JSON.parse(require('fs').readFileSync('./scripts/tier-distribution.summary.json','utf8')); if(Object.keys(s).length<10)throw new Error('summary missing entries');"`
 
 ### TASK-004: Rename `maxClues` → `clueFloor` in `generate.ts` + clueFloor regression test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-003
 - **Description**: In `src/engine/generator/generate.ts`: rename `GenerateOptions.maxClues` → `GenerateOptions.clueFloor`; replace the `Math.max(minClues, maxClues)` floor computation with `clueFloor = options.clueFloor ?? minClues`. Remove the now-stale block comment about "secondary floor". `minClues` keeps its current role as the variant-level hard floor (defaulting from `defaultMinClues(variant)`). Add a short regression test in `generate.test.ts`: with `generate(classicVariant, { clueFloor: 30 })`, assert `result.clueCount >= 30`. This locks in the parameter's semantics so a future re-inversion is caught directly. See requirements §5.1 and §5.3.
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts`

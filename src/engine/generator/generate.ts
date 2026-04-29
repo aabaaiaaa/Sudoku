@@ -13,14 +13,11 @@ export interface GenerateOptions {
    */
   minClues?: number;
   /**
-   * Optional secondary clue-count floor used to keep mid-tier puzzles from
-   * overshooting into a harder tier. When supplied, the clue-removal loop
-   * refuses to remove a clue that would push the puzzle below `maxClues`
-   * remaining givens. Effectively acts as a (typically higher) floor on top
-   * of `minClues`; the tighter of the two constraints wins. Existing call
-   * sites that do not pass `maxClues` see no behaviour change.
+   * Optional clue-count floor selected by the caller (typically the lower
+   * bound of a target difficulty tier's clue window). When supplied, takes
+   * precedence over `minClues` for the removal loop's stop condition.
    */
-  maxClues?: number;
+  clueFloor?: number;
   /**
    * Cap on how many removal attempts to try. Defaults to `size * size * 2`.
    * Once every cell has been tried once, further removals are stopped.
@@ -181,11 +178,7 @@ export function generate(
   const size = variant.size;
   const total = size * size;
   const minClues = options.minClues ?? defaultMinClues(variant);
-  // `maxClues` is treated as a secondary floor: when supplied, the loop
-  // refuses to remove a clue that would push remaining givens below it.
-  // The effective floor is therefore the tighter (higher) of the two.
-  const clueFloor =
-    options.maxClues != null ? Math.max(minClues, options.maxClues) : minClues;
+  const clueFloor = options.clueFloor ?? minClues;
   const maxAttempts = options.maxRemovalAttempts ?? total * 2;
 
   const solutionGrid = fillSolution(variant, rng);
