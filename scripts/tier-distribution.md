@@ -1,227 +1,105 @@
 # Tier distribution
 
 - Variants: classic, six, mini
-- Generated: 2026-04-29T20:43:12.149Z
-- Total runtime: 2.6s
-- N per cell: 20
+- Generated: 2026-04-29T23:35:08.516Z
+- Total runtime: 4.5s
+- N per cell: 50
 
 ## classic — clueFloor=38 (Easy.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 18    | 90.0% | 18     | 90.0%    |
-| Medium     | 2     | 10.0% | 2      | 10.0%    |
+| Easy       | 48    | 96.0% | 48     | 96.0%    |
+| Medium     | 2     | 4.0%  | 2      | 4.0%     |
 | Hard       | 0     | 0.0%  | 0      | 0.0%     |
 | Expert     | 0     | 0.0%  | 0      | 0.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
 
 ## classic — clueFloor=32 (Medium.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 8     | 40.0% | 8      | 40.0%    |
-| Medium     | 11    | 55.0% | 11     | 55.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
+| Easy       | 23    | 46.0% | 23     | 46.0%    |
+| Medium     | 25    | 50.0% | 25     | 50.0%    |
+| Hard       | 1     | 2.0%  | 1      | 2.0%     |
+| Expert     | 1     | 2.0%  | 1      | 2.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 1     | 5.0%  | 1      | 5.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
 
-## classic — clueFloor=28 (Hard.lower)
+## classic — clueFloor=24 (Hard.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 2     | 10.0% | 2      | 10.0%    |
-| Medium     | 13    | 65.0% | 13     | 65.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 2     | 10.0% | 2      | 10.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 2     | 10.0% | 2      | 10.0%    |
-| Demonic    | 1     | 5.0%  | 1      | 5.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
+| Easy       | 1     | 2.0%  | 1      | 2.0%     |
+| Medium     | 14    | 28.0% | 14     | 28.0%    |
+| Hard       | 10    | 20.0% | 9      | 18.0%    |
+| Expert     | 6     | 12.0% | 6      | 12.0%    |
+| Master     | 6     | 12.0% | 3      | 6.0%     |
+| Nightmare  | 13    | 26.0% | 10     | 20.0%    |
 
 ## classic — clueFloor=24 (Expert.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 2     | 10.0% | 2      | 10.0%    |
-| Medium     | 11    | 55.0% | 11     | 55.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 4     | 20.0% | 4      | 20.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 1     | 5.0%  | 1      | 5.0%     |
-| Nightmare  | 2     | 10.0% | 1      | 5.0%     |
+| Easy       | 3     | 6.0%  | 3      | 6.0%     |
+| Medium     | 19    | 38.0% | 19     | 38.0%    |
+| Hard       | 13    | 26.0% | 13     | 26.0%    |
+| Expert     | 3     | 6.0%  | 3      | 6.0%     |
+| Master     | 3     | 6.0%  | 2      | 4.0%     |
+| Nightmare  | 9     | 18.0% | 6      | 12.0%    |
 
-## classic — clueFloor=26 (Master.lower)
+## classic — clueFloor=22 (Master.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
 | Easy       | 0     | 0.0%  | 0      | 0.0%     |
-| Medium     | 11    | 55.0% | 11     | 55.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 3     | 15.0% | 3      | 15.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 1     | 5.0%  | 1      | 5.0%     |
-| Demonic    | 1     | 5.0%  | 1      | 5.0%     |
-| Nightmare  | 4     | 20.0% | 4      | 20.0%    |
-
-## classic — clueFloor=24 (Diabolical.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 0     | 0.0%  | 0      | 0.0%     |
-| Medium     | 8     | 40.0% | 8      | 40.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 4     | 20.0% | 4      | 20.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 4     | 20.0% | 3      | 15.0%    |
-| Demonic    | 3     | 15.0% | 1      | 5.0%     |
-| Nightmare  | 1     | 5.0%  | 1      | 5.0%     |
-
-## classic — clueFloor=22 (Demonic.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 0     | 0.0%  | 0      | 0.0%     |
-| Medium     | 5     | 25.0% | 5      | 25.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 4     | 20.0% | 4      | 20.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 2     | 10.0% | 2      | 10.0%    |
-| Demonic    | 4     | 20.0% | 1      | 5.0%     |
-| Nightmare  | 5     | 25.0% | 3      | 15.0%    |
+| Medium     | 18    | 36.0% | 18     | 36.0%    |
+| Hard       | 12    | 24.0% | 11     | 22.0%    |
+| Expert     | 7     | 14.0% | 6      | 12.0%    |
+| Master     | 6     | 12.0% | 2      | 4.0%     |
+| Nightmare  | 7     | 14.0% | 6      | 12.0%    |
 
 ## classic — clueFloor=20 (Nightmare.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 1     | 5.0%  | 1      | 5.0%     |
-| Medium     | 8     | 40.0% | 8      | 40.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 4     | 20.0% | 4      | 20.0%    |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 3     | 15.0% | 2      | 10.0%    |
-| Demonic    | 2     | 10.0% | 1      | 5.0%     |
-| Nightmare  | 2     | 10.0% | 2      | 10.0%    |
+| Easy       | 1     | 2.0%  | 1      | 2.0%     |
+| Medium     | 18    | 36.0% | 18     | 36.0%    |
+| Hard       | 8     | 16.0% | 8      | 16.0%    |
+| Expert     | 11    | 22.0% | 10     | 20.0%    |
+| Master     | 6     | 12.0% | 4      | 8.0%     |
+| Nightmare  | 6     | 12.0% | 5      | 10.0%    |
 
 ## six — clueFloor=22 (Easy.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
+| Easy       | 50    | 100.0% | 50     | 100.0%   |
 | Medium     | 0     | 0.0%  | 0      | 0.0%     |
 | Hard       | 0     | 0.0%  | 0      | 0.0%     |
 | Expert     | 0     | 0.0%  | 0      | 0.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
 
 ## six — clueFloor=14 (Medium.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 19    | 95.0% | 19     | 95.0%    |
-| Medium     | 1     | 5.0%  | 1      | 5.0%     |
+| Easy       | 49    | 98.0% | 49     | 98.0%    |
+| Medium     | 1     | 2.0%  | 1      | 2.0%     |
 | Hard       | 0     | 0.0%  | 0      | 0.0%     |
 | Expert     | 0     | 0.0%  | 0      | 0.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## six — clueFloor=15 (Hard.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
-| Medium     | 0     | 0.0%  | 0      | 0.0%     |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## six — clueFloor=12 (Expert.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 17    | 85.0% | 17     | 85.0%    |
-| Medium     | 2     | 10.0% | 2      | 10.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 1     | 5.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## six — clueFloor=13 (Master.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
-| Medium     | 0     | 0.0%  | 0      | 0.0%     |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## six — clueFloor=11 (Diabolical.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 14    | 70.0% | 14     | 70.0%    |
-| Medium     | 6     | 30.0% | 6      | 30.0%    |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
 
 ## mini — clueFloor=12 (Easy.lower)
 
 | Rated tier | Count | %     | Solved | Solved % |
 |------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
+| Easy       | 50    | 100.0% | 50     | 100.0%   |
 | Medium     | 0     | 0.0%  | 0      | 0.0%     |
 | Hard       | 0     | 0.0%  | 0      | 0.0%     |
 | Expert     | 0     | 0.0%  | 0      | 0.0%     |
 | Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## mini — clueFloor=10 (Medium.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
-| Medium     | 0     | 0.0%  | 0      | 0.0%     |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
-| Nightmare  | 0     | 0.0%  | 0      | 0.0%     |
-
-## mini — clueFloor=8 (Hard.lower)
-
-| Rated tier | Count | %     | Solved | Solved % |
-|------------|-------|-------|--------|----------|
-| Easy       | 20    | 100.0% | 20     | 100.0%   |
-| Medium     | 0     | 0.0%  | 0      | 0.0%     |
-| Hard       | 0     | 0.0%  | 0      | 0.0%     |
-| Expert     | 0     | 0.0%  | 0      | 0.0%     |
-| Master     | 0     | 0.0%  | 0      | 0.0%     |
-| Diabolical | 0     | 0.0%  | 0      | 0.0%     |
-| Demonic    | 0     | 0.0%  | 0      | 0.0%     |
 | Nightmare  | 0     | 0.0%  | 0      | 0.0%     |

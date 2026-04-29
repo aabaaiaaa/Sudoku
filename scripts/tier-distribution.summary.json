@@ -1,138 +1,74 @@
 {
   "classic:Easy": {
-    "rate": 0.9,
-    "solvedRate": 0.9,
+    "rate": 0.96,
+    "solvedRate": 0.96,
     "advertised": true,
-    "sampleSize": 20,
+    "sampleSize": 50,
     "firstHitSeed": 0,
     "firstHitBoard": "6457..8.....58.4...8.9.67.5754.3..2912.4.7.8........7449...8...3.8624.5..1..79..."
   },
   "classic:Medium": {
-    "rate": 0.55,
-    "solvedRate": 0.55,
+    "rate": 0.5,
+    "solvedRate": 0.5,
     "advertised": true,
-    "sampleSize": 20,
+    "sampleSize": 50,
     "firstHitSeed": 102,
     "firstHitBoard": "1........9...3.8644.7.6.29.....7...5..9.58..3..1..698..935.7..6....8..5..549...7."
   },
   "classic:Hard": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
+    "rate": 0.2,
+    "solvedRate": 0.18,
+    "advertised": true,
+    "sampleSize": 50,
+    "firstHitSeed": 201,
+    "firstHitBoard": "..6.1......97.5..1...9....8..72......5....6.9..1..3..4.751.2.8..........3..89.5.."
   },
   "classic:Expert": {
-    "rate": 0.2,
-    "solvedRate": 0.2,
+    "rate": 0.06,
+    "solvedRate": 0.06,
     "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": 301,
-    "firstHitBoard": "......5....4....122....3.674....16...18..9...7...38.......5.98...7.........6..1.3"
+    "sampleSize": 50,
+    "firstHitSeed": 333,
+    "firstHitBoard": ".9148.......5....9.8...7.......9.7.2...8.5...54.17..8..6......1....3..2...9....4."
   },
   "classic:Master": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
-  },
-  "classic:Diabolical": {
-    "rate": 0.2,
-    "solvedRate": 0.15,
+    "rate": 0.12,
+    "solvedRate": 0.04,
     "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": 504,
-    "firstHitBoard": ".....29.5....7.32.7...9.....3..86....8.9..1.7....4.8..25...8.....8...4...4..6..3."
-  },
-  "classic:Demonic": {
-    "rate": 0.2,
-    "solvedRate": 0.05,
-    "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": 612,
-    "firstHitBoard": "62..8.....5..4.2...4..5..131..9.4..773......1.......5.8....56.9...7..........3..."
+    "sampleSize": 50,
+    "firstHitSeed": 431,
+    "firstHitBoard": "3....4.82.7..6....4...12.....8...19.26...8.....3....5.6...7...3..........5....61."
   },
   "classic:Nightmare": {
-    "rate": 0.1,
+    "rate": 0.12,
     "solvedRate": 0.1,
     "advertised": true,
-    "sampleSize": 20,
-    "firstHitSeed": 703,
-    "firstHitBoard": "...4.....3...16.5..2..8..7...73.59..6.4.2...8.....8.1............9...6....26.1.43"
+    "sampleSize": 50,
+    "firstHitSeed": 514,
+    "firstHitBoard": "5..6.27...1...93....3....5...4....6.8.51.........8......1.6..7.73......8.....79.3"
   },
   "six:Easy": {
     "rate": 1,
     "solvedRate": 1,
     "advertised": true,
-    "sampleSize": 20,
+    "sampleSize": 50,
     "firstHitSeed": 1000,
     "firstHitBoard": "2.5631...25.41.3.53.6142.31.26..4.1."
   },
   "six:Medium": {
-    "rate": 0.05,
-    "solvedRate": 0.05,
+    "rate": 0.02,
+    "solvedRate": 0.02,
     "advertised": true,
-    "sampleSize": 20,
+    "sampleSize": 50,
     "firstHitSeed": 1102,
     "firstHitBoard": "16...2...6...2..43.341......61.1.2.."
-  },
-  "six:Hard": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
-  },
-  "six:Expert": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
-  },
-  "six:Master": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
-  },
-  "six:Diabolical": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
   },
   "mini:Easy": {
     "rate": 1,
     "solvedRate": 1,
     "advertised": true,
-    "sampleSize": 20,
+    "sampleSize": 50,
     "firstHitSeed": 2000,
     "firstHitBoard": "..41.1321.242413"
-  },
-  "mini:Medium": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
-  },
-  "mini:Hard": {
-    "rate": 0,
-    "solvedRate": 0,
-    "advertised": false,
-    "sampleSize": 20,
-    "firstHitSeed": null,
-    "firstHitBoard": null
   }
 }

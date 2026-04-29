@@ -90,7 +90,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx src/screens/Stats.test.tsx src/screens/Settings.test.tsx src/App.test.tsx` passes.
 
 ### TASK-013: Run iteration-7 corrected baseline profile (n=50)
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-002, TASK-003, TASK-004, TASK-005, TASK-007
 - **Description**: Run `npm run profile-tiers -- --all-tiers --n=50` and commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json` as the iteration-7 corrected baseline. Wall-clock budget: 1–2 hours per requirements §5. Use a long-running Bash invocation (or `run_in_background: true`) since the runtime exceeds the standard 10-minute Bash timeout. The output replaces the iteration-6 baseline files in place. With `--all-tiers` the script iterates `DIFFICULTY_ORDER × variants`, so the summary contains 18 cells (6 tiers × 3 variants), of which 9 are advertised (`advertised: true`).
