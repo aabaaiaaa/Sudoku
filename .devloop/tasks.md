@@ -74,7 +74,7 @@ numbers (§N) below refer to that document.
 - **Verification**: The file no longer exists. `npm test` runs to completion (the deleted file was a placeholder; the unit test count drops by exactly one). `tests/e2e/worker-smoke.spec.ts` is still present (`ls tests/e2e/worker-smoke.spec.ts` succeeds).
 
 ### TASK-011: Bump package.json version
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-007, TASK-008, TASK-009, TASK-010
 - **Description**: Bump `package.json` version. If TASK-004 restored any tier (i.e. `git diff master -- src/engine/generator/variant-tiers.ts` shows a change to `VARIANT_TIERS`'s tier lists, not just the doc-block), bump to `0.5.0` (minor — player-facing surface change). Otherwise bump to `0.4.1` (patch — methodology-fix + cleanups, no advertised surface change).
