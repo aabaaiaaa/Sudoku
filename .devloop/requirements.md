@@ -1,480 +1,390 @@
-# Sudoku PWA — Iteration 4 Requirements: Bug B fix + test gaps
+# Sudoku PWA — Iteration 5 Requirements: validate descopes + iteration-4 review cleanups
 
-This iteration is driven entirely by findings from the iteration 3 code
-review (`.devloop/archive/iteration-3/review.md`). It is intentionally
-tight: no new features, no UX changes the player will see, no
-architectural refactors. The goal is to actually close out Bug B (which
-iteration 3 declared mitigated but in fact left broken), to remove the
-test loopholes that hid the breakage, and to fold in the small cleanups
-the review explicitly recommended.
+This iteration is driven entirely by the iteration-4 final code review
+(`.devloop/archive/iteration-3/review.md`). It is a small,
+focused follow-up: no new features, no UX changes beyond a
+one-line Stats polish, no architectural refactors.
 
-The v0.3.0 baseline is unchanged except where called out below. The
-previous iteration's requirements, tasks, progress, and review are
-archived at `.devloop/archive/iteration-3/`.
+The purpose is to close out the headline caveat the review left on
+iteration 4 — that "fix Bug B" was achieved primarily by **descoping**
+problematic difficulty tiers rather than tuning them, using data taken
+from the broken-baseline run *before* the `maxClues` semantics fix
+landed. Iteration 5 re-validates each descope with post-fix data, applies
+**lever 1** (widen `MAX_ATTEMPTS_BY_TIER`) where the data justifies it,
+restores any tier whose post-fix rate clears the §6 5% threshold, and
+folds in the seven small recommendations from §Recommendations.
+
+The v0.4.0 baseline is unchanged except where called out below. Iteration
+4's requirements, tasks, progress, and review are archived at
+`.devloop/archive/iteration-3/`.
 
 ## 1. Motivation
 
-The iteration 3 review identified one structural defect and a coupled
-pair of test-coverage gaps that together meant the iteration shipped
-with a known-broken generator path that automated tests could not catch:
+The iteration-4 review confirmed every named deliverable shipped, but
+flagged a methodology gap underneath the descope decisions in
+`src/engine/generator/variant-tiers.ts`. Two reinforcing problems:
 
-1. **`maxClues` is plumbed with inverted semantics.** In
-   `src/engine/generator/generate.ts:184-189`,
-   `clueFloor = options.maxClues != null ? Math.max(minClues, maxClues)
-   : minClues`. The consumer in `generateForDifficulty` passes
-   `clueBoundsUpperForTier(tier)` as `maxClues` — so for Master classic
-   with `CLUE_BOUNDS = [26, 31]`, the effective floor becomes **31**.
-   The generator stops removing clues at 31 — leaving puzzles with the
-   *most* clues a Master can have, which empirically rate much easier
-   than Master. The strict-tier rule then rejects nearly every attempt.
-   The parameter named `maxClues` is, by construction, used as a floor.
-2. **Hard / Master generation has no automated coverage.** Two reinforcing
-   gaps:
-   - `generate-for-difficulty.test.ts:37-40` `it.skip`s the Hard and
-     Master cases ("strict tier matching … cannot reliably hit these
-     tiers within a sane retry budget").
-   - `tests/e2e/difficulty-matrix.spec.ts:88-149` accepts a failure
-     dialog with a populated `closestRating` and `lastError` as a
-     passing outcome. So even if Master *never* generates, the matrix
-     suite is green.
-   Combined effect: iteration 3 reported the matrix as passing, which
-   was true under the suite's contract — but the contract was lenient
-   enough to mask a tier that simply does not generate.
-3. **The catalog round-trip test is weaker than its TASK-042 spec
-   intended.** `catalog.test.ts:100-126` only checks that each catalog
-   entry's finder still returns non-null on its fixture, not that
-   `rate(fixture.board).difficulty === entry.tier`. Fixture-tier drift
-   slips through.
+1. **Descopes are based on broken-baseline data.** The
+   `VARIANT_TIERS` doc-block cites the iteration-4 baseline summary
+   (`scripts/tier-distribution.summary.json` as committed in TASK-003),
+   which was generated *before* the §5 `maxClues` → `clueFloor`
+   semantics fix landed. The post-tuning rerun in TASK-008 only
+   iterated `availableTiers(variant)` — i.e. the *already-narrowed*
+   set — so there is no committed evidence that
+   `classic:Hard`/`classic:Master` or any of the eight Six/Mini
+   descopes are unreachable post-fix.
 
-Beyond these three headline items, the review listed a small set of
-cleanups that are individually small but worth bundling in this
-iteration so the next one starts clean.
+2. **Lever 1 was never tried.** Iteration-4 §6 lists three levers
+   (widen `MAX_ATTEMPTS_BY_TIER`, lower `clueBoundsLowerForTier`,
+   descope) and explicitly puts widening attempts as the *first*
+   response to a low natural rate. Iteration 4 jumped straight to
+   lever 3. The current `MAX_ATTEMPTS_BY_TIER` table is bit-for-bit
+   the iteration-3 50/100 split. For tiers whose post-fix profile lands
+   in the 5–30% band, widening the attempt budget per the §6 reliability
+   formula is exactly the cheap fix we owe the player surface.
+
+Beyond the headline caveat, the review listed seven small recommendations
+(§Recommendations 1–7), of which #1 and #2 are the headline fixes
+above. The remaining five (solved-flag assertion, DEV-gate the test
+hook, doc-block refresh, Stats UX, real-worker placeholder) are
+individually small but worth bundling so the next iteration starts
+clean.
 
 ## 2. Goals
 
-- Make every advertised (variant × difficulty) combination reliably
-  load a playable puzzle within its budget — verified by both the unit
-  suite and the matrix E2E, with no test-side leniency that could mask
-  a tier that does not generate.
-- Replace the inverted `maxClues` parameter with one that does what its
-  name says.
-- Use empirical profiling data — not guesswork — to tune the per-tier
-  attempt budgets and clue-floor hints; commit the data so future
-  iterations can diff against it.
-- Strengthen the catalog round-trip so fixture-tier drift surfaces
-  automatically.
-- Apply the review's "smaller cleanups" so they stop being technical
-  debt.
+- Re-profile every (variant × tier) cell in the **full** difficulty
+  matrix (`DIFFICULTY_ORDER × {classic, six, mini}`), not just the
+  descoped surface, using post-fix code.
+- Apply lever 1 to `MAX_ATTEMPTS_BY_TIER` for any tier whose post-fix
+  natural rate lands in the 5–30% band, sized via the §6 reliability
+  formula.
+- Restore each tier whose post-fix rate ≥ 5% to `availableTiers`. For
+  any tier that remains descoped, replace the iteration-4 baseline
+  citations with iteration-5 post-fix evidence, so the doc-block
+  doesn't lie about which run the descope rests on.
+- Land the five smaller cleanups from §Recommendations 3–7.
 
 ## 3. Non-goals
 
 - No new techniques, no new variants, no new tiers. The 34-technique
-  catalog and the Mini / Six / Classic variant set remain unchanged.
-- No new player-facing UX. The Resume list, ConfirmDialog,
-  GenerationFailedDialog, Stats filter pills, Settings sections, and
-  desktop tab bar are all unchanged in shape.
-- No architectural refactors. The catalog/cascade/rater triplication,
-  the rater's parallel candidate-grid, the store-singleton split, and
-  the `__APP_VERSION__` import are deferred to a later iteration.
-- No fix for the `checkForUpdates` resolution-timing race
-  (review Code Quality #2). The user-visible symptom is small (a brief
-  "Up to date" while an update is downloading) and the proper fix
-  needs a separate discussion of the SW state-machine timing — out of
-  scope here.
-- No CI E2E runs. The matrix suite remains a local pre-push gate; CI
-  continues to run unit tests only.
-- No automated migration of v3 save data. The save schema does not
-  change.
+  catalog and the variant set are unchanged.
+- No rater changes. If the data shows that `classic:Hard` is genuinely
+  unreachable at the corrected `clueFloor` even with widened attempts,
+  the iteration-4 review's deferred suggestion ("extend the rater with
+  cheaper-to-hit tier-discriminators") remains deferred — it's a
+  multi-iteration project.
+- No architectural refactors. The candidate-grid duplication in
+  `rate.ts`, the `slotKey` asymmetry between `save.ts` and `stats.ts`,
+  the `__APP_VERSION__` ambient typing, and unifying `availableTiers` /
+  `CLUE_BOUNDS` are all deferred.
+- No fix for the `useUpdate.checkForUpdates` resolution-timing race —
+  still out of scope (review §3 deferral carried forward).
+- No CI E2E runs. Local pre-push gate only.
+- No save-schema migration changes. v3 is unchanged.
 
-## 4. Generator profiling harness
+## 4. Profile script enhancements
 
-This is the foundational piece. Without empirical distribution data
-the Bug B tuning in §6 reduces to guess-and-check against the matrix
-E2E, which is slow and gives no insight into *why* a tweak helped.
+Three small, contained changes in `scripts/profile-tiers.ts`:
 
-### 4.1 Script location and invocation
+### 4.1 `--all-tiers` flag
 
-- New file: `scripts/profile-tiers.ts`.
-- New `package.json` script: `"profile-tiers": "tsx
-  scripts/profile-tiers.ts"`. Add `tsx` as a `devDependency` if it is
-  not already present.
-- The script is intended to be run on demand by a developer. It is
-  **not** wired into CI, vitest, or the Playwright suite.
+The script currently iterates `availableTiers(variant)` (line 93),
+which means it cannot profile a tier that has been descoped without a
+manual revert. Iteration 5 needs to do exactly that for the
+re-validation step.
 
-### 4.2 What the harness does
+- Extend the argv parser to recognize `--all-tiers`. The flag is
+  default-off so existing default `npm run profile-tiers` behavior is
+  unchanged.
+- When `--all-tiers` is set, iterate `DIFFICULTY_ORDER` for every
+  variant whose `CLUE_BOUNDS[variant.id]` defines a window for that
+  tier. Tiers without a defined window are skipped (current behavior).
+- The summary JSON's `advertised: boolean` field is set honestly:
+  `true` if `availableTiers(variant).includes(tier)`, `false`
+  otherwise. The matrix E2E and other tooling that reads
+  `advertised` continue to work, and the consumer of the JSON can
+  tell at a glance which entries reflect the current player surface
+  vs. which are diagnostic-only.
 
-For each variant in `['classic', 'six', 'mini']`:
+### 4.2 Emit `firstHitBoard`
 
-- For each tier in `availableTiers(variant)`:
-  - Compute `clueFloor = clueBoundsLowerForTier(variant, tier)`.
-  - Generate **N puzzles** (default `N = 20`, accept a `--n=N`
-    override on the command line) by calling `generate()` with that
-    `clueFloor`, *without* the strict-tier filter (i.e. do not call
-    `generateForDifficulty`). Each puzzle is rated via `rate()` and
-    the resulting tier is recorded.
-  - Seeds are derived from a fixed base (`seed = (variantIndex *
-    1000) + (tierIndex * 100) + i`) so the run is reproducible.
-  - For each (variant, target tier), the script also records the
-    seed of the first puzzle whose rated tier matches the target —
-    used by §9 as the source seed for tier fixtures.
-- For each (variant, clueFloor), output the tier histogram: counts and
-  percentages for each rated tier.
+Per-tier fixture extraction in iteration 4 was a manual
+regenerate-from-seed dance. Iteration 5 collapses that to a copy-paste
+by extending the per-cell summary with a `firstHitBoard: string | null`
+field — the dotted-digit row-major string of the first puzzle that
+rated as the target tier (or `null` if none did). Test-time
+reproducibility is unchanged: the seed is still authoritative; the
+board string is a convenience.
 
-### 4.3 Output format
+The schema extension is additive. The TypeScript shape becomes:
 
-The script writes `scripts/tier-distribution.md`, overwriting any prior
-content. The two iteration-4 commits of this file (baseline before §5,
-post-tuning after §6) both live at the same path; the iteration's
-empirical evidence is preserved in git history rather than as parallel
-files. The file format is a header (variant, generator version, date,
-total runtime) followed by one table per (variant, clueFloor):
-
-```markdown
-## classic — clueFloor=26 (Master.lower)
-
-| Rated tier | Count | %     |
-|------------|-------|-------|
-| Easy       | 0     | 0.0%  |
-| Medium     | 0     | 0.0%  |
-| Hard       | 0     | 0.0%  |
-| Expert     | 1     | 2.0%  |
-| Master     | 4     | 8.0%  |
-| Diabolical | 22    | 44.0% |
-| Demonic    | 15    | 30.0% |
-| Nightmare  | 8     | 16.0% |
+```ts
+interface SummaryEntry {
+  rate: number;
+  advertised: boolean;
+  sampleSize: number;
+  firstHitSeed: number | null;
+  firstHitBoard: string | null;
+}
 ```
 
-The file is **checked in** so iteration-to-iteration changes show up
-in git diffs. Alongside the markdown the script also writes
-`scripts/tier-distribution.summary.json` — a flat object keyed
-`${variantId}:${tierName}` with `{ rate: number, advertised: boolean,
-sampleSize: number, firstHitSeed: number | null }`. `firstHitSeed`
-is the seed of the first puzzle in the run that rated as the keyed
-tier, or `null` if no run matched. The summary is the machine-readable
-companion the §6 tuning task, §8 unskip task, and §9 fixture
-extraction all consume.
+### 4.3 Retire the obsolete `minClues` preamble
 
-### 4.4 Runtime budget
+`profile-tiers.ts:75-82` carries a long iteration-3 explanation of why
+the script passes the floor as `minClues` rather than `maxClues`. Now
+that the §5 rename has shipped (and `clueFloor` is the canonical name),
+the preamble is wrong-by-implication and the call site
+(`generate(variant, { seed, minClues: clueFloor })`, line 117) reads
+oddly. Replace with `generate(variant, { seed, clueFloor })` and delete
+the stale comment block. Cosmetic cleanup, but fits the same edit
+window as §4.1 and §4.2.
 
-20 puzzles × 17 (variant, tier) cells ≈ 340 generations. At ~1 s
-each on a typical developer machine this is ~6 minutes — fast enough
-for an automated DevLoop task to invoke. The script must print
-incremental progress so a developer running it does not think it has
-hung. A human-driven thorough run (`npm run profile-tiers -- --n=50`)
-remains available when more confident sample sizes are needed; this
-is not the default.
+## 5. Re-validate descopes (post-fix profile)
 
-## 5. Fix `maxClues` semantics
+Run `npm run profile-tiers -- --all-tiers --n=20` against the current
+working tree. The full 17-cell sweep should complete in ~6 minutes per
+the iteration-4 §4.4 estimate. Commit the resulting
+`scripts/tier-distribution.md` and
+`scripts/tier-distribution.summary.json`. This is the *validated post-fix
+baseline* — the snapshot iteration 4 should have produced but didn't.
 
-### 5.1 Rename the parameter
+The summary JSON is the input the next sections read mechanically.
 
-In `src/engine/generator/generate.ts`:
+## 6. Apply lever 1: widen `MAX_ATTEMPTS_BY_TIER`
 
-- Rename `GenerateOptions.maxClues` → `GenerateOptions.clueFloor`.
-- The body computes `clueFloor = options.clueFloor ?? minClues`. The
-  `Math.max(minClues, maxClues)` interaction goes away — there is now
-  one floor, picked by the caller.
-- `minClues` continues to default from `defaultMinClues(variant)` and
-  serves as the variant's hard lower bound. Callers that want to
-  override the variant default still set it.
+Read the iteration-5 baseline summary. For each (variant, tier) cell:
 
-### 5.2 Update the consumer
+- If `rate ≥ 0.05` (the §6 threshold) **and** the tier is currently
+  descoped from that variant: it is a restoration candidate (see §7).
+- If `rate ≥ 0.05` and the tier is currently advertised: confirm the
+  current per-tier attempt budget gives ≥ 99.8% reliability via the
+  iteration-4 §6 formula (`N = ceil(log(0.002) / log(1 - rate))`). If
+  the existing budget is below `N`, widen it.
+- If `rate < 0.05` and the tier is currently descoped: the descope
+  stands; cite the iteration-5 evidence in the §7 doc-block update.
+- If `rate < 0.05` and the tier is currently advertised: this is a
+  regression-since-iteration-4 — surface in the post-write review.
 
-In `src/engine/generator/generate-for-difficulty.ts`:
+Update `MAX_ATTEMPTS_BY_TIER` in
+`src/engine/generator/generate-for-difficulty.ts`. The doc-block above
+the table (`generate-for-difficulty.ts:11-18`) currently references
+"Iteration 3 §4.3" and a "doesn't reliably hit the target inside 50
+tries" rationale that predates the iteration-5 data. Refresh it to:
 
-- Replace the current `minClues` + `maxClues` plumbing with a single
-  `clueFloor = clueBoundsLowerForTier(variant, targetTier)`.
-- Drop `clueBoundsUpperForTier` calls in this file. The function is
-  retained — it is used elsewhere in the catalog/UI surface — but the
-  generator no longer asks for it.
+- Reference the iteration-5 profile evidence by date.
+- For any non-default entry, cite the (variant, tier, rate) tuple that
+  justified the widened budget.
 
-### 5.3 Tests
+The §6 formula caps practical budgets at 200. Beyond that, fall to
+§7 (descope) rather than spending huge attempt budgets on a too-rare
+tier — same rule as iteration 4.
 
-- Update `generate-for-difficulty.test.ts` to expect the new option
-  name on calls it makes.
-- Update any direct `generate()` callers in the test suite.
-- Add one tiny regression test in `generate.test.ts` that asserts
-  `generate(variant, { clueFloor: N }).clueCount >= N` for a chosen
-  N (e.g. classic with `clueFloor: 30`). This is a five-line guard
-  that locks in the parameter's *semantics* — without it, a future
-  refactor that re-inverts the floor would only be caught
-  transitively via the §6 tuning, which depends on data and is
-  noisier.
+## 7. Restore tiers in `VARIANT_TIERS`
 
-## 6. Tune Bug B from profiling output
+For each (variant, tier) restoration candidate identified in §6,
+restore the tier in `VARIANT_TIERS` in
+`src/engine/generator/variant-tiers.ts`. Keep the per-variant tier list
+in `DIFFICULTY_ORDER` order.
 
-After §4 and §5 land, the developer runs `npm run profile-tiers` and
-inspects `scripts/tier-distribution.md`. For each (variant × tier)
-where the histogram shows the rated tier appears in <5% of natural
-attempts at the chosen `clueFloor`:
+The `VARIANT_TIERS` doc-block currently cites the iteration-4 baseline
+(`Source: scripts/tier-distribution.summary.json baseline (committed in
+TASK-003, generated 2026-04-29)`) and lists each descoped tier with the
+broken-baseline histogram. Rewrite the doc-block to:
 
-- **First lever — widen the per-tier attempt budget.** Update
-  `MAX_ATTEMPTS_BY_TIER[tier]` to a value the histogram justifies. As
-  a rule of thumb, if tier T is `p` percent of natural attempts at the
-  current `clueFloor`, the budget needed for ~99.8% reliability is
-  `N = ceil(log(0.002) / log(1 - p))`. Worked points: 5% → ~122
-  attempts, 3% → ~205, 1% → ~620. Cap at 200 in practice — beyond
-  that, fall to the second lever rather than spending huge attempt
-  budgets on a too-rare tier.
-- **Second lever — adjust `clueBoundsLowerForTier`.** If a tier is
-  rare or absent at its current `clueFloor`, lower the floor (push
-  the puzzle to fewer clues, which generally pushes the rated tier
-  up) and re-profile. The bounds in `CLUE_BOUNDS` define the legal
-  range; this lever stays inside that range.
-- **Third lever — descope the tier from the variant.** If profiling
-  shows that no `clueFloor` inside `CLUE_BOUNDS[tier]` produces the
-  tier at usable rate, the tier is genuinely unobtainable for that
-  variant. In that case, remove the tier from
-  `availableTiers(variant)` so it is not advertised to the player.
-  This is the documented escape hatch — it ships a smaller but
-  honest set of options rather than a tier that does not work.
-- After tuning, re-run `npm run profile-tiers` and commit the
-  updated `tier-distribution.md`.
+- Cite the iteration-5 post-fix profile by date.
+- For any tier that **remains** descoped in the new
+  `VARIANT_TIERS`, cite the iteration-5 (variant, tier, rate, sampleSize)
+  tuple as the rationale.
+- For any tier that **was** descoped in iteration 4 but is restored in
+  iteration 5, the `VARIANT_TIERS` change itself is the evidence —
+  the doc-block need only note in summary that lever 1 was applied
+  per the iteration-5 baseline.
 
-The tuning is data-driven: the changes to `MAX_ATTEMPTS_BY_TIER` and
-`clueBoundsLowerForTier` should each cite the histogram entry that
-justified them in their commit message or comment.
+## 8. Add fixtures for restored tiers
 
-## 7. Tighten the matrix E2E
+For each tier restored in §7:
 
-`tests/e2e/difficulty-matrix.spec.ts`:
+- Look up its `firstHitSeed` and `firstHitBoard` in the iteration-5
+  baseline summary JSON.
+- Add a `TierFixture` entry to `TIER_FIXTURES` in
+  `src/engine/solver/techniques/tier-fixtures.ts` using those values.
+- The `Partial<Record<Difficulty, TierFixture>>` shape and
+  `tier-fixtures.test.ts` iteration over `Object.entries(TIER_FIXTURES)`
+  mean no schema changes are needed.
 
-- The "either board renders or failure-dialog-with-diagnostic" race
-  becomes "board must render". Failure-with-diagnostic is now a hard
-  failure.
-- Concretely: the `expect.poll` waits for `[data-testid=sudoku-board]`
-  to be visible and asserts at least one given cell renders, exactly
-  as the success path does today. Any failure dialog is treated as
-  test failure (assert it is **not** visible at the end).
-- The TASK-049 narrative comment in the file header is rewritten to
-  reflect the new contract. The "decision rule when failures appear"
-  block becomes "if failures appear, profile and tune per §6 of
-  iteration-4 requirements."
-- Per-tier timeout stays at 75 s.
+If no tier is restored, this section is a no-op.
 
-If §6 has been done correctly, this stricter matrix passes on both
-Chromium and WebKit. If a tier was descoped via the §6 third lever,
-the matrix iterates over the new (smaller) `availableTiers` and the
-descoped slot does not appear.
+## 9. Strengthen `tier-fixtures.test.ts`
 
-## 8. Un-skip Hard / Master in unit tests
+The iteration-4 review §Gap 3 calls out that the round-trip test only
+asserts `rate(board).difficulty === tier`. Requirements §9 (b) of
+iteration 4 explicitly demanded `rate(board).solved === true` as well —
+the explicit guard against a future regression where the rater stalls
+but happens to land on the right tier label.
 
-`src/engine/generator/generate-for-difficulty.test.ts:37-40` gates
-skipped tiers via a `SKIPPED_TIERS = new Set<Difficulty>(['Hard',
-'Master'])` followed by `const runner = SKIPPED_TIERS.has(tier) ?
-it.skip : it`.
+Two-line edit in `tier-fixtures.test.ts:46-49`: add `expect(result.solved).toBe(true)`.
 
-- Empty the set: `SKIPPED_TIERS = new Set<Difficulty>([])`.
-- After §6 tuning, the strict tier rule should hit Hard and Master
-  inside their (possibly widened) per-tier budget. Update the
-  `TIER_SEEDS` table with the `firstHitSeed` values recorded by
-  profiling for `classic:Hard` and `classic:Master` so the test is
-  deterministic.
-- If, after tuning, a specific (variant, tier) is still flaky inside
-  the test's `maxRetries: 80` budget, fall back to a `vi.spyOn`
-  mock that returns a matching `RateResult` so the strict-tier
-  acceptance path is still exercised, and add a comment explaining
-  why the seed-based approach was insufficient.
+## 10. Re-run profile post-tuning
 
-## 9. Catalog round-trip — tier fixtures
+Re-run `npm run profile-tiers -- --all-tiers --n=20`. Commit the
+resulting `scripts/tier-distribution.md` and
+`scripts/tier-distribution.summary.json`. This is the iteration-5
+**final** snapshot — it reflects the state shipping with this iteration
+(post lever-1 widening, post any tier restorations).
 
-The existing per-finder fixtures are inlined into `catalog.ts` as
-`entry.fixture.board` strings (parsed via `parseBoardString(variant,
-boardString)` at test time). They are mid-game one-step demos used by
-per-finder unit tests, and rewriting all 34 to fully-solvable puzzles
-is out of scope.
+This second profile run also serves as the reliability check for §6:
+restored tiers should now hit their target rate within their widened
+attempt budgets in subsequent strict-tier runs. If a restored tier's
+post-tuning rate dropped below 5% (e.g. due to seed-range variance)
+its restoration must be reverted before the iteration ships.
 
-Instead:
+## 11. Smaller cleanups
 
-- New file: `src/engine/solver/techniques/tier-fixtures.ts`. Exports a
-  `TIER_FIXTURES: Record<Difficulty, { variant: VariantId; board:
-  string; seed: number }>` table — one entry per tier. The `board`
-  string follows the same dot-and-digit convention as the catalog
-  fixtures so it parses through `parseBoardString`. Keeping the
-  fixtures in TypeScript (not JSON) means no JSON-loading dance in
-  vitest and the table is comprehensible at a glance.
-- Each entry is a fully-solvable puzzle whose hardest required
-  technique is exactly the named tier. Construction is data-driven:
-  pick a seed that profiling shows produces the desired tier (the
-  seed is recorded in `scripts/tier-distribution.summary.json`'s
-  per-(variant, tier) `firstHitSeed` field), regenerate the puzzle
-  locally with that seed and `clueFloor`, and capture its givens
-  string.
-- New test file: `src/engine/solver/techniques/tier-fixtures.test.ts`.
-  For each entry, parse the board and assert `rate(board).difficulty
-  === tier` and `rate(board).solved === true`.
-- **Tier unobtainable in any variant.** If profiling shows that a
-  tier is unreachable in every variant after §6 tuning (no
-  `firstHitSeed` recorded), omit the fixture and add a brief comment
-  in `tier-fixtures.ts` explaining the omission. The round-trip test
-  iterates `Object.entries(TIER_FIXTURES)` so missing tiers are
-  silently skipped — but the omission is visible at code-review time.
-- The existing finder-fixture round-trip stays as it is.
+These are pulled directly from the review's §Recommendations 4, 5, 6, 7
+and from the bundled doc-block refresh discussed above.
 
-## 10. Smaller cleanups
+### 11.1 Gate `__sudokuGameStore` behind `import.meta.env.DEV`
 
-These are small, independent items pulled directly from the
-review's "Smaller cleanups" list and from coverage gaps that have
-single-task fixes:
+`src/main.tsx:14` unconditionally writes `window.__sudokuGameStore`.
+The hook is intended for Playwright E2E tests
+(`hint-learn-more`, `new-game`, `notes-and-conflicts`,
+`resume`) — all of which run against the `vite dev` server (port
+5179, where `import.meta.env.DEV` is `true`). The `pwa-update.spec.ts`
+spec runs against `vite preview` (port 5180, `DEV` false) but does not
+read the hook. Gating is safe.
 
-### 10.1 `lastError != null` defensive check
+One-line change: wrap the assignment in `if (import.meta.env.DEV) { … }`.
 
-`src/components/GenerationFailedDialog.tsx:124` currently renders the
-diagnostic line on `failure.lastError` truthy. Switch to
-`failure.lastError != null` so an `Error('')` (empty message) still
-renders the line. The user-direction in iteration 3 was "always
-visible when present" — the truthy check inadvertently swallows
-empty-string errors.
+### 11.2 Hide Stats filter pill row when `tiers.length <= 1`
 
-### 10.2 `cancelGeneration` clears `generationFailure`
+`src/screens/Stats.tsx` (lines ~86–110) renders an `[All] [Easy]`
+filter pill row above each variant's table. With Six and Mini
+currently advertising only `Easy`, the row is functional but visually
+useless. Hide the pill row when the variant exposes only a single
+tier (so the player just sees the table).
 
-`src/store/game.ts` `cancelGeneration` action: defensively clear
-`generationFailure` alongside the existing `loading: false` reset.
-Closes the low-probability race where a player cancels from the
-loading overlay at the exact moment the worker posts `failed`,
-leaving a stale `generationFailure` in the store after navigation.
+This change pre-supposes Six/Mini still ship with one tier after §6/§7
+— which is the most likely outcome given their post-tuning histograms
+in iteration-4. If §6 restores additional tiers for Six or Mini, the
+fix still applies (it's a `tiers.length <= 1` guard, not a per-variant
+hard-code).
 
-### 10.3 Worker one-at-a-time JSDoc
+### 11.3 Resolve the placeholder real-worker vitest test
 
-`src/workers/generator-client.ts` — add JSDoc on `generateInWorker`
-documenting that callers must serialize requests; the worker rejects
-overlapping `generate` messages with a `'Worker is already
-processing a generation request'` error. The `gameStore.newGame` flow
-already serializes; the docstring exists to flag the contract for
-any future direct caller.
+`src/workers/generator-client.real-worker.test.ts` exists only because
+iteration-4 `§10.6` originally hoped vitest could host a real `Worker`.
+Under the project's jsdom environment `Worker` is undefined, so the
+file falls into a skip-style `expect(hasWorker).toBe(false)` placeholder.
+The actual real-worker check lives in
+`tests/e2e/worker-smoke.spec.ts` — Playwright is the canonical proof.
 
-### 10.4 Migration test seeds structurally-valid v2
+The placeholder is misleading. Delete the file. The e2e spec is
+already a documented part of the suite, and removing the placeholder
+prevents a future developer from believing it's load-bearing and (for
+example) deleting the e2e spec in its place.
 
-`src/App.test.tsx:128` currently seeds
-`localStorage['sudoku.save.v2'] = '{}'`. Replace with
-a structurally valid v2 payload (matching the v2 schema shape). The
-detector matches on key, not value, so the test passes either way —
-but a future change in the schema-load path that JSON-parses v2
-entries before the detector runs would silently still pass with `{}`.
+### 11.4 (Doc-block refreshes — covered inline)
 
-### 10.5 Settings 2-second auto-revert assertion
+The §6 refresh of `MAX_ATTEMPTS_BY_TIER`'s doc-block and the §7 refresh
+of `VARIANT_TIERS`'s doc-block together close review §Recommendation 5.
 
-`Settings.test.tsx` for the "Updates" section: after the button
-shows "Up to date" or "Couldn't check — try again", advance fake
-timers by 2 seconds (`vi.useFakeTimers` + `vi.advanceTimersByTime`)
-and assert the label reverts to "Check for updates". Locks in the
-revert behaviour so a regression there cannot slip past the suite.
+## 12. Existing code to update
 
-### 10.6 Real-worker smoke test
+Non-exhaustive list of files this iteration touches:
 
-New `src/workers/generator-client.real-worker.test.ts` (or similar):
-construct the real `Worker` via `defaultCreateWorker`, fire a
-`generate` request for a small board, immediately `cancel()`, and
-assert the call resolves cleanly. The intent is to lock in the
-`new Worker(new URL('./generator.worker.ts', import.meta.url),
-{ type: 'module' })` plumbing in `defaultCreateWorker` — the
-existing `generator-client.test.ts` uses a FakeWorker so a regression
-in the import URL would only surface via the matrix E2E. Vitest's
-`environment: 'jsdom'` may need a per-file override to allow real
-worker construction; if jsdom cannot host it, fall back to a
-Playwright smoke check that loads the app and listens for a
-generate-progress event.
+- `scripts/profile-tiers.ts` — `--all-tiers` flag; emit
+  `firstHitBoard`; retire stale `minClues` preamble; rename the
+  call-site to `clueFloor: clueFloor`.
+- `scripts/tier-distribution.md` — overwritten twice (post-fix
+  baseline, post-tuning final). Both go in git history.
+- `scripts/tier-distribution.summary.json` — same; gains
+  `firstHitBoard` field.
+- `src/engine/generator/generate-for-difficulty.ts` — possibly widen
+  `MAX_ATTEMPTS_BY_TIER` per the iteration-5 formula; refresh
+  doc-block.
+- `src/engine/generator/variant-tiers.ts` — possibly restore tiers in
+  `VARIANT_TIERS`; rewrite doc-block to cite iteration-5 evidence.
+- `src/engine/solver/techniques/tier-fixtures.ts` — add fixtures for
+  any restored tiers.
+- `src/engine/solver/techniques/tier-fixtures.test.ts` — add
+  `solved === true` assertion.
+- `src/main.tsx` — gate `__sudokuGameStore` behind
+  `import.meta.env.DEV`.
+- `src/screens/Stats.tsx` — hide filter pill row when `tiers.length <= 1`.
+- `src/workers/generator-client.real-worker.test.ts` — deleted.
+- `package.json` — version bump.
+- `.devloop/archive/iteration-4/` — created during DevLoop's archive
+  step.
 
-## 11. Existing code to update
+## 13. Testing strategy
 
-Non-exhaustive list of files this iteration touches beyond the new
-ones:
+- **Unit**: `tier-fixtures.test.ts` gains the `solved` assertion; if
+  fixtures are added for restored tiers they are auto-included by the
+  existing `Object.entries(TIER_FIXTURES)` iteration. No other new
+  unit tests required.
+- **Profile harness smoke**: `npm run profile-tiers -- --all-tiers
+  --n=1` exits cleanly. Smoke check, not a regression guard.
+- **E2E (local pre-push, Chromium + WebKit)**: the strict matrix
+  (`tests/e2e/difficulty-matrix.spec.ts`) iterates the new
+  `availableTiers(variant)` (which, if §7 restored tiers, is now
+  larger). It should pass on every advertised tier. If a restored tier
+  fails the strict matrix, that tier's restoration must be reverted
+  before the iteration ships — the matrix is the canonical guard.
+- **Playwright `__sudokuGameStore` consumers**: `hint-learn-more`,
+  `new-game`, `notes-and-conflicts`, and `resume` continue to pass
+  (they run against `vite dev` where `DEV` is true).
+- **Playwright `worker-smoke` and `pwa-update`**: unaffected.
 
-- `src/engine/generator/generate.ts` — rename `maxClues` →
-  `clueFloor`; remove `Math.max(minClues, maxClues)` interaction.
-- `src/engine/generator/generate-for-difficulty.ts` — pass
-  `clueFloor` only; drop `clueBoundsUpperForTier` call; possibly
-  widen `MAX_ATTEMPTS_BY_TIER` per profiling.
-- `src/engine/generator/variant-tiers.ts` (or wherever
-  `clueBoundsLowerForTier` / `availableTiers` live) — possibly
-  adjust per profiling; possibly remove a tier from a variant's
-  `availableTiers` list (third lever).
-- `src/components/GenerationFailedDialog.tsx` — `lastError != null`.
-- `src/store/game.ts` — `cancelGeneration` clears
-  `generationFailure`.
-- `src/workers/generator-client.ts` — JSDoc.
-- `tests/e2e/difficulty-matrix.spec.ts` — strict-success contract;
-  rewrite header narrative.
-- `src/engine/generator/generate-for-difficulty.test.ts` — un-skip
-  Hard/Master; embed seeds.
-- `src/engine/solver/techniques/tier-fixtures.ts` — new file holding
-  the `TIER_FIXTURES` table.
-- `src/engine/solver/techniques/tier-fixtures.test.ts` — new file
-  for the tier-fixture round-trip.
-- `src/screens/Settings.test.tsx` — 2-second auto-revert assertion.
-- `src/App.test.tsx` — structurally-valid v2 payload seed.
-- `package.json` — `profile-tiers` script; `tsx` devDependency if
-  not present; bump version to 0.4.0.
-- `.devloop/archive/iteration-3/` — created during DevLoop's
-  archive step.
+## 14. Edge cases and failure modes
 
-## 12. Testing strategy
+- **Profile reveals a tier is regression-since-iteration-4 (advertised
+  but rate < 5%)**. Treat as a restoration-in-reverse: descope the
+  tier, cite the iteration-5 evidence. This is unlikely given the
+  iteration-4 post-tuning rates were 10–90% for advertised tiers,
+  but the data is data.
+- **Restored tier passes profile but fails strict matrix.** Indicates
+  the §6 attempt-budget formula's confidence interval was too narrow
+  for that cell. Either widen further (cap 200) or revert the
+  restoration. Per §10 final-profile gate.
+- **Profile runtime overshoots 10 minutes.** Re-run with `--n=10`.
+  Histograms remain meaningful; the rates have wider confidence
+  intervals — reflect that in the per-tier attempt budget.
+- **No tier ends up restored.** Iteration 5 is still meaningful —
+  the post-fix evidence replaces the broken-baseline citations, lever
+  1 is still applied where rates are 5–30%, and the smaller cleanups
+  ship. The version bump becomes patch (0.4.1) rather than minor.
+- **A restored tier breaks an existing fixture-tier round-trip.**
+  Shouldn't happen — fixtures are tier-specific, not cross-tier — but
+  the post-write review pass would catch it.
 
-- **Unit**: rename test of `clueFloor`; un-skipped Hard/Master cases
-  in `generate-for-difficulty.test.ts`; new `tier-fixtures` round-trip;
-  Settings 2-second auto-revert; structurally-valid v2 migration
-  seed; real-worker smoke test.
-- **E2E (local pre-push, Chromium + WebKit)**: tightened matrix
-  asserts board-only success; existing desktop-nav, slow-generate,
-  and PWA-update specs unchanged. The matrix becomes the canonical
-  Bug B regression guard.
-- **Profiling**: `npm run profile-tiers` is run twice — once before
-  §5–§6 to capture the baseline, once after §6 tuning to capture the
-  state shipping with v0.4.0. Both runs commit `tier-distribution.md`
-  so the iteration's empirical evidence is in the repo.
+## 15. Success criteria
 
-## 13. Edge cases and failure modes
-
-- **Profiling reveals an unobtainable tier.** Mitigation is the §6
-  third lever: drop the tier from `availableTiers(variant)`. Document
-  the descope in the commit and in `tier-distribution.md` notes.
-- **Profiling runtime overshoots 10 minutes.** Re-run with `--n=10`.
-  Histograms remain meaningful at smaller N — the rates simply have
-  wider confidence intervals.
-- **Hard/Master remain flaky in unit tests after §6.** Fall back to
-  the `vi.spyOn` mock approach in §8 — the strict-tier acceptance
-  path still gets exercised, just without exercising the rater's
-  real distribution at unit scope. Note this explicitly in the test
-  file's comment.
-- **Tier fixture construction is too painful by hand.** This is the
-  intended path: profiling already records `firstHitSeed` per
-  (variant, tier) in `tier-distribution.summary.json`; the §9
-  extraction reads that file, regenerates the puzzle, and writes
-  the entry into `tier-fixtures.ts`. Hand-authoring is only needed
-  if profiling produces no hit anywhere — which is the §9
-  unobtainable-tier escape.
-- **Real-worker smoke test fails under jsdom.** Use the Playwright
-  fallback path described in §10.6.
-- **`maxClues` rename touches generated TypeScript types.** No
-  external callers exist — `GenerateOptions` is internal — so the
-  rename is a single-pass `replace_all` plus tests.
-
-## 14. Success criteria
-
-- `scripts/tier-distribution.md` is checked in with two snapshots
-  visible in the iteration's commit history: the baseline (before
-  §5/§6 changes) and the post-tuning state.
-- `GenerateOptions` no longer carries a `maxClues` field; `clueFloor`
-  is the single floor parameter and its semantics match its name.
-- The matrix E2E passes on Chromium and WebKit with the strict
-  "board must render" contract for every advertised tier in every
-  variant.
-- `generate-for-difficulty.test.ts` no longer `it.skip`s Hard or
-  Master.
-- Tier-fixture round-trip asserts `rate(fixture.board).difficulty
-  === tier` for every tier in `TIER_FIXTURES` and passes. If §6
-  third-lever escape was used to descope a tier from every variant,
-  that tier is omitted from `TIER_FIXTURES` (with a comment) and
-  the round-trip simply does not iterate it.
-- The `GenerationFailedDialog` diagnostic line renders when
-  `lastError` is any defined value, including the empty string.
-- `cancelGeneration` clears `generationFailure`.
-- `generateInWorker`'s JSDoc documents the one-at-a-time contract.
-- The migration test seeds a v2 payload that would parse under the
-  v2 schema.
-- The Settings 2-second auto-revert is asserted under fake timers.
-- The real-worker smoke test runs as part of the unit suite (or, if
-  unavoidable, as a single Playwright test).
-- No regressions in v0.3.0 functionality — existing E2E (desktop nav,
-  slow-generate, PWA update) and unit suites still pass.
-- `package.json` version is bumped to 0.4.0.
+- `scripts/tier-distribution.md` is committed twice in iteration-5
+  history: a post-fix baseline (after §4 changes, before §6) and an
+  iteration-5 final (after §10).
+- The iteration-5 baseline `tier-distribution.summary.json` covers
+  every cell in `DIFFICULTY_ORDER × {classic, six, mini}` with a
+  defined `CLUE_BOUNDS` window.
+- `MAX_ATTEMPTS_BY_TIER` reflects lever-1 widening for any tier whose
+  post-fix rate lands in the 5–30% band; its doc-block cites
+  iteration-5 evidence.
+- `VARIANT_TIERS` includes every tier whose post-fix rate ≥ 5%; its
+  doc-block cites iteration-5 evidence for any remaining descopes.
+- `TIER_FIXTURES` has an entry for every advertised tier in the new
+  `VARIANT_TIERS`; the fixtures are reproducible from `firstHitSeed`
+  in the iteration-5 baseline summary.
+- `tier-fixtures.test.ts` asserts `result.solved === true` for every
+  fixture.
+- `__sudokuGameStore` is no longer exposed in production builds.
+- `Stats.tsx` does not render a filter pill row for variants advertising
+  a single tier.
+- `generator-client.real-worker.test.ts` is deleted; the canonical
+  real-worker smoke remains
+  `tests/e2e/worker-smoke.spec.ts`.
+- The strict matrix E2E passes on Chromium and WebKit for every
+  advertised tier in every variant.
+- Unit, type-check, and production-build sweeps pass cleanly.
+- `package.json` version is bumped to 0.4.1 (patch) if no tier was
+  restored, or 0.5.0 (minor) if any tier was restored.
+- No regressions in v0.4.0 functionality — existing E2E specs and
+  unit suites still pass.
