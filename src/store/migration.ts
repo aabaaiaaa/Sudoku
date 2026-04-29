@@ -1,18 +1,22 @@
 /**
  * Detection and removal of legacy save/stats/settings keys from localStorage.
  *
- * The app has bumped its persistence schema multiple times. v1 and v2 entries
- * are no longer loadable but they continue to occupy localStorage space. These
- * helpers let the app detect legacy keys on first load (so it can prompt the
- * user) and remove them when the user confirms.
+ * The app has bumped its persistence schema multiple times. v1, v2, and v3
+ * entries are no longer loadable but they continue to occupy localStorage
+ * space. These helpers let the app detect legacy keys on first load (so it
+ * can prompt the user) and remove them when the user confirms.
  *
- * Matching pattern: `sudoku.<save|stats|settings>.v<1|2>`. v3+ keys are left
- * untouched.
+ * Matching pattern: `sudoku.<save|stats|settings>.v<1|2|3>`. v4+ keys are
+ * left untouched. v3 is now considered legacy because iteration 7's tier
+ * rename (Diabolical/Demonic collapsed into Master, the old Hard/Master
+ * bands removed) invalidates the persisted slot semantics — a v3 save or
+ * stats entry keyed off `classic:diabolical` no longer maps to any
+ * advertised tier in the v0.6.0 ladder.
  *
  * See requirements.md §5.5 for the higher-level UX flow.
  */
 
-const OLD_SAVE_KEY_PATTERN = /^sudoku\.(save|stats|settings)\.v[12]$/;
+const OLD_SAVE_KEY_PATTERN = /^sudoku\.(save|stats|settings)\.v[123]$/;
 
 /**
  * Resolve the storage to use. Returns the explicit `storage` argument when
@@ -31,7 +35,7 @@ function resolveStorage(storage?: Storage): Storage | null {
 }
 
 /**
- * Returns true if any legacy `sudoku.(save|stats|settings).v[12]` key is
+ * Returns true if any legacy `sudoku.(save|stats|settings).v[123]` key is
  * present in `storage`. Defaults to `globalThis.localStorage`. Returns false
  * when no storage is available.
  */
@@ -49,7 +53,7 @@ export function hasOldSaves(storage?: Storage): boolean {
 }
 
 /**
- * Removes every legacy `sudoku.(save|stats|settings).v[12]` key from
+ * Removes every legacy `sudoku.(save|stats|settings).v[123]` key from
  * `storage`. Defaults to `globalThis.localStorage`. No-op when no storage is
  * available.
  *

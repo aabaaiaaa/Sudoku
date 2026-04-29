@@ -69,7 +69,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/store/stats.test.ts` passes after TASK-019 updates the test. For this task in isolation: type-check passes.
 
 ### TASK-010: Extend `OLD_SAVE_KEY_PATTERN` regex
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-008, TASK-009
 - **Description**: In `src/store/migration.ts`, change `OLD_SAVE_KEY_PATTERN` from `/^sudoku\.(save|stats|settings)\.v[12]$/` to `/^sudoku\.(save|stats|settings)\.v[123]$/`. Refresh the file-level docblock to note that v3 is now considered legacy because iteration 7's tier rename invalidates the persisted slot semantics.
