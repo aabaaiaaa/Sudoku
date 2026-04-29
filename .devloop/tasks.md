@@ -263,7 +263,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   prints `0.5.0`.
 
 ### TASK-013: Full unit-test sweep
-- **Status**: pending
+- **Status**: in-progress
 - **Type**: test
 - **Dependencies**: TASK-012
 - **Description**: Run the full vitest unit-test suite to confirm no
@@ -271,7 +271,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
 - **Verification**: `npx vitest run` passes with zero failures.
 
 ### TASK-014: Type-check and production build sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-012
 - **Description**: Run TypeScript type-check across the project and
@@ -280,7 +280,7 @@ See `.devloop/requirements.md` for full context. Tasks are sized for
   exits 0.
 
 ### TASK-015: Full E2E sweep on Chromium and WebKit
-- **Status**: pending
+- **Status**: in-progress
 - **Type**: test
 - **Dependencies**: TASK-012
 - **Description**: Run the Playwright E2E suite on both Chromium and
