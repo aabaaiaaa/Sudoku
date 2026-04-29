@@ -1,27 +1,26 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
-import { getSavedGame, type SavedGame } from '../store/save';
+import { getSavedGame, listSavedGames, type SavedGame } from '../store/save';
 import { variants } from '../engine/variants';
 import { availableTiers } from '../engine/generator/variant-tiers';
 import type { Difficulty } from '../engine/generator/rate';
 import { DifficultyBadge } from '../components/DifficultyBadge';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 interface HomeProps {
   store?: typeof gameStore;
   /**
-   * Optional override for the confirm prompt (used by tests). Defaults to
-   * `window.confirm`. Must return true to proceed with replacing an existing
-   * save.
+   * Optional override for the per-slot save lookup used by `handleNewGame`.
+   * Defaults to a wrapper around `getSavedGame` from the save store.
    */
-  confirmReplace?: (message: string) => boolean;
+  getSavedGameImpl?: (variant: string, difficulty: string) => SavedGame | null;
   /**
-   * Optional hook that tests use to subscribe the component to save-store
-   * changes. In production, save reads happen synchronously through
-   * `getSavedGame` on each render; no external subscription is needed because
-   * the component re-renders when the user triggers actions.
+   * Optional override for the resume list source. Defaults to `listSavedGames`
+   * from the save store, which already returns saves sorted by `savedAt`
+   * descending (most recent first).
    */
-  getSavedGameImpl?: (variant: string) => SavedGame | null;
+  listSavedGamesImpl?: () => SavedGame[];
   /** Invoked after a successful newGame/resume, so the parent can navigate. */
   onEnterGame?: () => void;
 }
@@ -29,7 +28,7 @@ interface HomeProps {
 const variantOrder = ['classic', 'mini', 'six'] as const;
 type VariantId = (typeof variantOrder)[number];
 
-const variantLabels: Record<VariantId, string> = {
+const variantLabels: Record<string, string> = {
   classic: 'Classic',
   mini: 'Mini',
   six: 'Six',
@@ -51,10 +50,25 @@ function formatElapsed(ms: number): string {
   return `${pad(minutes)}:${pad(seconds)}`;
 }
 
+/**
+ * Formats a millisecond timestamp as `YYYY-MM-DD HH:MM:SS` in local time. The
+ * format is fixed and locale-independent so the resume cards render the same
+ * shape regardless of the user's locale.
+ */
+function formatSavedAt(ms: number): string {
+  const d = new Date(ms);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+type ReplaceDialogState =
+  | { open: true; variantId: VariantId; difficulty: string; existing: SavedGame }
+  | { open: false };
+
 export function Home({
   store = gameStore,
-  confirmReplace,
-  getSavedGameImpl = getSavedGame,
+  getSavedGameImpl = (variant, difficulty) => getSavedGame(variant, difficulty),
+  listSavedGamesImpl = () => listSavedGames(),
   onEnterGame,
 }: HomeProps) {
   const newGame = useStore(store, (s) => s.newGame);
@@ -62,6 +76,7 @@ export function Home({
 
   const [variantId, setVariantId] = useState<VariantId>('classic');
   const [difficulty, setDifficulty] = useState<string>('easy');
+  const [replaceDialog, setReplaceDialog] = useState<ReplaceDialogState>({ open: false });
 
   // Re-read saves each time the game store changes (starting or completing a
   // game writes/clears saves through the store).
@@ -93,27 +108,43 @@ export function Home({
     }
   };
 
-  const resumeCards = variantOrder
-    .map((id) => ({ id, save: getSavedGameImpl(id) }))
-    .filter((entry): entry is { id: VariantId; save: SavedGame } => entry.save != null);
+  // Per requirements §5.3, render one card per slot returned by
+  // `listSavedGames()` (already sorted by `savedAt` desc).
+  const resumeCards = listSavedGamesImpl();
 
   const handleNewGame = () => {
-    const existing = getSavedGameImpl(variantId);
-    if (existing) {
-      const confirmFn = confirmReplace ?? ((msg: string) => window.confirm(msg));
-      const ok = confirmFn(
-        `You already have a ${variantLabels[variantId]} game in progress. Start a new one and replace it?`,
-      );
-      if (!ok) return;
-    }
     const v = variants[variantId];
     if (!v) return;
+    const existing = getSavedGameImpl(variantId, effectiveDifficulty);
+    if (existing) {
+      setReplaceDialog({
+        open: true,
+        variantId,
+        difficulty: effectiveDifficulty,
+        existing,
+      });
+      return;
+    }
     newGame(v, effectiveDifficulty);
     onEnterGame?.();
   };
 
-  const handleResume = (id: VariantId) => {
-    const ok = resumeSavedGame(id);
+  const handleReplaceConfirm = () => {
+    if (!replaceDialog.open) return;
+    const v = variants[replaceDialog.variantId];
+    const targetDifficulty = replaceDialog.difficulty;
+    setReplaceDialog({ open: false });
+    if (!v) return;
+    newGame(v, targetDifficulty);
+    onEnterGame?.();
+  };
+
+  const handleReplaceCancel = () => {
+    setReplaceDialog({ open: false });
+  };
+
+  const handleResume = (save: SavedGame) => {
+    const ok = resumeSavedGame(save.variant, save.difficulty);
     if (ok) onEnterGame?.();
   };
 
@@ -177,30 +208,58 @@ export function Home({
         <section className="space-y-2">
           <h2 className="text-lg font-medium">Resume</h2>
           <ul className="space-y-2">
-            {resumeCards.map(({ id, save }) => (
-              <li key={id}>
-                <button
-                  type="button"
-                  data-testid={`home-resume-${id}`}
-                  onClick={() => handleResume(id)}
-                  className="card w-full text-left p-3 transition-colors"
-                >
-                  <div className="font-medium">{variantLabels[id]}</div>
-                  <div className="text-sm opacity-80 flex items-center gap-2">
-                    <DifficultyBadge
-                      difficulty={save.difficulty}
-                      data-testid={`home-resume-${id}-difficulty`}
-                    />
-                    <span data-testid={`home-resume-${id}-elapsed`}>
-                      {formatElapsed(save.elapsedMs)}
-                    </span>
-                  </div>
-                </button>
-              </li>
-            ))}
+            {resumeCards.map((save) => {
+              const variantLabel = variantLabels[save.variant] ?? save.variant;
+              const difficultySlug = save.difficulty.toLowerCase();
+              const cardId = `home-resume-${save.variant}-${difficultySlug}`;
+              return (
+                <li key={cardId}>
+                  <button
+                    type="button"
+                    data-testid={cardId}
+                    onClick={() => handleResume(save)}
+                    className="card w-full text-left p-3 transition-colors"
+                  >
+                    <div className="font-medium">{variantLabel}</div>
+                    <div className="text-sm opacity-80 flex items-center gap-2">
+                      <DifficultyBadge
+                        difficulty={save.difficulty}
+                        data-testid={`${cardId}-difficulty`}
+                      />
+                      <span data-testid={`${cardId}-elapsed`}>
+                        {formatElapsed(save.elapsedMs)}
+                      </span>
+                      <span data-testid={`${cardId}-saved-at`}>
+                        {formatSavedAt(save.savedAt)}
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
+
+      <ConfirmDialog
+        open={replaceDialog.open}
+        title="Replace existing game?"
+        body={
+          replaceDialog.open ? (
+            <>
+              You have a {variantLabels[replaceDialog.variantId]}{' '}
+              <DifficultyBadge difficulty={replaceDialog.difficulty} /> game in
+              progress (elapsed {formatElapsed(replaceDialog.existing.elapsedMs)},
+              saved at {formatSavedAt(replaceDialog.existing.savedAt)}). Start a
+              new one and replace it?
+            </>
+          ) : null
+        }
+        confirmLabel="Replace"
+        cancelLabel="Cancel"
+        onConfirm={handleReplaceConfirm}
+        onCancel={handleReplaceCancel}
+      />
     </div>
   );
 }

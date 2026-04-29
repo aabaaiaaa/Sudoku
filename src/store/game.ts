@@ -114,19 +114,19 @@ export interface GameActions {
   /** Visibility-driven resume — no-op when the user manually paused. */
   resumeFromVisibility: () => void;
 
-  /** True iff a save exists in localStorage for the given variant. */
-  hasSavedGame: (variant: string) => boolean;
+  /** True iff a save exists in localStorage for the given (variant, difficulty) slot. */
+  hasSavedGame: (variant: string, difficulty: string) => boolean;
   /**
-   * Attempts to restore the game state for the given variant from the save
-   * file. Resets selection and notesMode. Returns true on success, false
-   * when no save is present.
+   * Attempts to restore the game state for the given (variant, difficulty)
+   * slot from the save file. Resets selection and notesMode. Returns true on
+   * success, false when no save is present.
    */
-  resumeSavedGame: (variant: string) => boolean;
-  /** Snapshots the current game state into the save file for its variant. */
+  resumeSavedGame: (variant: string, difficulty: string) => boolean;
+  /** Snapshots the current game state into the save file for its (variant, difficulty) slot. */
   saveCurrent: () => void;
   /**
-   * Clears the save for the current variant (called when a game is
-   * successfully finished).
+   * Clears the save for the current (variant, difficulty) slot (called when
+   * a game is successfully finished).
    */
   completeGame: () => void;
 }
@@ -297,7 +297,9 @@ export function createGameStore(
         const board = result.puzzle;
         set({ board, loading: false, generationFailure: null });
 
-        // Starting a new game for a variant OVERWRITES that variant's save.
+        // Starting a new game writes to the (variant, difficulty) slot,
+        // overwriting only that slot's previous save (other slots are
+        // untouched).
         const { mistakes, timer, difficulty: d } = get();
         const snapshot: SavedGame = {
           variant: board.variant.id,
@@ -505,10 +507,10 @@ export function createGameStore(
       });
     },
 
-    hasSavedGame: (variantId) => hasSavedGameStorage(variantId),
+    hasSavedGame: (variantId, difficulty) => hasSavedGameStorage(variantId, difficulty),
 
-    resumeSavedGame: (variantId) => {
-      const saved = getSavedGame(variantId);
+    resumeSavedGame: (variantId, difficulty) => {
+      const saved = getSavedGame(variantId, difficulty);
       if (!saved) return false;
       const v = getVariant(variantId);
       if (!v) return false;
@@ -546,8 +548,8 @@ export function createGameStore(
     },
 
     completeGame: () => {
-      const { board } = get();
-      clearSavedGame(board.variant.id);
+      const { board, difficulty } = get();
+      clearSavedGame(board.variant.id, difficulty);
     },
   }));
 }

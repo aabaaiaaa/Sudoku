@@ -159,7 +159,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/store/settings.test.ts` passes.
 
 ### TASK-024: Update game store to per-(variant, difficulty) saves
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: In `src/store/game.ts`, update `newGame` to call `putSavedGame` with the new slot semantics; update `resumeSavedGame(variantId, difficulty)` to accept the difficulty and load via `getSavedGame(variantId, difficulty)`; update `completeGame()` to clear only the current slot via `clearSavedGame(board.variant.id, difficulty)`; update `saveCurrent()` similarly. The existing tests in `game.test.ts` use the per-variant signatures and will fail after this change — that is expected and is repaired in TASK-025. See requirements §5.2.
 - **Verification**: `npx tsc --noEmit` exits zero (the change compiles cleanly). Test-pass verification is delegated to TASK-025, which lands in the same commit chain immediately after.
@@ -171,13 +171,13 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/store/game.test.ts` passes.
 
 ### TASK-026: Resume list — list all slots, sorted, with timestamp
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-021
 - **Description**: In `src/screens/Home.tsx`, replace the `getSavedGameImpl` per-variant filter with a call to `listSavedGames()` (sorted by `savedAt` desc by helper). Render one card per slot. Each card shows variant label, `DifficultyBadge`, elapsed time, and a `savedAt` timestamp formatted as `YYYY-MM-DD HH:MM:SS` in local time. Test ids: `home-resume-${variantId}-${difficultySlug}` (variant + difficulty), with `-elapsed`, `-difficulty`, `-saved-at` sub-ids on the card. See requirements §5.3.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx` passes including a new case asserting two saves for the same variant render as two cards in `savedAt` desc order.
 
 ### TASK-027: Replace window.confirm with ConfirmDialog in Home
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-019, TASK-021
 - **Description**: In `src/screens/Home.tsx`, remove the `confirmReplace` prop and the `window.confirm` call. Add local state `replaceDialog: { open, variantId, difficulty } | null`. When `handleNewGame` finds an existing slot, set the dialog state instead of confirming inline; render `<ConfirmDialog>` with the title "Replace existing game?" and a body that names the variant + difficulty + elapsed + savedAt. Confirm calls `newGame` and navigates; cancel closes the dialog. Update the existing `Home.test.tsx` cases that supplied `confirmReplace` to drive the dialog through DOM clicks. See requirements §5.4.
 - **Verification**: `npx vitest run src/screens/Home.test.tsx` passes.
@@ -213,13 +213,13 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/pwa/useUpdate.test.ts` passes including a new case using fake timers that asserts `update()` is called after 60s.
 
 ### TASK-033: Visibility-driven update check
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-032
 - **Description**: In `src/pwa/useUpdate.ts`, register a `visibilitychange` listener that, when `document.visibilityState === 'visible'`, calls `r?.update()`. Remove the listener on unmount. See requirements §8.
 - **Verification**: `npx vitest run src/pwa/useUpdate.test.ts` passes including a case that dispatches a `visibilitychange` event and asserts `update()` was called.
 
 ### TASK-034: Expose checkForUpdates from usePwaUpdate
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-032
 - **Description**: In `src/pwa/useUpdate.ts`, expose a `checkForUpdates: () => Promise<'updated' | 'idle' | 'error'>` callback that calls `r?.update()` and resolves once the call completes. The result distinguishes whether `onNeedRefresh` fired during the check. See requirements §8.
 - **Verification**: `npx vitest run src/pwa/useUpdate.test.ts` passes including a case asserting the resolved status values for each scenario.
