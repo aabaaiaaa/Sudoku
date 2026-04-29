@@ -10,18 +10,13 @@ export interface TierFixture {
 /**
  * One fixture per advertised (variant, tier) cell. Keys are
  * `${variant}:${tier}` so multi-variant tiers (e.g. Medium in classic and six)
- * can each have an independently-traceable fixture. For each cell we reuse
- * the firstHitSeed recorded in scripts/tier-distribution.summary.json after
- * iteration-6 tuning (the corrected baseline produced under solved-aware
- * tracking), or the lever-2 summary for cells restored at a lowered floor,
- * so the fixture is reproducible by re-running:
+ * can each have an independently-traceable fixture. Seeds and boards are
+ * sourced from `firstHitSeed` / `firstHitBoard` in
+ * `scripts/tier-distribution.summary.json` (iteration-7 corrected baseline,
+ * 2026-04-30, n=50, solved-aware tracking). Fixtures are reproducible via:
  *
  *   const clueFloor = CLUE_BOUNDS[variantId][tier]?.[0];
  *   const { puzzle } = generate(variant, { seed, clueFloor });
- *
- * The seed/board values below are iteration-6 placeholders carried under the
- * iteration-7 key rename (subsets → Hard, wings → Expert, chains → Master);
- * TASK-015 refreshes them from the iteration-7 corrected baseline.
  */
 export const TIER_FIXTURES: Record<string, TierFixture> = {
   'classic:Easy': {
@@ -39,34 +34,43 @@ export const TIER_FIXTURES: Record<string, TierFixture> = {
   'classic:Hard': {
     variant: 'classic',
     board:
-      '......5....4....122....3.674....16...18..9...7...38.......5.98...7.........6..1.3',
-    seed: 301,
+      '..6.1......97.5..1...9....8..72......5....6.9..1..3..4.751.2.8..........3..89.5..',
+    seed: 201,
   },
   'classic:Expert': {
     variant: 'classic',
     board:
-      '.....29.5....7.32.7...9.....3..86....8.9..1.7....4.8..25...8.....8...4...4..6..3.',
-    seed: 504,
+      '.9148.......5....9.8...7.......9.7.2...8.5...54.17..8..6......1....3..2...9....4.',
+    seed: 333,
   },
   'classic:Master': {
     variant: 'classic',
     board:
-      '62..8.....5..4.2...4..5..131..9.4..773......1.......5.8....56.9...7..........3...',
-    seed: 612,
+      '3....4.82.7..6....4...12.....8...19.26...8.....3....5.6...7...3..........5....61.',
+    seed: 431,
   },
   'classic:Nightmare': {
     variant: 'classic',
     board:
-      '...4.....3...16.5..2..8..7...73.59..6.4.2...8.....8.1............9...6....26.1.43',
-    seed: 703,
+      '5..6.27...1...93....3....5...4....6.8.51.........8......1.6..7.73......8.....79.3',
+    seed: 514,
   },
-  // six:Medium restored in iteration 6 via lever-2 (clueFloor lowered from 18
-  // to 14); seed/board from scripts/tier-distribution.lever2.summary.json
-  // `six:Medium@14`.
+  // six:Easy and mini:Easy added in iteration 7 (closes review G1).
+  'six:Easy': {
+    variant: 'six',
+    board: '2.5631...25.41.3.53.6142.31.26..4.1.',
+    seed: 1000,
+  },
+  // six:Medium restored in iteration 6 via lever-2 (clueFloor lowered from 18 to 14).
   'six:Medium': {
     variant: 'six',
     board: '16...2...6...2..43.341......61.1.2..',
     seed: 1102,
+  },
+  'mini:Easy': {
+    variant: 'mini',
+    board: '..41.1321.242413',
+    seed: 2000,
   },
 };
 

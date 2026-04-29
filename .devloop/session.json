@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 13,
+  "lastIteration": 14,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-014",
-    "taskTitle": "Re-pin `TIER_BUDGETS` against iteration-7 baseline",
-    "iterationNumber": 14,
-    "startedAt": "2026-04-29T23:38:20.238Z"
+    "taskId": "TASK-015",
+    "taskTitle": "Refresh `TIER_FIXTURES` from iteration-7 baseline",
+    "iterationNumber": 15,
+    "startedAt": "2026-04-29T23:41:07.746Z"
   }
 }

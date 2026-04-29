@@ -104,7 +104,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit src/engine/generator/generate-for-difficulty.ts` exits 0; the `TIER_BUDGETS` literal in the file is consistent with the formula derived from the baseline JSON (spot-check by re-deriving N for one tier — e.g. `Master` whose `solvedRate` is the smallest). The full per-tier table assertion is pinned in TASK-016.
 
 ### TASK-015: Refresh `TIER_FIXTURES` from iteration-7 baseline
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-006, TASK-013
 - **Description**: For each of the nine advertised cells, replace `seed` and `board` in `TIER_FIXTURES` with the `firstHitSeed` and `firstHitBoard` from the iteration-7 corrected baseline summary JSON. Add new `'six:Easy'` and `'mini:Easy'` entries (closes review G1). The `tierFromKey` helper is unchanged. Update the file-level docblock to cite the iteration-7 baseline by date and remove the iteration-6 lever-2 reference (or keep a one-line note that `six:Medium` was lever-2-restored in iteration 6).
