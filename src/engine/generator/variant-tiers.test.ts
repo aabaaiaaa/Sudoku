@@ -3,15 +3,15 @@ import { availableTiers } from './variant-tiers';
 import { classicVariant, miniVariant, sixVariant } from '../variants';
 
 describe('availableTiers', () => {
-  it('returns the post-tuning classic tier list (Hard and Master descoped)', () => {
-    // Iteration 4 §6 third lever: classic:Hard and classic:Master had rate=0
-    // in the baseline summary and could not be rescued by levers 1 or 2.
+  it('returns the full six-tier classic list (iteration-7 collapse)', () => {
+    // Iteration 7 collapsed the ladder to six tiers. Every tier in the new
+    // ladder is reachable on classic per the iteration-7 corrected baseline.
     expect(availableTiers(classicVariant)).toEqual([
       'Easy',
       'Medium',
+      'Hard',
       'Expert',
-      'Diabolical',
-      'Demonic',
+      'Master',
       'Nightmare',
     ]);
   });
@@ -39,6 +39,6 @@ describe('availableTiers', () => {
 
   it('falls back to the full tier list for unknown variants', () => {
     const unknown = { ...classicVariant, id: 'unknown-variant' };
-    expect(availableTiers(unknown)).toHaveLength(8);
+    expect(availableTiers(unknown)).toHaveLength(6);
   });
 });

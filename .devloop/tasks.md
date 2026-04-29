@@ -118,7 +118,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` passes.
 
 ### TASK-017: Update unit tests across `engine/generator`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-002, TASK-003, TASK-005
 - **Description**: Update `src/engine/generator/rate.test.ts` (assertions on `TECHNIQUE_TIER` keys/values per the new mapping, `DIFFICULTY_ORDER` array shape, `CLUE_BOUNDS` shape per variant). Update `src/engine/generator/variant-tiers.test.ts` (`availableTiers(classicVariant)` returns six tiers; six and mini unchanged). Drop any test importing the removed `'Diabolical'` / `'Demonic'` literals.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rate, CLUE_BOUNDS, DIFFICULTY_ORDER, type Difficulty } from './rate';
+import { rate, CLUE_BOUNDS, DIFFICULTY_ORDER } from './rate';
 import { createEmptyBoard, createGivenCell } from '../types';
 import { classicVariant, miniVariant, sixVariant } from '../variants';
 import type { Board, Digit, Variant } from '../types';
@@ -80,22 +80,22 @@ describe('CLUE_BOUNDS', () => {
   it('matches the Classic bounds specified in the requirements doc', () => {
     expect(CLUE_BOUNDS.classic.Easy).toEqual([38, 45]);
     expect(CLUE_BOUNDS.classic.Medium).toEqual([32, 37]);
-    expect(CLUE_BOUNDS.classic.Hard).toEqual([28, 31]);
-    expect(CLUE_BOUNDS.classic.Expert).toEqual([24, 27]);
+    expect(CLUE_BOUNDS.classic.Hard).toEqual([24, 27]);
+    expect(CLUE_BOUNDS.classic.Expert).toEqual([24, 28]);
   });
 
   it('defines the variant-specific tier ranges per the requirements doc', () => {
-    // Classic supports the full Easy → Nightmare range.
+    // Classic supports the full Easy → Nightmare six-tier range.
     for (const d of DIFFICULTY_ORDER) {
       expect(CLUE_BOUNDS.classic[d]).toBeDefined();
     }
-    // Six caps at Diabolical (no Demonic / Nightmare entries).
-    expect(CLUE_BOUNDS.six.Diabolical).toBeDefined();
-    expect(CLUE_BOUNDS.six.Demonic).toBeUndefined();
+    // Six caps at Medium (Hard+ entries dropped in iteration 7).
+    expect(CLUE_BOUNDS.six.Medium).toBeDefined();
+    expect(CLUE_BOUNDS.six.Hard).toBeUndefined();
     expect(CLUE_BOUNDS.six.Nightmare).toBeUndefined();
-    // Mini caps at Hard.
-    expect(CLUE_BOUNDS.mini.Hard).toBeDefined();
-    expect(CLUE_BOUNDS.mini.Expert).toBeUndefined();
+    // Mini caps at Easy only (Medium+ dropped in iteration 7).
+    expect(CLUE_BOUNDS.mini.Easy).toBeDefined();
+    expect(CLUE_BOUNDS.mini.Medium).toBeUndefined();
   });
 
   it('classic tier bounds are strictly ordered — easier tiers have more clues', () => {
@@ -213,7 +213,7 @@ describe('rate — Classic Master (X-wing required)', () => {
     expect(DIFFICULTY_ORDER).toContain(result.difficulty);
   });
 
-  it('rates a sparse derived puzzle within the canonical 8-tier ramp', () => {
+  it('rates a sparse derived puzzle within the canonical six-tier ramp', () => {
     // Derived from CLASSIC_SOLUTION by removing ~40 cells in a distributed
     // pattern. The original test author's intent was to exercise X-Wing+
     // techniques, but with ~40 givens remaining the puzzle is still dense
@@ -236,17 +236,7 @@ describe('rate — Classic Master (X-wing required)', () => {
       holes,
     );
     const result = rate(puzzle);
-    const acceptable: Difficulty[] = [
-      'Easy',
-      'Medium',
-      'Hard',
-      'Expert',
-      'Master',
-      'Diabolical',
-      'Demonic',
-      'Nightmare',
-    ];
-    expect(acceptable).toContain(result.difficulty);
+    expect(DIFFICULTY_ORDER).toContain(result.difficulty);
   });
 });
 

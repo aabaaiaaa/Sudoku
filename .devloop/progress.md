@@ -2,9 +2,9 @@
 
 ## Summary
 - **Total Tasks**: 24
-- **Completed**: 16
-- **Remaining**: 8
-- **Last Updated**: 2026-04-29T23:46:19.387Z
+- **Completed**: 17
+- **Remaining**: 7
+- **Last Updated**: 2026-04-29T23:49:48.225Z
 
 ## Iteration Log
 
@@ -151,4 +151,13 @@
 - **Exit Status**: success
 - **Tokens**: 815,861 total (17 in, 8,143 out, 49,302 cache-create, 758,399 cache-read)
 - **Cost**: $0.5346
+
+### Iteration 17 - 2026-04-29T23:49:48.223Z
+- **Task Attempted**: TASK-017
+- **Task Completed**: TASK-017
+- **Summary**: Completed Update unit tests across `engine/generator`
+- **Duration**: 3m 27s
+- **Exit Status**: success
+- **Tokens**: 1,182,461 total (18 in, 8,442 out, 73,784 cache-create, 1,100,217 cache-read)
+- **Cost**: $0.7334
 
