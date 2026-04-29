@@ -1,19 +1,19 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * TASK-062: E2E — Difficulty picker hides infeasible tiers per variant.
+ * E2E — Difficulty picker hides infeasible tiers per variant.
  *
- * Per requirements §4.1, smaller grids cannot mathematically require advanced
- * techniques, so the Home picker only exposes the tiers each variant can
- * realistically produce:
+ * Iteration-4 §6 lever 3 descopes tiers the rater cannot reliably hit on a
+ * given grid. The picker only exposes tiers each variant can realistically
+ * produce — see `src/engine/generator/variant-tiers.ts`:
  *
- *   - Classic (9×9): Easy → Nightmare (8 tiers)
- *   - Six (6×6):     Easy → Diabolical (6 tiers)
- *   - Mini (4×4):    Easy → Hard (3 tiers)
+ *   - Classic (9×9): Easy, Medium, Expert, Diabolical, Demonic, Nightmare
+ *                    (Hard and Master descoped)
+ *   - Six (6×6):     Easy only (harder tiers unreachable on the 6×6 grid)
+ *   - Mini (4×4):    Easy only (harder tiers unreachable on the 4×4 grid)
  *
  * Switching the variant on Home must update the difficulty radio group to
- * match the cap, hiding "Master" and above on Mini and Six (Six only hides
- * Demonic+).
+ * match.
  */
 
 const ALL_TIERS = [
@@ -28,9 +28,9 @@ const ALL_TIERS = [
 ] as const;
 
 const VARIANT_TIERS: Record<'classic' | 'six' | 'mini', readonly string[]> = {
-  classic: ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical', 'demonic', 'nightmare'],
-  six: ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical'],
-  mini: ['easy', 'medium', 'hard'],
+  classic: ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'],
+  six: ['easy'],
+  mini: ['easy'],
 };
 
 test('Home difficulty picker hides infeasible tiers per variant', async ({
@@ -59,15 +59,23 @@ test('Home difficulty picker hides infeasible tiers per variant', async ({
     }
   }
 
-  // --- Explicit Mini check: no "Master+" buttons are exposed. --------------
+  // --- Explicit Mini check: only Easy is exposed. ------------------------
   await page.getByTestId('home-variant-mini').check();
-  for (const tier of ['master', 'diabolical', 'demonic', 'nightmare'] as const) {
+  for (const tier of [
+    'medium',
+    'hard',
+    'expert',
+    'master',
+    'diabolical',
+    'demonic',
+    'nightmare',
+  ] as const) {
     await expect(page.getByTestId(`home-difficulty-${tier}`)).toHaveCount(0);
   }
 
-  // Sanity: Mini exposes exactly 3 difficulty options.
+  // Sanity: Mini exposes exactly 1 difficulty option.
   const miniRadios = page.locator(
     '[data-testid^="home-difficulty-"][type="radio"]',
   );
-  await expect(miniRadios).toHaveCount(3);
+  await expect(miniRadios).toHaveCount(1);
 });

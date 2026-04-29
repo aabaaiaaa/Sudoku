@@ -36,6 +36,19 @@ test('pencil marks clear from peers and conflicts are highlighted', async ({
   const board = page.getByTestId('sudoku-board');
   await expect(board).toBeVisible();
 
+  // The board container mounts before the worker resolves, so we must wait
+  // for generation to finish before injecting state — otherwise the worker's
+  // success callback overwrites the seeded board mid-test (the digit-pad
+  // "complete" disable then breaks subsequent clicks).
+  await page.waitForFunction(() => {
+    const store = (
+      window as unknown as {
+        __sudokuGameStore?: { getState: () => { loading: boolean } };
+      }
+    ).__sudokuGameStore;
+    return store?.getState().loading === false;
+  });
+
   // --- Seed a fully empty, all-editable Mini grid. --------------------------
   await page.evaluate(() => {
     type Cell = { value: number | null; notes: Set<number>; given: boolean };

@@ -73,6 +73,19 @@ test('resumes a saved Classic game after page reload', async ({ page }) => {
   const board = page.getByTestId('sudoku-board');
   await expect(board).toBeVisible();
 
+  // The board container mounts before the worker resolves; wait for
+  // generation to finish before scanning for empty cells, otherwise the
+  // worker's success callback overwrites our picks with given values and
+  // the subsequent placements get dropped on `cell.click()`.
+  await page.waitForFunction(() => {
+    const store = (
+      window as unknown as {
+        __sudokuGameStore?: { getState: () => { loading: boolean } };
+      }
+    ).__sudokuGameStore;
+    return store?.getState().loading === false;
+  });
+
   // --- Step 2: place a few digits into empty cells. -------------------------
   const CLASSIC_SIZE = 9;
   const placements = await pickEmptyCells(page, CLASSIC_SIZE, 3);
@@ -96,11 +109,12 @@ test('resumes a saved Classic game after page reload', async ({ page }) => {
   const resumeHeading = page.getByRole('heading', { name: 'Resume' });
   await expect(resumeHeading).toBeVisible();
 
-  const resumeCard = page.getByTestId('home-resume-classic');
+  // Iteration-3 §5.3: resume cards are keyed per (variant, difficulty) slot.
+  const resumeCard = page.getByTestId('home-resume-classic-easy');
   await expect(resumeCard).toBeVisible();
   await expect(resumeCard).toContainText('Classic');
   await expect(
-    page.getByTestId('home-resume-classic-difficulty'),
+    page.getByTestId('home-resume-classic-easy-difficulty'),
   ).toHaveText(/easy/i);
 
   // --- Step 5: click the Resume card. --------------------------------------

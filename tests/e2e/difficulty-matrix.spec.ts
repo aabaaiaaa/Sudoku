@@ -48,39 +48,43 @@ async function runTierCase(
   await page.getByTestId(`home-difficulty-${slug}`).check();
   await page.getByTestId('home-new-game').click();
 
-  // --- Wait for the board to render. -----------------------------------
-  // Strict-success contract: only the board appearing counts as a pass.
-  // The 60s hard cap inside the worker means it must appear within ~70s.
+  // --- Wait for the board to be populated with givens. ------------------
+  // Strict-success contract: only a populated board counts as a pass. The
+  // `sudoku-board` container is rendered immediately on Game-screen mount
+  // (the LoadingOverlay sits *on top* of it during generation), so polling
+  // for container visibility is racy — we'd race the loading state and see
+  // an empty grid. Instead, poll the top-left 3×3 region for any given.
+  // Every variant produces multiple givens, so this is a strong signal
+  // generation has completed and emitted a real puzzle. (Mini's grid is
+  // 4×4 so the 3×3 sample is still safely in-bounds.) The 60s hard cap
+  // inside the worker means givens must appear within ~70s.
   const board = page.getByTestId('sudoku-board');
   const failureDialog = page.getByTestId('generation-failed-dialog');
 
   await expect
     .poll(
       async () => {
-        if (await board.isVisible()) return 'success';
-        return 'pending';
+        // If the failure dialog appears at any point, fail fast — generation
+        // ran out of budget. The strict-success contract treats this as a
+        // hard regression rather than a recoverable outcome.
+        if (await failureDialog.isVisible()) return 'failed';
+        let givens = 0;
+        for (let r = 0; r < 3; r += 1) {
+          for (let c = 0; c < 3; c += 1) {
+            const text = (
+              await page.getByTestId(`cell-r${r}-c${c}`).textContent()
+            )?.trim();
+            if (text && text.length > 0) givens += 1;
+          }
+        }
+        return givens > 0 ? 'success' : 'pending';
       },
       { timeout: PER_TIER_TIMEOUT_MS - 5_000, intervals: [200, 500, 1_000] },
     )
     .toBe('success');
 
-  // Success path: at least one given cell is rendered. We sample the
-  // top-left 3×3 region — every variant has multiple givens, so finding
-  // *any* non-empty cell here is a strong indicator the generator
-  // produced a real board. (Mini's grid is 4×4 so a 3×3 sample is still
-  // safely in-bounds.)
-  let givenCount = 0;
-  for (let r = 0; r < 3; r += 1) {
-    for (let c = 0; c < 3; c += 1) {
-      const text = (await page.getByTestId(`cell-r${r}-c${c}`).textContent())
-        ?.trim();
-      if (text && text.length > 0) givenCount += 1;
-    }
-  }
-  expect(
-    givenCount,
-    `${variant.id} ${tier}: board rendered but no given cells found in the top-left region`,
-  ).toBeGreaterThan(0);
+  // Sanity: the board container is mounted at this point.
+  await expect(board).toBeVisible();
 
   // The failure dialog must NOT be visible at the end of the flow — its
   // appearance for any reason is a hard regression under the strict

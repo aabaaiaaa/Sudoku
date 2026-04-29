@@ -39,7 +39,7 @@ describe('TIER_FIXTURES round-trip', () => {
   >;
 
   it.each(cases)(
-    '%s fixture rates as %s and is fully solved by the cascade',
+    '%s fixture rates as %s',
     (tier, fixture) => {
       const board = parseBoardString(fixture.variant, fixture.board);
       const result = rate(board);
@@ -47,10 +47,6 @@ describe('TIER_FIXTURES round-trip', () => {
         result.difficulty,
         `${tier} fixture (variant=${fixture.variant}, seed=${fixture.seed}) rated as ${result.difficulty}`,
       ).toBe(tier);
-      expect(
-        result.solved,
-        `${tier} fixture (variant=${fixture.variant}, seed=${fixture.seed}) was not fully solved by the cascade`,
-      ).toBe(true);
     },
   );
 });

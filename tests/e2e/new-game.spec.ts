@@ -43,6 +43,19 @@ test('Mini game → place final digit → win modal appears with non-zero time',
 
   await expect(page.getByTestId('sudoku-board')).toBeVisible();
 
+  // The board container mounts before the worker resolves, so we must wait
+  // for generation to finish before injecting state — otherwise the worker's
+  // success callback overwrites the seeded board mid-test (a real race that
+  // surfaced as a WebKit-only flake under iteration-4 timing).
+  await page.waitForFunction(() => {
+    const store = (
+      window as unknown as {
+        __sudokuGameStore?: { getState: () => { loading: boolean } };
+      }
+    ).__sudokuGameStore;
+    return store?.getState().loading === false;
+  });
+
   // --- Seed a near-complete board via the exposed test hook. ---------------
   //
   // The hook exposes the singleton Zustand store. We replace the board cells

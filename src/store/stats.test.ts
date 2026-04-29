@@ -158,33 +158,24 @@ describe('stats store', () => {
     const store = createStatsStore();
     const entries = store.getState().entries;
 
-    // Classic exposes all 8 tiers.
-    for (const slug of [
-      'easy',
-      'medium',
-      'hard',
-      'expert',
-      'master',
-      'diabolical',
-      'demonic',
-      'nightmare',
-    ]) {
+    // Classic post-tuning advertises 6 tiers (Hard and Master descoped per
+    // iteration-4 §6 lever 3 — see variant-tiers.ts).
+    for (const slug of ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare']) {
       expect(entries[entryKey('classic', slug)]).toBeDefined();
       expect(entries[entryKey('classic', slug)].gamesCompleted).toBe(0);
     }
+    expect(entries[entryKey('classic', 'hard')]).toBeUndefined();
+    expect(entries[entryKey('classic', 'master')]).toBeUndefined();
 
-    // Six caps at Diabolical.
-    for (const slug of ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical']) {
-      expect(entries[entryKey('six', slug)]).toBeDefined();
-    }
-    expect(entries[entryKey('six', 'demonic')]).toBeUndefined();
-    expect(entries[entryKey('six', 'nightmare')]).toBeUndefined();
+    // Six and Mini are descoped to Easy only (harder tiers were unreachable
+    // on the smaller grids — variant-tiers.ts).
+    expect(entries[entryKey('six', 'easy')]).toBeDefined();
+    expect(entries[entryKey('six', 'medium')]).toBeUndefined();
+    expect(entries[entryKey('six', 'diabolical')]).toBeUndefined();
 
-    // Mini caps at Hard.
-    for (const slug of ['easy', 'medium', 'hard']) {
-      expect(entries[entryKey('mini', slug)]).toBeDefined();
-    }
-    expect(entries[entryKey('mini', 'expert')]).toBeUndefined();
+    expect(entries[entryKey('mini', 'easy')]).toBeDefined();
+    expect(entries[entryKey('mini', 'medium')]).toBeUndefined();
+    expect(entries[entryKey('mini', 'hard')]).toBeUndefined();
   });
 
   it('records completions for the new tier names without losing prior keys', () => {
@@ -204,7 +195,7 @@ describe('stats store', () => {
 
     // Other pre-initialised keys are unaffected.
     expect(entries[entryKey('classic', 'easy')].gamesCompleted).toBe(0);
-    expect(entries[entryKey('mini', 'hard')].gamesCompleted).toBe(0);
+    expect(entries[entryKey('mini', 'easy')].gamesCompleted).toBe(0);
   });
 
   it('uses the v3 storage key and bumped schema version', () => {

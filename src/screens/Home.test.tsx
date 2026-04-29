@@ -16,25 +16,25 @@ function makeSavedGame(overrides: Partial<SavedGame> = {}): SavedGame {
   };
 }
 
+// Iteration-4 §6 lever 3 descopes Hard and Master from Classic, and reduces
+// Six and Mini to Easy only — see variant-tiers.ts.
 const CLASSIC_TIERS = [
   'easy',
   'medium',
-  'hard',
   'expert',
-  'master',
   'diabolical',
   'demonic',
   'nightmare',
 ] as const;
-const SIX_TIERS = ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical'] as const;
-const MINI_TIERS = ['easy', 'medium', 'hard'] as const;
+const SIX_TIERS = ['easy'] as const;
+const MINI_TIERS = ['easy'] as const;
 
 describe('Home screen', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('renders the variant picker and the Classic difficulty tiers (8) by default', () => {
+  it('renders the variant picker and the Classic difficulty tiers (6) by default', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -53,12 +53,13 @@ describe('Home screen', () => {
     for (const tier of CLASSIC_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // Classic shows all 8; nothing else is filtered out.
-    expect(queryByTestId('home-difficulty-master')).toBeTruthy();
+    // Hard and Master are descoped from Classic post-tuning.
+    expect(queryByTestId('home-difficulty-hard')).toBeNull();
+    expect(queryByTestId('home-difficulty-master')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeTruthy();
   });
 
-  it('shows only the Six tiers (Easy → Diabolical) when Six is selected', () => {
+  it('shows only Easy when Six is selected', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -73,12 +74,14 @@ describe('Home screen', () => {
     for (const tier of SIX_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // Tiers above Diabolical are hidden for Six.
-    expect(queryByTestId('home-difficulty-demonic')).toBeNull();
+    // All harder tiers are descoped from Six post-tuning.
+    expect(queryByTestId('home-difficulty-medium')).toBeNull();
+    expect(queryByTestId('home-difficulty-hard')).toBeNull();
+    expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeNull();
   });
 
-  it('shows only the Mini tiers (Easy → Hard) when Mini is selected', () => {
+  it('shows only Easy when Mini is selected', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -93,11 +96,11 @@ describe('Home screen', () => {
     for (const tier of MINI_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // Tiers above Hard are hidden for Mini.
+    // All harder tiers are descoped from Mini post-tuning.
+    expect(queryByTestId('home-difficulty-medium')).toBeNull();
+    expect(queryByTestId('home-difficulty-hard')).toBeNull();
     expect(queryByTestId('home-difficulty-expert')).toBeNull();
-    expect(queryByTestId('home-difficulty-master')).toBeNull();
     expect(queryByTestId('home-difficulty-diabolical')).toBeNull();
-    expect(queryByTestId('home-difficulty-demonic')).toBeNull();
     expect(queryByTestId('home-difficulty-nightmare')).toBeNull();
   });
 
@@ -118,15 +121,16 @@ describe('Home screen', () => {
     fireEvent.click(getByTestId('home-difficulty-nightmare'));
     expect((getByTestId('home-difficulty-nightmare') as HTMLInputElement).checked).toBe(true);
 
-    // Switch to Mini — Nightmare disappears, selection falls back to Hard.
+    // Switch to Mini — Nightmare disappears, selection falls back to Easy
+    // (Mini's only advertised tier post-tuning).
     fireEvent.click(getByTestId('home-variant-mini'));
-    expect((getByTestId('home-difficulty-hard') as HTMLInputElement).checked).toBe(true);
+    expect((getByTestId('home-difficulty-easy') as HTMLInputElement).checked).toBe(true);
 
     fireEvent.click(getByTestId('home-new-game'));
     expect(newGame).toHaveBeenCalledTimes(1);
     const [variantArg, difficultyArg] = newGame.mock.calls[0];
     expect(variantArg).toMatchObject({ id: 'mini' });
-    expect(difficultyArg).toBe('hard');
+    expect(difficultyArg).toBe('easy');
   });
 
   it('keeps the selected tier when switching variants if still available', () => {
@@ -139,16 +143,17 @@ describe('Home screen', () => {
       />,
     );
 
-    fireEvent.click(getByTestId('home-difficulty-hard'));
-    expect((getByTestId('home-difficulty-hard') as HTMLInputElement).checked).toBe(true);
+    // Easy is the only tier shared by all three variants post-tuning.
+    fireEvent.click(getByTestId('home-difficulty-easy'));
+    expect((getByTestId('home-difficulty-easy') as HTMLInputElement).checked).toBe(true);
 
     fireEvent.click(getByTestId('home-variant-six'));
-    // Hard is supported by Six — the selection should not change.
-    expect((getByTestId('home-difficulty-hard') as HTMLInputElement).checked).toBe(true);
+    // Easy is supported by Six — the selection should not change.
+    expect((getByTestId('home-difficulty-easy') as HTMLInputElement).checked).toBe(true);
 
     fireEvent.click(getByTestId('home-variant-mini'));
-    // Hard is still supported (it's the cap for Mini) — selection stays.
-    expect((getByTestId('home-difficulty-hard') as HTMLInputElement).checked).toBe(true);
+    // Easy is still supported by Mini — selection stays.
+    expect((getByTestId('home-difficulty-easy') as HTMLInputElement).checked).toBe(true);
   });
 
   it('only renders a Resume card for variants that have a saved game', () => {

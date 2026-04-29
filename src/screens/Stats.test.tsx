@@ -21,39 +21,27 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Classic exposes all eight tiers.
-    const classicTiers = [
-      'easy',
-      'medium',
-      'hard',
-      'expert',
-      'master',
-      'diabolical',
-      'demonic',
-      'nightmare',
-    ];
+    // Classic post-tuning advertises 6 tiers (Hard, Master descoped per
+    // iteration-4 §6 lever 3 — see variant-tiers.ts).
+    const classicTiers = ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
       expect(getByTestId(`stats-cell-classic-${slug}-games`)).toBeTruthy();
     }
+    expect(queryByTestId('stats-header-classic-hard')).toBeNull();
+    expect(queryByTestId('stats-header-classic-master')).toBeNull();
 
-    // Six caps at Diabolical (six tiers).
-    const sixTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'diabolical'];
-    for (const slug of sixTiers) {
-      expect(getByTestId(`stats-header-six-${slug}`)).toBeTruthy();
-      expect(getByTestId(`stats-cell-six-${slug}-games`)).toBeTruthy();
-    }
-    expect(queryByTestId('stats-header-six-demonic')).toBeNull();
-    expect(queryByTestId('stats-header-six-nightmare')).toBeNull();
+    // Six and Mini are descoped to Easy only (harder tiers were unreachable
+    // on the smaller grids — variant-tiers.ts).
+    expect(getByTestId('stats-header-six-easy')).toBeTruthy();
+    expect(getByTestId('stats-cell-six-easy-games')).toBeTruthy();
+    expect(queryByTestId('stats-header-six-medium')).toBeNull();
+    expect(queryByTestId('stats-header-six-diabolical')).toBeNull();
 
-    // Mini caps at Hard (three tiers).
-    const miniTiers = ['easy', 'medium', 'hard'];
-    for (const slug of miniTiers) {
-      expect(getByTestId(`stats-header-mini-${slug}`)).toBeTruthy();
-      expect(getByTestId(`stats-cell-mini-${slug}-games`)).toBeTruthy();
-    }
-    expect(queryByTestId('stats-header-mini-expert')).toBeNull();
-    expect(queryByTestId('stats-header-mini-master')).toBeNull();
+    expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
+    expect(getByTestId('stats-cell-mini-easy-games')).toBeTruthy();
+    expect(queryByTestId('stats-header-mini-medium')).toBeNull();
+    expect(queryByTestId('stats-header-mini-hard')).toBeNull();
   });
 
   it('renders dashes in unpopulated cells across all tiers', () => {
@@ -64,8 +52,8 @@ describe('Stats screen', () => {
     // Top-tier cells with no completions should still render gracefully.
     expect(getByTestId('stats-cell-classic-nightmare-games').textContent).toBe(dash);
     expect(getByTestId('stats-cell-classic-demonic-best').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-six-diabolical-avg').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-mini-hard-mistakes').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-six-easy-avg').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-mini-easy-mistakes').textContent).toBe(dash);
   });
 
   it('displays formatted stats for a populated entry and dashes for empty ones', () => {
@@ -90,9 +78,9 @@ describe('Stats screen', () => {
     // Empty cells show an em dash.
     const dash = '\u2014';
     expect(getByTestId('stats-cell-classic-medium-games').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-classic-hard-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-expert-best').textContent).toBe(dash);
     expect(getByTestId('stats-cell-mini-easy-games').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-six-expert-avg').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-six-easy-avg').textContent).toBe(dash);
   });
 
   it('resets stats after click-then-confirm', () => {
@@ -125,38 +113,27 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Default: all classic tiers visible.
-    const classicTiers = [
-      'easy',
-      'medium',
-      'hard',
-      'expert',
-      'master',
-      'diabolical',
-      'demonic',
-      'nightmare',
-    ];
+    // Default: all advertised classic tiers visible (Hard/Master descoped).
+    const classicTiers = ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
     }
 
-    // Click the Hard filter pill.
-    fireEvent.click(getByTestId('stats-filter-classic-hard'));
+    // Click the Expert filter pill.
+    fireEvent.click(getByTestId('stats-filter-classic-expert'));
 
-    // Only Hard column should remain for classic.
-    expect(getByTestId('stats-header-classic-hard')).toBeTruthy();
-    expect(getByTestId('stats-cell-classic-hard-games')).toBeTruthy();
-    for (const slug of classicTiers.filter((s) => s !== 'hard')) {
+    // Only Expert column should remain for classic.
+    expect(getByTestId('stats-header-classic-expert')).toBeTruthy();
+    expect(getByTestId('stats-cell-classic-expert-games')).toBeTruthy();
+    for (const slug of classicTiers.filter((s) => s !== 'expert')) {
       expect(queryByTestId(`stats-header-classic-${slug}`)).toBeNull();
       expect(queryByTestId(`stats-cell-classic-${slug}-games`)).toBeNull();
     }
 
-    // Other variants should be unaffected — six and mini still show all their
-    // tiers because each variant section has independent state.
+    // Other variants should be unaffected — six and mini still show their
+    // single advertised tier because each variant section has independent state.
     expect(getByTestId('stats-header-six-easy')).toBeTruthy();
-    expect(getByTestId('stats-header-six-diabolical')).toBeTruthy();
     expect(getByTestId('stats-header-mini-easy')).toBeTruthy();
-    expect(getByTestId('stats-header-mini-hard')).toBeTruthy();
 
     // Click All to restore.
     fireEvent.click(getByTestId('stats-filter-classic-all'));
