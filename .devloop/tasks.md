@@ -1,102 +1,295 @@
-# Sudoku PWA — Iteration 5 Tasks
+# Iteration 6 Tasks
 
-Tasks reference `.devloop/requirements.md` for full context. Section
-numbers (§N) below refer to that document.
+See `.devloop/requirements.md` for full context. Tasks are sized for
+~10–20 minute automated execution; dependencies run sequentially.
 
-### TASK-001: Add `--all-tiers` flag and `firstHitBoard` emission to profile-tiers.ts
-- **Status**: done
-- **Type**: chore
+### TASK-001: Add `solvedRate` to profile-tiers.ts and refresh header docblock
+- **Status**: pending
+- **Type**: refactor
 - **Dependencies**: none
-- **Description**: Implement requirements §4 in `scripts/profile-tiers.ts`. Three changes in the same edit window: (1) extend the argv parser to recognize `--all-tiers`; when present, iterate `DIFFICULTY_ORDER` for every variant whose `CLUE_BOUNDS[variant.id]` defines a window for that tier (skip cells with no defined window). The summary JSON's `advertised: boolean` field is set as `availableTiers(variant).includes(tier)`. (2) Add a `firstHitBoard: string | null` field to each per-cell `SummaryEntry` — the dotted-digit row-major givens string of the first puzzle that rated as the target tier (or `null`). Use the existing `puzzle` returned from `generate(...)` and convert via the same row-major dotted-digit convention used by `parseBoardString`. (3) Retire the obsolete iteration-3 `minClues` preamble (lines ~75-82) and rename the call site `{ seed, minClues: clueFloor }` → `{ seed, clueFloor }`.
-- **Verification**: `npm run profile-tiers -- --all-tiers --n=1` runs to completion and writes both `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json`. The summary JSON contains entries for every tier in `DIFFICULTY_ORDER` for each variant where a `CLUE_BOUNDS` window is defined (17 cells: classic 8 + six 6 + mini 3), and each entry has a `firstHitBoard` field (string or null). `tsx` runtime-checks the script — type errors surface as the script fails to start.
+- **Description**: In `scripts/profile-tiers.ts`, extend `SummaryEntry`
+  with a `solvedRate: number` field (rated as target tier AND
+  `result.solved === true`). Retain the existing `rate` field
+  (rated as target only) for diagnostic comparison. Track
+  `firstHitSeed` / `firstHitBoard` against the solved-aware hit
+  (the production code path rejects unsolved ratings, so these
+  fields must point to puzzles production would accept). Also add a
+  `Solved` and `Solved %` column to the per-cell histogram in
+  `scripts/tier-distribution.md`. Refresh the file-level header
+  docblock at lines 1–18 to cite iteration-6 work and drop the
+  iteration-3 §4.2/§4.3 references. See requirements §4.1, §4.2,
+  §4.3.
+- **Verification**: `npx tsx scripts/profile-tiers.ts --n=1` exits
+  cleanly. Open `scripts/tier-distribution.summary.json` and confirm
+  every cell has both `rate` and `solvedRate` numeric fields. Open
+  `scripts/tier-distribution.md` and confirm the histogram tables
+  include `Solved` and `Solved %` columns.
 
-### TASK-002: Capture iteration-5 post-fix baseline profile
-- **Status**: done
+### TASK-002: Add `--out` and `--clue-floor-override` flags to profile-tiers.ts
+- **Status**: pending
+- **Type**: feat
+- **Dependencies**: none
+- **Description**: In `scripts/profile-tiers.ts`, add two CLI flags.
+  (a) `--out=<basename>` — when present, the script writes
+  `scripts/<basename>.md` and `scripts/<basename>.summary.json`
+  instead of the canonical `tier-distribution` filenames. (b)
+  `--clue-floor-override=variant:tier:N` (fully repeatable,
+  including the same `variant:tier` at different N values) — each
+  occurrence adds a synthetic profile cell at exactly that floor.
+  Synthetic cells do not require an entry in
+  `CLUE_BOUNDS[variant][tier]`. When at least one
+  `--clue-floor-override` is present, the script profiles **only**
+  the overridden cells (the canonical loop driven by `--all-tiers` /
+  advertised tiers is suppressed). Synthetic cells are keyed in
+  the summary JSON as `${variant}:${tier}@${floor}` (e.g.
+  `six:Medium@14`); the markdown emit uses the same key in section
+  headers. The `advertised` field still reflects
+  `availableTiers(variant)`. See requirements §4.4, §4.5.
+- **Verification**: `npx tsx scripts/profile-tiers.ts --n=1
+  --out=smoke-test --clue-floor-override=six:Medium:14
+  --clue-floor-override=six:Medium:16` exits cleanly and produces
+  `scripts/smoke-test.summary.json` containing both
+  `six:Medium@14` and `six:Medium@16` keys with numeric
+  `solvedRate`. Delete the smoke output files after verifying.
+
+### TASK-003: Add TIMEOUT_MS_BY_TIER infrastructure
+- **Status**: pending
+- **Type**: refactor
+- **Dependencies**: none
+- **Description**: In `src/engine/generator/generate-for-difficulty.ts`,
+  add a `TIMEOUT_MS_BY_TIER: Record<Difficulty, number>` table
+  alongside `MAX_ATTEMPTS_BY_TIER`. Initial values: every tier set
+  to `DEFAULT_TIMEOUT_MS` (60_000). In the `generateForDifficulty`
+  body, replace the timeout source so it reads
+  `TIMEOUT_MS_BY_TIER[difficulty] ?? DEFAULT_TIMEOUT_MS` instead of
+  the bare `DEFAULT_TIMEOUT_MS` (when `options.timeoutMs` is not
+  set). Add a doc-block above `TIMEOUT_MS_BY_TIER` describing its
+  role. This task only adds the plumbing — TASK-006 sets the
+  recalibrated values. See requirements §6.
+- **Verification**: `npx vitest run
+  src/engine/generator/generate-for-difficulty` passes.
+
+### TASK-004: Add regression test for `solved=false` reject branch
+- **Status**: pending
+- **Type**: test
+- **Dependencies**: none
+- **Description**: Add a vitest test (in
+  `src/engine/generator/generate-for-difficulty.test.ts` or a sibling
+  if that file is dense) that pins the `if (!rating.solved) continue;`
+  branch in `generateForDifficulty`. Approach: use `vi.spyOn` on
+  `rate` from `../rate` to return
+  `{difficulty: 'Easy', solved: false}` for the first call and
+  `{difficulty: 'Easy', solved: true}` for the second. Call
+  `generateForDifficulty(classicVariant, 'Easy', { seed: 0 })` and
+  assert the result is `kind: 'success'` AND `attempts === 2`. Add a
+  second case where `rate` always returns `{solved: false}` and
+  assert `kind: 'failed'` with `attempts === maxRetries`. See
+  requirements §8.
+- **Verification**: `npx vitest run
+  src/engine/generator/generate-for-difficulty` passes including the
+  two new cases.
+
+### TASK-005: Re-run profile and commit corrected baseline
+- **Status**: pending
 - **Type**: chore
 - **Dependencies**: TASK-001
-- **Description**: Run `npm run profile-tiers -- --all-tiers --n=20` and commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json`. This is the *validated post-fix baseline* — the first iteration-5 snapshot, against which §6/§7 decisions are made. The run takes ~6 minutes per the iteration-4 §4.4 estimate.
-- **Verification**: Both files exist on disk and reflect the new run (check `Generated:` header date in the markdown, and that `tier-distribution.summary.json` has 17 entries — every tier × variant cell with a defined `CLUE_BOUNDS` window). `git diff scripts/tier-distribution.summary.json` shows the new entries with non-null `firstHitBoard` for tiers that hit. No code changes in this task.
+- **Description**: Run `npm run profile-tiers -- --all-tiers --n=20`.
+  Commit the resulting `scripts/tier-distribution.md` and
+  `scripts/tier-distribution.summary.json` as the iteration-6
+  corrected post-fix baseline. This snapshot is the input for
+  TASK-006 (budget recalibration) and TASK-007 (fixture updates).
+  See requirements §5.
+- **Verification**: `scripts/tier-distribution.summary.json` exists
+  and every cell has both `rate` and `solvedRate` fields. `git diff
+  scripts/tier-distribution.summary.json` shows the new `solvedRate`
+  values vs the iteration-5 file.
 
-### TASK-003: Apply lever 1 — update `MAX_ATTEMPTS_BY_TIER` per the iteration-5 baseline
-- **Status**: done
-- **Type**: chore
-- **Dependencies**: TASK-002
-- **Description**: Implement requirements §6. Read `scripts/tier-distribution.summary.json` (the iteration-5 baseline). For each (variant, tier) cell with `rate ≥ 0.05`, compute `N = ceil(log(0.002) / log(1 - rate))` (cap at 200). For each tier (across variants), set `MAX_ATTEMPTS_BY_TIER[tier]` to the maximum `N` among that tier's cells. Update the table in `src/engine/generator/generate-for-difficulty.ts` (lines ~19-28). Also refresh the doc-block above the table (lines ~11-18) to: drop the "Iteration 3 §4.3" reference; cite the iteration-5 baseline by date; for any non-default budget, cite the (variant, tier, rate) tuple that justified it. Cells with `rate < 0.05` keep the default `50` budget — they will be handled by descope/restore in TASK-004, not by lever 1.
-- **Verification**: `npm test -- src/engine/generator/generate-for-difficulty.test.ts` passes. The `MAX_ATTEMPTS_BY_TIER` table values are explainable by the iteration-5 baseline data (each non-default entry traces to a specific cell). The doc-block does not reference "Iteration 3 §4.3" anywhere.
-
-### TASK-004: Restore tiers in `VARIANT_TIERS` and refresh its doc-block
-- **Status**: done
+### TASK-006: Recalibrate MAX_ATTEMPTS_BY_TIER and TIMEOUT_MS_BY_TIER
+- **Status**: pending
 - **Type**: feat
-- **Dependencies**: TASK-003
-- **Description**: Implement requirements §7. For each (variant, tier) cell in the iteration-5 baseline `scripts/tier-distribution.summary.json` with `rate ≥ 0.05`, ensure `tier` is included in `VARIANT_TIERS[variant.id]` in `src/engine/generator/variant-tiers.ts`. Keep each per-variant tier list in `DIFFICULTY_ORDER` order. Rewrite the doc-block at the top of the file: cite the iteration-5 baseline by date; for any tier that **remains** descoped, list the (variant, tier, rate, sampleSize) tuple from the iteration-5 baseline as the rationale; for tiers that **were** descoped in iteration 4 but are restored now, do not enumerate them in the doc-block (the `VARIANT_TIERS` change itself is the evidence). If no tier is restored, this task is a no-op for `VARIANT_TIERS` itself but still rewrites the doc-block to cite iteration-5 evidence. **Breaking** field is intentionally omitted: `availableTiers` is internal API; the player surface change is forward-compatible (existing saves continue to load on tiers that were always advertised).
-- **Verification**: `npm test -- src/engine/generator/variant-tiers` passes (existing tests). `npm test -- src/screens/Home.test.tsx` passes — restored tiers should now appear in the difficulty picker without breaking existing assertions. The `VARIANT_TIERS` doc-block does not reference "TASK-003" of iteration-4 anywhere.
+- **Dependencies**: TASK-003, TASK-005, TASK-009
+- **Description**: Read `scripts/tier-distribution.summary.json`
+  (corrected baseline) **and**
+  `scripts/tier-distribution.lever2.summary.json` (lever-2 sweep,
+  for any cell restored in TASK-009). For each tier with at least
+  one advertising cell of `solvedRate > 0`, compute required
+  attempts via `N = ceil(log(0.002) / log(1 - solvedRate))` and
+  take the maximum N across all advertising cells (worst-case cell
+  drives the budget — including any cell restored via lever-2 at a
+  lowered floor). Set `MAX_ATTEMPTS_BY_TIER[tier]` to that N.
+  **No upper cap.** For `TIMEOUT_MS_BY_TIER[tier]`, set to roughly
+  `attemptCap × 2000ms × 1.5` (per-attempt headroom). Round both up
+  conservatively. Refresh both doc-blocks to cite iteration-6
+  evidence: list non-default entries with the (variant, tier,
+  solvedRate) tuple that drove them; if the driver is a lever-2
+  cell, cite the (variant, tier, floor, solvedRate). Tiers with no
+  advertised cell keep the default 50 / 60_000. See requirements §6.
+- **Verification**: `npx vitest run
+  src/engine/generator/generate-for-difficulty` passes. The
+  doc-blocks above `MAX_ATTEMPTS_BY_TIER` and `TIMEOUT_MS_BY_TIER`
+  cite iteration-6 by date and list the driving (variant, tier,
+  solvedRate) tuples for each non-default entry.
 
-### TASK-005: Add fixtures for any restored tiers
-- **Status**: done
-- **Type**: test
-- **Dependencies**: TASK-004
-- **Description**: Implement requirements §8. For each tier added to `VARIANT_TIERS` in TASK-004 that does not already have a `TIER_FIXTURES` entry: read `firstHitSeed` and `firstHitBoard` from the iteration-5 baseline `scripts/tier-distribution.summary.json` and add a `TierFixture` entry to `src/engine/solver/techniques/tier-fixtures.ts`. Use the variant whose cell first hit the target tier (typically `classic` if that's where the rate is highest). Keep the file's existing comment style. If no tier was restored in TASK-004, this task is a no-op.
-- **Verification**: `npm test -- src/engine/solver/techniques/tier-fixtures.test.ts` passes. Every entry in `VARIANT_TIERS[v.id]` for any v has a corresponding key in `TIER_FIXTURES` (or, if a tier remains descoped in every variant, is omitted with a comment — same pattern as iteration 4).
-
-### TASK-006: Add `solved === true` assertion to tier-fixtures round-trip
-- **Status**: done
-- **Type**: test
+### TASK-007: Update Diabolical/Demonic fixtures and refresh tier-fixtures docblock
+- **Status**: pending
+- **Type**: chore
 - **Dependencies**: TASK-005
-- **Description**: Implement requirements §9. In `src/engine/solver/techniques/tier-fixtures.test.ts:46-49`, add `expect(result.solved).toBe(true)` alongside the existing `expect(result.difficulty).toBe(tier)` assertion. Two-line change. Closes review §Gap 3.
-- **Verification**: `npm test -- src/engine/solver/techniques/tier-fixtures.test.ts` passes. Inspecting the test source shows both `difficulty` and `solved` are asserted in the round-trip loop.
+- **Description**: Read `scripts/tier-distribution.summary.json`
+  (corrected baseline). For each existing entry in `TIER_FIXTURES`
+  (in `src/engine/solver/techniques/tier-fixtures.ts`), replace the
+  `seed` and `board` values with the new `firstHitSeed` /
+  `firstHitBoard` from the corrected baseline keyed by the
+  fixture's variant and tier. Diabolical and Demonic in particular
+  should pick up new seeds (they were hand-scanned in iteration-5).
+  Tiers that don't have an existing entry (Hard, Master) stay
+  omitted; lever-2 restorations get new entries via TASK-009.
+  Remove the block-level comment at `tier-fixtures.ts:43-47` (the
+  iteration-5 hand-scan explanation) — it's no longer applicable.
+  Restore the file-level docblock at `:11-21` to its
+  summary-traceable model ("we reuse the firstHitSeed recorded in
+  scripts/tier-distribution.summary.json after iteration-6
+  tuning"). See requirements §7.
+- **Verification**: `npx vitest run
+  src/engine/solver/techniques/tier-fixtures` passes. `git diff
+  src/engine/solver/techniques/tier-fixtures.ts` shows the seed and
+  board values for advertised tiers updated and the block-level
+  comment removed.
 
-### TASK-007: Re-run profile post-tuning and commit iteration-5 final snapshot
-- **Status**: done
+### TASK-008: Run lever-2 exploration sweep for Six and Mini
+- **Status**: pending
 - **Type**: chore
-- **Dependencies**: TASK-006
-- **Description**: Implement requirements §10. Run `npm run profile-tiers -- --all-tiers --n=20` and commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json` (overwriting the TASK-002 baseline). This is the iteration-5 **final** snapshot, reflecting the state shipping with this iteration (post lever-1 widening, post any tier restorations). Verify that every cell now in `availableTiers(variant)` has `rate ≥ 0.05` in the new summary; if any restored tier dropped below 5% due to seed-range variance, revert that tier's restoration in `VARIANT_TIERS` and re-run.
-- **Verification**: For every `(v, t)` such that `availableTiers(v).includes(t)`, the iteration-5 final `tier-distribution.summary.json` has `summary[`${v.id}:${t}`].rate >= 0.05`. The two iteration-5 commits of `scripts/tier-distribution.md` are visible in `git log scripts/tier-distribution.md`.
+- **Dependencies**: TASK-001, TASK-002
+- **Description**: Run a single invocation of
+  `npm run profile-tiers -- --n=20
+  --out=tier-distribution.lever2` with one
+  `--clue-floor-override=variant:tier:N` flag for each cell in the
+  §9 search space (14 cells total):
 
-### TASK-008: Gate `__sudokuGameStore` behind `import.meta.env.DEV`
-- **Status**: done
-- **Type**: fix
-- **Dependencies**: none
-- **Description**: Implement requirements §11.1. In `src/main.tsx:14`, wrap the `(window as any).__sudokuGameStore = useGameStore` assignment in `if (import.meta.env.DEV) { … }`. The four E2E specs that read the hook (`hint-learn-more`, `new-game`, `notes-and-conflicts`, `resume`) all run against `vite dev`, where `DEV === true`, so they are unaffected. The `pwa-update` spec runs against `vite preview` (production build) and does not read the hook.
-- **Verification**: `npm run build` succeeds, then `grep -r "__sudokuGameStore" dist/` returns no matches (the hook does not appear in production bundles). Run `npm test -- src/App.test.tsx` to confirm no regression in app initialization (the store assignment happens at module load and is exercised by the App test).
+  - `--clue-floor-override=six:Medium:14`,
+    `--clue-floor-override=six:Medium:16`
+  - `--clue-floor-override=six:Hard:11`,
+    `--clue-floor-override=six:Hard:13`
+  - `--clue-floor-override=six:Expert:8`,
+    `--clue-floor-override=six:Expert:10`
+  - `--clue-floor-override=six:Master:9`,
+    `--clue-floor-override=six:Master:11`
+  - `--clue-floor-override=six:Diabolical:7`,
+    `--clue-floor-override=six:Diabolical:9`
+  - `--clue-floor-override=mini:Medium:6`,
+    `--clue-floor-override=mini:Medium:8`
+  - `--clue-floor-override=mini:Hard:5`,
+    `--clue-floor-override=mini:Hard:7`
 
-### TASK-009: Hide Stats filter pill row when `tiers.length <= 1`
-- **Status**: done
-- **Type**: fix
-- **Dependencies**: none
-- **Description**: Implement requirements §11.2. In `src/screens/Stats.tsx` (around lines 86-110, where the `[All] [Easy]` filter pill row is rendered per variant), wrap the pill-row JSX in a conditional that returns `null` (or omits the element) when the variant's `tiers.length <= 1`. The single-tier table renders without a useless filter row above it. Update or add a Vitest case in `src/screens/Stats.test.tsx` that asserts the pill row is *not* rendered for a variant with one tier, and *is* rendered for a variant with multiple tiers.
-- **Verification**: `npm test -- src/screens/Stats.test.tsx` passes including the new case.
+  Per TASK-002, the override flag suppresses the canonical loop, so
+  only these 14 cells are profiled. Approximate runtime: ~5–10
+  minutes. Commit the resulting
+  `scripts/tier-distribution.lever2.md` and
+  `scripts/tier-distribution.lever2.summary.json`. See requirements
+  §9.
+- **Verification**: `scripts/tier-distribution.lever2.summary.json`
+  exists and contains all 14 keys
+  (`six:Medium@14`, `six:Medium@16`, … `mini:Hard@7`) with numeric
+  `solvedRate` and `sampleSize === 20` for each.
 
-### TASK-010: Delete the placeholder real-worker vitest test
-- **Status**: done
+### TASK-009: Apply lever-2 restorations
+- **Status**: pending
+- **Type**: feat
+- **Dependencies**: TASK-008
+- **Description**: Read
+  `scripts/tier-distribution.lever2.summary.json`. For each
+  (variant, tier) cell where some floor produced `solvedRate ≥ 0.05`,
+  pick the **highest** qualifying floor. (1) Lower
+  `CLUE_BOUNDS[variant][tier][0]` in `src/engine/generator/rate.ts`
+  to that floor, keeping the upper bound unchanged. (2) Add `tier`
+  to `VARIANT_TIERS[variant]` in
+  `src/engine/generator/variant-tiers.ts`, in `DIFFICULTY_ORDER`
+  order. (3) Add a `TIER_FIXTURES` entry in
+  `src/engine/solver/techniques/tier-fixtures.ts` using the lever-2
+  `firstHitSeed` / `firstHitBoard`. If no cell qualifies, this task
+  is a no-op (but document the negative result in the verification
+  output for TASK-010). See requirements §9.
+- **Verification**: `npx vitest run src/engine/solver/techniques`
+  passes. `npx vitest run src/engine/generator` passes. If any
+  restoration was applied, `git diff` shows changes in `rate.ts`,
+  `variant-tiers.ts`, and `tier-fixtures.ts`. If no restoration was
+  applied, `git status` is clean for these three files.
+
+### TASK-010: Refresh variant-tiers.ts docblock
+- **Status**: pending
+- **Type**: docs
+- **Dependencies**: TASK-005, TASK-008, TASK-009
+- **Description**: Rewrite the doc-block above `VARIANT_TIERS` in
+  `src/engine/generator/variant-tiers.ts`. Cite the iteration-6
+  corrected baseline by date. For each tier still descoped, cite
+  the (variant, tier, solvedRate, sampleSize) from the corrected
+  baseline. For each tier restored via lever-2, cite the (variant,
+  tier, floor, solvedRate) from the lever-2 summary. List the
+  lever-2 sweep ranges that were explored (so future iterations
+  know what was already tried) — even if no restoration occurred,
+  this records the negative result. See requirements §10.
+- **Verification**: `npx vitest run
+  src/engine/generator/variant-tiers` passes (no behavior change in
+  this task, just documentation). `git diff
+  src/engine/generator/variant-tiers.ts` shows the doc-block
+  updated to cite iteration-6 evidence.
+
+### TASK-011: Re-run final profile and commit iteration-6 final snapshot
+- **Status**: pending
 - **Type**: chore
-- **Dependencies**: none
-- **Description**: Implement requirements §11.3. Delete `src/workers/generator-client.real-worker.test.ts`. The actual real-worker smoke check is `tests/e2e/worker-smoke.spec.ts`, which remains. The placeholder test file currently asserts only that `Worker` is undefined under jsdom — misleading by appearance.
-- **Verification**: The file no longer exists. `npm test` runs to completion (the deleted file was a placeholder; the unit test count drops by exactly one). `tests/e2e/worker-smoke.spec.ts` is still present (`ls tests/e2e/worker-smoke.spec.ts` succeeds).
+- **Dependencies**: TASK-006, TASK-007, TASK-009
+- **Description**: Run `npm run profile-tiers -- --all-tiers --n=20`
+  to capture the final state shipping with iteration 6 (post budget
+  recalibration, post fixture update, post any lever-2
+  restorations). Commit the resulting
+  `scripts/tier-distribution.md` and
+  `scripts/tier-distribution.summary.json` as the iteration-6 final
+  snapshot. If any restored tier's final-snapshot `solvedRate` is
+  below 0.05, revert that tier's restoration (in `rate.ts`,
+  `variant-tiers.ts`, and `tier-fixtures.ts`) before committing
+  this snapshot. See requirements §11.
+- **Verification**: `scripts/tier-distribution.summary.json` exists
+  and reflects the post-tuning state. Every advertised tier in
+  `availableTiers` has `solvedRate ≥ 0.05` in the snapshot.
 
-### TASK-011: Bump package.json version
-- **Status**: done
+### TASK-012: Bump package.json to 0.5.0
+- **Status**: pending
 - **Type**: chore
-- **Dependencies**: TASK-007, TASK-008, TASK-009, TASK-010
-- **Description**: Bump `package.json` version. If TASK-004 restored any tier (i.e. `git diff master -- src/engine/generator/variant-tiers.ts` shows a change to `VARIANT_TIERS`'s tier lists, not just the doc-block), bump to `0.5.0` (minor — player-facing surface change). Otherwise bump to `0.4.1` (patch — methodology-fix + cleanups, no advertised surface change).
-- **Verification**: `cat package.json | grep '"version"'` shows the new version. `npm run build` succeeds with the new version (Vite injects `__APP_VERSION__` at build time).
-
-### TASK-012: Full unit-test sweep
-- **Status**: done
-- **Type**: test
 - **Dependencies**: TASK-011
-- **Description**: Run the full unit-test suite to confirm no regressions across the iteration's changes.
-- **Verification**: `npm test` passes with zero failures.
+- **Description**: Bump the version field in `package.json` from
+  `0.4.1` to `0.5.0`. Minor bump signals the player-visible
+  reliability/latency change from the recalibrated budgets and any
+  lever-2 tier restorations.
+- **Verification**: `node -p "require('./package.json').version"`
+  prints `0.5.0`.
 
-### TASK-013: Type-check and production build sweep
-- **Status**: done
+### TASK-013: Full unit-test sweep
+- **Status**: pending
 - **Type**: test
 - **Dependencies**: TASK-012
-- **Description**: Run a clean type-check and production build to confirm no type-level regressions or build breaks.
-- **Verification**: `npm run build` succeeds (the script runs `tsc -b && vite build`). The `dist/` directory contains a built `index.html` and asset bundles.
+- **Description**: Run the full vitest unit-test suite to confirm no
+  regressions in v0.4.1 functionality. See requirements §13.
+- **Verification**: `npx vitest run` passes with zero failures.
 
-### TASK-014: Full E2E sweep on Chromium and WebKit
-- **Status**: done
+### TASK-014: Type-check and production build sweep
+- **Status**: pending
 - **Type**: test
-- **Dependencies**: TASK-013
-- **Description**: Run the full Playwright suite on both Chromium and WebKit to confirm the strict difficulty matrix passes for the (possibly larger) `availableTiers` set, and that the `__sudokuGameStore`-consuming specs still pass against `vite dev`.
-- **Verification**: `npx playwright test --project=chromium && npx playwright test --project=webkit` both succeed with zero failures.
+- **Dependencies**: TASK-012
+- **Description**: Run TypeScript type-check across the project and
+  produce a clean production build. See requirements §13.
+- **Verification**: `npx tsc --noEmit` exits 0 and `npm run build`
+  exits 0.
+
+### TASK-015: Full E2E sweep on Chromium and WebKit
+- **Status**: pending
+- **Type**: test
+- **Dependencies**: TASK-012
+- **Description**: Run the Playwright E2E suite on both Chromium and
+  WebKit. The strict matrix
+  (`tests/e2e/difficulty-matrix.spec.ts`) iterates the new
+  `availableTiers(variant)` so any tiers restored via lever-2 are
+  exercised here. If a restored tier fails the strict matrix, that
+  tier's restoration must be reverted (treat as a regression
+  signal — it indicates the lever-2 budget sizing was insufficient
+  in practice). See requirements §13.
+- **Verification**: `npx playwright test --project=chromium` exits 0
+  and `npx playwright test --project=webkit` exits 0.
