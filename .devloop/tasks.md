@@ -39,7 +39,7 @@ numbers (§N) below refer to that document.
 - **Verification**: `npm test -- src/engine/solver/techniques/tier-fixtures.test.ts` passes. Every entry in `VARIANT_TIERS[v.id]` for any v has a corresponding key in `TIER_FIXTURES` (or, if a tier remains descoped in every variant, is omitted with a comment — same pattern as iteration 4).
 
 ### TASK-006: Add `solved === true` assertion to tier-fixtures round-trip
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-005
 - **Description**: Implement requirements §9. In `src/engine/solver/techniques/tier-fixtures.test.ts:46-49`, add `expect(result.solved).toBe(true)` alongside the existing `expect(result.difficulty).toBe(tier)` assertion. Two-line change. Closes review §Gap 3.

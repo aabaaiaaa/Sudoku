@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 4,
+  "lastIteration": 5,
   "startedAt": "2026-04-29T16:33:59.473Z",
   "iteration": 4,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-005",
-    "taskTitle": "Add fixtures for any restored tiers",
-    "iterationNumber": 5,
-    "startedAt": "2026-04-29T16:49:22.055Z"
+    "taskId": "TASK-006",
+    "taskTitle": "Add `solved === true` assertion to tier-fixtures round-trip",
+    "iterationNumber": 6,
+    "startedAt": "2026-04-29T16:50:46.461Z"
   }
 }

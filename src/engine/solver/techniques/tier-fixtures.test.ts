@@ -47,6 +47,7 @@ describe('TIER_FIXTURES round-trip', () => {
         result.difficulty,
         `${tier} fixture (variant=${fixture.variant}, seed=${fixture.seed}) rated as ${result.difficulty}`,
       ).toBe(tier);
+      expect(result.solved).toBe(true);
     },
   );
 });
