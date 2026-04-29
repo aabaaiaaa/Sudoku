@@ -300,7 +300,7 @@ their early prerequisites land.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep classic` passes.
 
 ### TASK-045b: E2E difficulty matrix — Six
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-045a
 - **Description**: Extend `difficulty-matrix.spec.ts` with the same per-tier iteration for variant `six`. See requirements §9.1.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium --grep six` passes.
@@ -339,7 +339,7 @@ their early prerequisites land.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium` passes — *or* a documented note explains which combos fail and why, with a follow-up task identified for iteration 4.
 
 ### TASK-050: Full unit-test sweep
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-001, TASK-002, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013, TASK-014c, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-022, TASK-023, TASK-024, TASK-025, TASK-026, TASK-027, TASK-028, TASK-029, TASK-030, TASK-031, TASK-032, TASK-033, TASK-034, TASK-035, TASK-036, TASK-038, TASK-039, TASK-040, TASK-041, TASK-042, TASK-047, TASK-048
 - **Description**: Run the full unit test suite and ensure every test passes with no skipped tests other than those documented as intentionally `.todo`. Repair any ripple-failures from the schema bumps. See requirements §12.
 - **Verification**: `npx vitest run` exits zero with no failing tests.
