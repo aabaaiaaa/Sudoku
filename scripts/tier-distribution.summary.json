@@ -1,104 +1,104 @@
 {
   "classic:Easy": {
-    "rate": 1,
+    "rate": 0.9,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": 0
   },
   "classic:Medium": {
-    "rate": 0,
+    "rate": 0.55,
     "advertised": true,
-    "sampleSize": 1,
-    "firstHitSeed": null
+    "sampleSize": 20,
+    "firstHitSeed": 102
   },
   "classic:Hard": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "classic:Expert": {
-    "rate": 0,
+    "rate": 0.2,
     "advertised": true,
-    "sampleSize": 1,
-    "firstHitSeed": null
+    "sampleSize": 20,
+    "firstHitSeed": 301
   },
   "classic:Master": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "classic:Diabolical": {
-    "rate": 0,
+    "rate": 0.2,
     "advertised": true,
-    "sampleSize": 1,
-    "firstHitSeed": null
+    "sampleSize": 20,
+    "firstHitSeed": 502
   },
   "classic:Demonic": {
-    "rate": 1,
+    "rate": 0.2,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": 600
   },
   "classic:Nightmare": {
-    "rate": 0,
+    "rate": 0.1,
     "advertised": true,
-    "sampleSize": 1,
-    "firstHitSeed": null
+    "sampleSize": 20,
+    "firstHitSeed": 703
   },
   "six:Easy": {
     "rate": 1,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": 1000
   },
   "six:Medium": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "six:Hard": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "six:Expert": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "six:Master": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "six:Diabolical": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "mini:Easy": {
     "rate": 1,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": 2000
   },
   "mini:Medium": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   },
   "mini:Hard": {
     "rate": 0,
     "advertised": true,
-    "sampleSize": 1,
+    "sampleSize": 20,
     "firstHitSeed": null
   }
 }
