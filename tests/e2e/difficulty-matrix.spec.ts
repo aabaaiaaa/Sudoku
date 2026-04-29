@@ -25,6 +25,40 @@ import type { Variant } from '../../src/engine/types';
  * Variant blocks use the lowercase variant id (`classic`, `six`, `mini`) in
  * their describe and test titles so the verification grep filters
  * (`--grep classic`, `--grep six`, `--grep mini`) cleanly partition the suite.
+ *
+ * ----------------------------------------------------------------------------
+ * TASK-049 — Bug B verification status (requirements §4.3).
+ *
+ * Bug A (uncaught exceptions in finder cascade collapsing the retry budget)
+ * is fixed structurally by TASK-002..TASK-007 (per-attempt try/catch +
+ * lastError plumbing) and TASK-013..TASK-014c (fuzz harness + per-finder
+ * hardening). Bug B is the *residual* concern: even with Bug A contained,
+ * some (variant × tier) combos may still fail their budget legitimately
+ * because the natural rating distribution is too narrow. Suspected combos
+ * are Six's middle tiers (Medium / Hard / Expert / Master) and possibly
+ * Mini's narrow Medium / Hard windows.
+ *
+ * This spec is the canonical reveal for Bug B. The actual matrix run is
+ * deferred to TASK-052 (consolidated Chromium + WebKit E2E sweep) — the
+ * per-task DevLoop runner does not execute test suites.
+ *
+ * Decision rule when TASK-052 reports failures here:
+ *   - Failure dialog with a populated `lastError`: Bug A residue. Open a
+ *     follow-up to harden the named finder. NOT Bug B.
+ *   - Failure dialog with `closestRating` populated but no `lastError`
+ *     (i.e. budget exhausted with zero exceptions thrown): genuine Bug B.
+ *     Open follow-up "TASK-IT4-001: Apply §4.3 mitigation to <combos>"
+ *     in iteration 4 — wire `clueBoundsLowerForTier` upper bounds and
+ *     widen per-tier attempt budgets for the offending tiers.
+ *   - Hard failure (no board, no dialog): protocol regression — file an
+ *     iteration-4 bug independently of Bug B.
+ *
+ * If TASK-052 reports the matrix as green on both projects, Bug B is
+ * "not observed" and the §4.3 mitigation stays descoped per requirements.
+ *
+ * Findings from TASK-052 should be appended below this block as a dated
+ * bullet list so subsequent iterations have a stable record.
+ * ----------------------------------------------------------------------------
  */
 
 // 60s hard cap inside the worker + spin-up + render headroom.

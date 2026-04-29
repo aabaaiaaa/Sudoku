@@ -333,7 +333,7 @@ their early prerequisites land.
 - **Verification**: `npx vitest run src/App.test.tsx` passes including the three new cases.
 
 ### TASK-049: Verify Bug B status with matrix E2E
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-014c, TASK-016, TASK-017, TASK-045c
 - **Description**: Run the full difficulty-matrix E2E (`npx playwright test difficulty-matrix.spec.ts`). For each (variant, tier) that still fails, capture the failure mode (instant vs budget-exhausted) and the `lastError`. If any combos fail with budget exhaustion (no exception), that signals genuine Bug B and a follow-up task is needed. Document findings as a markdown comment in the spec or a brief note added to the next iteration's review. If everything passes, this task records "Bug B not observed" and the §4.3 mitigation in requirements is descoped. See requirements §4.3.
 - **Verification**: `npx playwright test difficulty-matrix.spec.ts --project=chromium` passes — *or* a documented note explains which combos fail and why, with a follow-up task identified for iteration 4.
