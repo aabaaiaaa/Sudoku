@@ -19,9 +19,9 @@ export interface TierFixture {
  *   const clueFloor = CLUE_BOUNDS[variantId][tier]?.[0];
  *   const { puzzle } = generate(variant, { seed, clueFloor });
  *
- * Hard and Master are omitted because no variant has a firstHitSeed for them
- * in the iteration-6 corrected baseline — the generator's natural distribution
- * does not produce these tiers within the retry budget.
+ * The seed/board values below are iteration-6 placeholders carried under the
+ * iteration-7 key rename (subsets → Hard, wings → Expert, chains → Master);
+ * TASK-015 refreshes them from the iteration-7 corrected baseline.
  */
 export const TIER_FIXTURES: Record<string, TierFixture> = {
   'classic:Easy': {
@@ -36,20 +36,19 @@ export const TIER_FIXTURES: Record<string, TierFixture> = {
       '1........9...3.8644.7.6.29.....7...5..9.58..3..1..698..935.7..6....8..5..549...7.',
     seed: 102,
   },
-  // classic:Hard, classic:Master — unobtainable in iteration-6 corrected baseline
-  'classic:Expert': {
+  'classic:Hard': {
     variant: 'classic',
     board:
       '......5....4....122....3.674....16...18..9...7...38.......5.98...7.........6..1.3',
     seed: 301,
   },
-  'classic:Diabolical': {
+  'classic:Expert': {
     variant: 'classic',
     board:
       '.....29.5....7.32.7...9.....3..86....8.9..1.7....4.8..25...8.....8...4...4..6..3.',
     seed: 504,
   },
-  'classic:Demonic': {
+  'classic:Master': {
     variant: 'classic',
     board:
       '62..8.....5..4.2...4..5..131..9.4..773......1.......5.8....56.9...7..........3...',

@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 4,
+  "lastIteration": 5,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-005",
-    "taskTitle": "Rewrite `VARIANT_TIERS` and docblock",
-    "iterationNumber": 5,
-    "startedAt": "2026-04-29T23:14:20.727Z"
+    "taskId": "TASK-006",
+    "taskTitle": "Rename `TIER_FIXTURES` keys for the new tier mapping",
+    "iterationNumber": 6,
+    "startedAt": "2026-04-29T23:16:50.574Z"
   }
 }

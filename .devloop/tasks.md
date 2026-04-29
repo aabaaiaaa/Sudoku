@@ -41,7 +41,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx vitest run src/engine/generator/variant-tiers.test.ts` passes after TASK-017 updates the test. For this task in isolation: type-check passes for the file.
 
 ### TASK-006: Rename `TIER_FIXTURES` keys for the new tier mapping
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/solver/techniques/tier-fixtures.ts`, rewrite the keys of every existing entry per the iteration-7 mapping in requirements §4.1. The semantic content of each fixture (its seed and board) does not change here; only the key it lives under does. The rename map (existing iteration-6 key → iteration-7 key) is: `classic:Easy → classic:Easy` (unchanged), `classic:Medium → classic:Medium` (unchanged), `classic:Expert → classic:Hard` (subsets are now Hard), `classic:Diabolical → classic:Expert` (wings are now Expert), `classic:Demonic → classic:Master` (chains are now Master), `classic:Nightmare → classic:Nightmare` (unchanged), `six:Medium → six:Medium` (unchanged). Existing seed and board values stay in place as placeholders — TASK-015 replaces them with iteration-7 baseline values. Remove the obsolete `// classic:Hard, classic:Master — unobtainable` comment. New entries (`six:Easy`, `mini:Easy`) are added in TASK-015. Update the file-level docblock to drop the "Hard and Master are omitted" line and note that TASK-015 will refresh seeds and boards from the iteration-7 baseline.
