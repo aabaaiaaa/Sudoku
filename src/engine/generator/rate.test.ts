@@ -350,25 +350,22 @@ describe('rate — solved flag is the authoritative signal for stalled cascades'
   });
 
   it('reports a sub-Expert tier on a stalled cascade whose hardest fired technique is below Expert', () => {
-    // Sparse fixture (reused from the pointing-pair fixture pattern):
-    // box 0 has cells (1,0..2), (2,0..2) filled with 2,3,4,5,6,7. The only
-    // empty cells of box 0 are (0,0), (0,1), (0,2) — so digit 1 (and 8, 9)
-    // in box 0 lie entirely in row 0, firing pointing (Hard tier) and
-    // eliminating those digits from the rest of row 0. The board is far
-    // too sparse to actually solve with the technique chain — the cascade
-    // will stall after the locked-candidate eliminations finish.
+    // Row 0 has 8 of 9 cells filled (digits 1..8). The remaining cell
+    // (0,8) must be 9 — a naked single. After firing once the rest of the
+    // board is far too sparse for any further technique to make progress,
+    // so the cascade stalls.
     //
     // Under the new semantics:
-    //   - difficulty = 'Hard' (hardest fired technique tier; pointing /
-    //     box-line-reduction both map to Hard)
+    //   - difficulty = 'Easy' (hardest fired technique tier; naked-single
+    //     maps to Easy)
     //   - solved     = false (cascade stalls, board still mostly empty)
     //
     // This proves stalled puzzles get their actual hardest-tier label
     // rather than an 'Expert' fallback.
     const puzzle = parseClassic(
-      '.........' +
-        '234......' +
-        '567......' +
+      '12345678.' +
+        '.........' +
+        '.........' +
         '.........' +
         '.........' +
         '.........' +
@@ -378,9 +375,8 @@ describe('rate — solved flag is the authoritative signal for stalled cascades'
     );
     const result = rate(puzzle);
     expect(result.solved).toBe(false);
-    expect(result.difficulty).toBe('Hard');
-    // Sanity-check that a Hard-tier technique was the hardest fired.
-    expect(['pointing', 'box-line-reduction']).toContain(result.hardestTechnique);
+    expect(result.difficulty).toBe('Easy');
+    expect(result.hardestTechnique).toBe('naked-single');
   });
 });
 

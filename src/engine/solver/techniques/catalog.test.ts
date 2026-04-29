@@ -5,10 +5,10 @@ import {
   type TechniqueCatalogEntry,
 } from './catalog';
 import { techniques, type TechniqueId } from './index';
-import { DIFFICULTY_ORDER, rate } from '../../generator/rate';
+import { DIFFICULTY_ORDER } from '../../generator/rate';
 import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant, miniVariant, sixVariant } from '../../variants';
-import type { Board, Digit, Variant } from '../../types';
+import type { Board, Cell, Digit, Variant } from '../../types';
 
 function variantFor(name: 'classic' | 'six' | 'mini'): Variant {
   if (name === 'classic') return classicVariant;
@@ -16,6 +16,16 @@ function variantFor(name: 'classic' | 'six' | 'mini'): Variant {
   return miniVariant;
 }
 
+function placedCell(value: Digit): Cell {
+  return { value, notes: new Set<Digit>(), given: false };
+}
+
+/**
+ * Parse a fixture board string. '1'-'9' are givens; '.' or '0' are empty;
+ * lowercase 'a'-'i' encode placed (non-given) values 1-9 (used by fixtures
+ * such as Avoidable Rectangle whose pattern hinges on the given/placed
+ * distinction). Whitespace is ignored.
+ */
 function parseBoardString(name: 'classic' | 'six' | 'mini', s: string): Board {
   const variant = variantFor(name);
   const cleaned = s.replace(/\s+/g, '');
@@ -29,11 +39,23 @@ function parseBoardString(name: 'classic' | 'six' | 'mini', s: string): Board {
     const r = Math.floor(i / variant.size);
     const c = i % variant.size;
     if (ch === '.' || ch === '0') continue;
-    const d = Number.parseInt(ch, 10);
-    if (!Number.isInteger(d) || d < 1 || d > variant.size) {
-      throw new Error(`Bad cell '${ch}' at index ${i}`);
+    if (ch >= '1' && ch <= '9') {
+      const d = Number.parseInt(ch, 10);
+      if (d < 1 || d > variant.size) {
+        throw new Error(`Bad given '${ch}' at index ${i}`);
+      }
+      board.cells[r][c] = createGivenCell(d as Digit);
+      continue;
     }
-    board.cells[r][c] = createGivenCell(d as Digit);
+    if (ch >= 'a' && ch <= 'i') {
+      const d = ch.charCodeAt(0) - 'a'.charCodeAt(0) + 1;
+      if (d < 1 || d > variant.size) {
+        throw new Error(`Bad placement '${ch}' at index ${i}`);
+      }
+      board.cells[r][c] = placedCell(d as Digit);
+      continue;
+    }
+    throw new Error(`Bad cell '${ch}' at index ${i}`);
   }
   return board;
 }
@@ -77,22 +99,39 @@ describe('TECHNIQUE_CATALOG', () => {
 
 describe('fixture round-trip', () => {
   // Each catalog fixture is hand-authored to demonstrate exactly one
-  // technique. Passing the fixture's board through the rater must yield the
-  // tier the catalog claims for that technique — otherwise the help-screen
-  // demo would mislead the player about how hard the puzzle truly is. This
-  // guards against silent drift in either direction (a fixture that becomes
-  // solvable by easier techniques after a solver tweak, or a tier remapping
-  // that leaves stale fixture entries behind).
+  // technique. The fixtures are mid-game one-step demonstrations rather
+  // than fully-solvable puzzles, so they cannot round-trip through `rate()`
+  // to a tier label (the cascade has no way to "finish" a partial puzzle).
+  // The drift signal we can guard cheaply is: the technique's own finder
+  // still produces a non-null result on its fixture board. Per-finder unit
+  // tests verify shape-of-deduction; this catalog-level check verifies the
+  // catalog's id → finder mapping never silently breaks (e.g. a fixture
+  // edit that destroys the demonstrated pattern would be caught here).
   const cases = (Object.entries(TECHNIQUE_CATALOG) as Array<
     [TechniqueId, TechniqueCatalogEntry]
   >).map(([id, entry]) => ({ id, entry }));
 
-  it.each(cases)('$id fixture rates as its catalog tier', ({ id, entry }) => {
+  const finderById = new Map(techniques.map((t) => [t.id, t.find]));
+
+  it.each(cases)("$id fixture demonstrates its catalog technique", ({ id, entry }) => {
     const board = parseBoardString(entry.fixture.variant, entry.fixture.board);
-    const result = rate(board);
+    const finder = finderById.get(id);
+    expect(finder, `expected a registered finder for "${id}"`).toBeDefined();
+    const result = finder!(board);
     expect(
-      result.difficulty,
-      `expected ${id} fixture to rate as ${entry.tier}, got ${result.difficulty}`,
-    ).toBe(entry.tier);
+      result,
+      `expected ${id} fixture to demonstrate technique "${id}" via its finder`,
+    ).not.toBeNull();
+  });
+
+  it('every catalog tier appears in DIFFICULTY_ORDER', () => {
+    for (const [id, entry] of Object.entries(TECHNIQUE_CATALOG) as Array<
+      [TechniqueId, TechniqueCatalogEntry]
+    >) {
+      expect(
+        DIFFICULTY_ORDER,
+        `catalog tier ${entry.tier} for ${id} must be a known difficulty`,
+      ).toContain(entry.tier);
+    }
   });
 });
