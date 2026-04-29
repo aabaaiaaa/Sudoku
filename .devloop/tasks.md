@@ -62,7 +62,7 @@ is actually fixed.
 - **Verification**: `npx playwright test tests/e2e/difficulty-matrix.spec.ts --project=chromium -g "classic.*Easy"` (smoke a single Easy combo to confirm the new contract still admits the obvious success case)
 
 ### TASK-010: Rewrite the matrix E2E header narrative for the new contract
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-009
 - **Description**: Replace the TASK-049 / Bug B "decision rule" comment block at the top of `tests/e2e/difficulty-matrix.spec.ts` (currently lines 29-62) with a short narrative describing the iteration-4 contract: every advertised tier must produce a board; if a tier cannot, fix the generator or descope it from `availableTiers` per `.devloop/requirements.md` §6. Remove the obsolete "Decision rule when TASK-052 reports failures here" block. No code changes — header comment only.
 - **Verification**: `! grep -q "Decision rule when TASK-052" tests/e2e/difficulty-matrix.spec.ts && npx tsc --noEmit -p tsconfig.app.json`
@@ -80,7 +80,7 @@ is actually fixed.
 - **Verification**: `test -f src/engine/solver/techniques/tier-fixtures.ts && npx tsc --noEmit -p tsconfig.app.json && grep -q "TIER_FIXTURES" src/engine/solver/techniques/tier-fixtures.ts`
 
 ### TASK-013: Implement the tier-fixture round-trip test
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-012
 - **Description**: Create `src/engine/solver/techniques/tier-fixtures.test.ts`. Import `TIER_FIXTURES` and `parseBoardString` (the same helper that `catalog.test.ts:117` uses to parse fixture strings). For each `[tier, fixture]` in `Object.entries(TIER_FIXTURES)`, call `parseBoardString(fixture.variant, fixture.board)` to get a `Board`, then call `rate(board)` and assert (a) `result.difficulty === tier` and (b) `result.solved === true`. Use `it.each(Object.entries(TIER_FIXTURES))` so each tier is its own test case for clean failure reporting. See requirements §9.
 - **Verification**: `npx vitest run src/engine/solver/techniques/tier-fixtures.test.ts`

@@ -4,32 +4,24 @@ import { availableTiers } from '../../src/engine/generator/variant-tiers';
 import type { Variant } from '../../src/engine/types';
 
 /**
- * E2E — difficulty matrix smoke (requirements §9.1).
+ * E2E — difficulty matrix smoke.
  *
- * Every advertised (variant × tier) combination MUST reliably load a playable
- * board within the existing 50-attempt / 60-second budget. Each tier runs as
- * its own `test()` so a single regression points at the exact slot rather than
- * burying every tier under one combined assertion.
+ * Iteration-4 contract: every advertised (variant × tier) combination MUST
+ * load a playable board. The board rendering is the only acceptable outcome;
+ * any appearance of the generation-failure dialog is a hard test failure.
  *
- * For each tier we:
- *   1. Clear localStorage so a stale save doesn't trigger a replace prompt.
- *   2. Navigate Home, select the variant + the tier, click New Game.
- *   3. Within 75s assert that the board renders with at least one given cell.
- *      The §7.3 failure dialog appearing — for *any* reason — is a hard test
- *      failure. Anything else (blank screen, hung overlay) is also a hard
- *      failure.
+ * If a tier cannot reliably produce a board, the fix is to either tune the
+ * generator (per-tier attempt budget, `clueBoundsLowerForTier`) or descope
+ * the tier from `availableTiers` for that variant — see
+ * `.devloop/requirements.md` §6 for the data-driven tuning ladder. The
+ * matrix iterates the current `availableTiers(variant)`, so a descoped tier
+ * simply does not appear here.
  *
- * Variant blocks use the lowercase variant id (`classic`, `six`, `mini`) in
- * their describe and test titles so the verification grep filters
- * (`--grep classic`, `--grep six`, `--grep mini`) cleanly partition the suite.
- *
- * Strict-success contract: after iteration-4 descoped tier coverage in
- * `variant-tiers.ts` to only those tiers the generator can reliably hit
- * under strict matching, the failure dialog branch is no longer an
- * acceptable outcome here. Any failure-dialog appearance signals a real
- * regression in either the generator's reliability or the advertised tier
- * list — both warrant a hard test failure rather than a soft "diagnostic
- * fields populated" pass.
+ * Each tier runs as its own `test()` so a single regression points at the
+ * exact (variant, tier) slot rather than burying every tier under one
+ * combined assertion. Variant blocks use the lowercase variant id
+ * (`classic`, `six`, `mini`) in their describe/test titles so grep filters
+ * (`--grep classic`, etc.) cleanly partition the suite.
  */
 
 // 60s hard cap inside the worker + spin-up + render headroom.
