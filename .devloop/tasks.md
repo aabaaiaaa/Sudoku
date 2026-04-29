@@ -32,7 +32,7 @@ is actually fixed.
 - **Verification**: `npx vitest run src/engine/generator/generate.test.ts`
 
 ### TASK-005: Update `generate-for-difficulty.ts` to pass `clueFloor` only
-- **Status**: pending
+- **Status**: done
 - **Dependencies**: TASK-004
 - **Description**: In `src/engine/generator/generate-for-difficulty.ts`: replace the dual `minClues` + `maxClues` plumbing with a single `clueFloor: clueBoundsLowerForTier(variant, targetTier)` on the `generate()` call. Remove the `clueBoundsUpperForTier` import/call from this file; the helper itself is retained for any other consumers. See requirements §5.2.
 - **Verification**: `npx vitest run src/engine/generator/generate-for-difficulty.test.ts` (Hard/Master remain skipped via `SKIPPED_TIERS` until TASK-011; this run exercises every other test in the file)

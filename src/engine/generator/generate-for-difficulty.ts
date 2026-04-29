@@ -127,7 +127,7 @@ function tierRank(d: Difficulty): number {
 /**
  * Returns the clue-count lower bound for the given variant/difficulty, or
  * `undefined` if the variant isn't listed in `CLUE_BOUNDS`. This value is used
- * as the `minClues` hint for `generate` so that generation biases toward the
+ * as the `clueFloor` hint for `generate` so that generation biases toward the
  * target tier (Easy keeps more clues, Expert removes more).
  */
 function clueBoundsLowerForTier(
@@ -139,23 +139,6 @@ function clueBoundsLowerForTier(
   const window = entry[difficulty];
   if (window == null) return undefined;
   return window[0];
-}
-
-/**
- * Returns the clue-count upper bound for the given variant/difficulty, or
- * `undefined` if the variant isn't listed in `CLUE_BOUNDS`. Passed as the
- * `maxClues` hint to `generate` so mid-range tiers don't over-aggressively
- * remove clues and overshoot into a harder tier (requirements §4.3).
- */
-function clueBoundsUpperForTier(
-  variantId: string,
-  difficulty: Difficulty,
-): number | undefined {
-  const entry = CLUE_BOUNDS[variantId];
-  if (entry == null) return undefined;
-  const window = entry[difficulty];
-  if (window == null) return undefined;
-  return window[1];
 }
 
 function normalizeDifficulty(value: string): Difficulty | null {
@@ -205,8 +188,7 @@ export function generateForDifficulty(
   );
   const timeoutMs = Math.max(0, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const targetRank = tierRank(difficulty);
-  const minCluesHint = clueBoundsLowerForTier(variant.id, difficulty);
-  const maxCluesHint = clueBoundsUpperForTier(variant.id, difficulty);
+  const clueFloorHint = clueBoundsLowerForTier(variant.id, difficulty);
 
   const startedAt = Date.now();
   let attempts = 0;
@@ -220,11 +202,8 @@ export function generateForDifficulty(
       // Derive distinct deterministic seeds from the base seed.
       genOpts.seed = (options.seed + attempts) | 0;
     }
-    if (minCluesHint != null) {
-      genOpts.minClues = minCluesHint;
-    }
-    if (maxCluesHint != null) {
-      genOpts.maxClues = maxCluesHint;
+    if (clueFloorHint != null) {
+      genOpts.clueFloor = clueFloorHint;
     }
 
     // Per-attempt try/catch (requirements §4.1): a finder bug must never

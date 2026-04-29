@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 3,
+  "lastIteration": 4,
   "startedAt": "2026-04-29T12:44:11.456Z",
   "iteration": 3,
   "devloopVersion": "4.1.0",
   "activeTask": {
-    "taskId": "TASK-004",
-    "taskTitle": "Rename `maxClues` → `clueFloor` in `generate.ts` + clueFloor regression test",
-    "iterationNumber": 4,
-    "startedAt": "2026-04-29T13:06:35.647Z"
+    "taskId": "TASK-005",
+    "taskTitle": "Update `generate-for-difficulty.ts` to pass `clueFloor` only",
+    "iterationNumber": 5,
+    "startedAt": "2026-04-29T13:10:37.700Z"
   }
 }
