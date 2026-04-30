@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -60,6 +61,24 @@ export const fixture: TechniqueFixture = {
     { pos: { row: 8, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 8, col: 4 }, role: 'pattern-primary' },
     { pos: { row: 8, col: 8 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 0 }, role: 'elimination' },
+    { pos: { row: 1, col: 4 }, role: 'elimination' },
+    { pos: { row: 1, col: 8 }, role: 'elimination' },
+    { pos: { row: 2, col: 0 }, role: 'elimination' },
+    { pos: { row: 2, col: 4 }, role: 'elimination' },
+    { pos: { row: 2, col: 8 }, role: 'elimination' },
+    { pos: { row: 3, col: 0 }, role: 'elimination' },
+    { pos: { row: 3, col: 4 }, role: 'elimination' },
+    { pos: { row: 3, col: 8 }, role: 'elimination' },
+    { pos: { row: 5, col: 0 }, role: 'elimination' },
+    { pos: { row: 5, col: 4 }, role: 'elimination' },
+    { pos: { row: 5, col: 8 }, role: 'elimination' },
+    { pos: { row: 6, col: 0 }, role: 'elimination' },
+    { pos: { row: 6, col: 4 }, role: 'elimination' },
+    { pos: { row: 6, col: 8 }, role: 'elimination' },
+    { pos: { row: 7, col: 0 }, role: 'elimination' },
+    { pos: { row: 7, col: 4 }, role: 'elimination' },
+    { pos: { row: 7, col: 8 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -84,5 +103,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'In three rows (or columns), if a digit’s candidate cells lie in the same three columns (or rows), those three lines form a swordfish. The digit must occupy one cell in each of the three crossing lines, so it can be eliminated from those three lines in every other row (or column).',
+    "Look for three rows where one number can only go in cells that all land in the same three columns. That number must appear once in each of those rows, and it can only use those three columns to do so — so you can rule it out from every other empty cell in those three columns. (The same idea works with three columns and three rows.)",
 };

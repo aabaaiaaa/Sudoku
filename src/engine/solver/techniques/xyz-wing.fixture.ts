@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -55,9 +56,11 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 4 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'pivot' },
+    { pos: { row: 0, col: 4 }, role: 'pincer' },
+    { pos: { row: 2, col: 2 }, role: 'pincer' },
+    { pos: { row: 0, col: 1 }, role: 'elimination' },
+    { pos: { row: 0, col: 2 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -66,5 +69,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'A trivalue pivot cell {X, Y, Z} and two bivalue pincer cells {X, Z} and {Y, Z}, where each pincer shares a house with the pivot. One of the three cells must be Z, so Z can be eliminated from every cell that sees all three.',
+    'Find a centre cell with exactly three possible numbers — call them A, B, and C. Find two outer cells: one with A and C, another with B and C, each sharing a row, column, or box with the centre. No matter what the centre takes, one of the three cells must end up as C. You can rule out C from any empty cell that can see all three cells at once.',
 };

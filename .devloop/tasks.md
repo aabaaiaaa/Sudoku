@@ -207,35 +207,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-028: Rewrite swordfish fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite as TASK-027 but for 3-row pattern. `glossaryTerms: ['candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/swordfish.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-029: Rewrite jellyfish fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite as TASK-027 but for 4-row pattern. `glossaryTerms: ['candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/jellyfish.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-030: Rewrite xy-wing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; pivot → `pivot`; pincers → `pincer`; eliminations → `elimination`. Catalog `glossaryTerms: ['pivot-pincer', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-wing.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-031: Rewrite xyz-wing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite as TASK-030. `glossaryTerms: ['pivot-pincer', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xyz-wing.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-032: Rewrite w-wing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; bivalue cells → `pattern-primary`; strong-link cells → `pattern-secondary`; eliminations → `elimination`. Catalog `glossaryTerms: ['candidate', 'elimination']`.

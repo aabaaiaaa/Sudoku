@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -57,6 +58,9 @@ export const fixture: TechniqueFixture = {
   roles: [
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 2, col: 8 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 4 }, role: 'pattern-secondary' },
+    { pos: { row: 2, col: 4 }, role: 'pattern-secondary' },
+    { pos: { row: 2, col: 2 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -64,5 +68,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Two bivalue cells with the same two candidates {X, Y} connected by a strong link on Y — a house where Y must appear in one of two cells, each of which sees one of the bivalue cells. Whichever cell of the strong link is Y, the bivalue it sees is forced to X; therefore X can be eliminated from any cell that sees both bivalue cells.',
+    "Find two cells that each contain exactly the same two possible numbers. Then look for a row, column, or box where one of those numbers can only go in exactly two cells — and each of those two cells can see a different one of the original pair. No matter which supporting cell ends up with that number, the paired cell next to it is forced to the other value. You can rule out that other value from any empty cell that can see both of the original pair.",
 };
