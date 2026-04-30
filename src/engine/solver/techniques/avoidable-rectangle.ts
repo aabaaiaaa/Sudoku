@@ -176,6 +176,6 @@ function tryEmptyCorner(
     eliminatedDigit: V,
     forcedDigit: Z,
     eliminations,
-    explanation: `Avoidable Rectangle on {${digitsPair[0]},${digitsPair[1]}}: non-given placements R${diagPartner.row + 1}C${diagPartner.col + 1}=${V}, R${offA.row + 1}C${offA.col + 1}=${U}, R${offB.row + 1}C${offB.col + 1}=${U} would form a deadly pattern if R${target.row + 1}C${target.col + 1}=${V}; eliminate ${V} from R${target.row + 1}C${target.col + 1} (forcing ${Z})`,
+    explanation: `Avoidable Rectangle: three corners are already filled with ${digitsPair[0]} and ${digitsPair[1]}. If the empty corner also took ${V}, the puzzle would have two answers — so remove ${V} from the highlighted corner, leaving ${Z}.`,
   };
 }

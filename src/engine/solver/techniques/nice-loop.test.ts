@@ -199,7 +199,6 @@ describe('findNiceLoop', () => {
 
     expect(result!.explanation).toContain('Nice Loop');
     expect(result!.explanation).toContain('discontinuous');
-    expect(result!.explanation).toContain('weak');
   });
 
   it('discontinuous nice loop fixture deduction matches the finder output', () => {

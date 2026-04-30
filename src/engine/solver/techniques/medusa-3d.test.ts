@@ -138,8 +138,6 @@ describe('find3DMedusa', () => {
 
     expect(result!.explanation).toContain('3D Medusa');
     expect(result!.explanation).toContain('box 1');
-    expect(result!.explanation).toContain('R1C2');
-    expect(result!.explanation).toContain('R2C1');
   });
 
   it('fixture deduction matches the finder output', () => {

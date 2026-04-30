@@ -231,7 +231,7 @@ export function findHiddenRectangle(
                     diagonalColMate,
                     eliminatedDigit: Z,
                     eliminations,
-                    explanation: `Hidden Rectangle on {${X},${Y}}: anchor R${anchor.row + 1}C${anchor.col + 1} is bivalue, with strong links on ${Z} in row ${diag.row + 1} (between R${diagonalRowMate.row + 1}C${diagonalRowMate.col + 1} and R${diag.row + 1}C${diag.col + 1}) and column ${diag.col + 1} (between R${diagonalColMate.row + 1}C${diagonalColMate.col + 1} and R${diag.row + 1}C${diag.col + 1}); eliminate ${Z} from R${diag.row + 1}C${diag.col + 1}`,
+                    explanation: `Hidden Rectangle: one corner has only ${X} and ${Y}. In the opposite corner's row and column, ${Z} can only go in two places — a chain of limits that lets you remove ${Z} from the highlighted corner.`,
                   };
                 }
               }

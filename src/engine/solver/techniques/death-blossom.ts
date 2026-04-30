@@ -155,14 +155,6 @@ function tryFinalize(
       als: petals[i],
     }));
 
-    const stemCandList = stemDigits.join(',');
-    const petalDescs = petalsResult
-      .map(
-        (p) =>
-          `${p.stemDigit}→[${p.als.cells.map(cellLabel).join(',')}]{${p.als.candidates.join(',')}}`,
-      )
-      .join('; ');
-    const elimList = eliminations.map((e) => cellLabel(e.cell)).join(',');
     return {
       technique: 'death-blossom',
       stem,
@@ -170,7 +162,7 @@ function tryFinalize(
       petals: petalsResult,
       z,
       eliminations,
-      explanation: `Death Blossom: stem ${cellLabel(stem)} {${stemCandList}} with petals ${petalDescs}; whichever digit the stem holds, the matching petal becomes a locked set forced to contain ${z}, so eliminate ${z} from ${elimList}`,
+      explanation: `Death Blossom: a central cell pairs with a small group for each of its choices. Every group must contain ${z}, so you can remove ${z} from any cell that sees all those groups.`,
     };
   }
   return null;

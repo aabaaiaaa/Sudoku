@@ -139,13 +139,7 @@ function nodeOrder(a: Medusa3DNode, b: Medusa3DNode): number {
   );
 }
 
-function cellLabel(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
 
-function nodeLabel(n: Medusa3DNode): string {
-  return `${n.digit}@${cellLabel(n.cell)}`;
-}
 
 /**
  * 3D Medusa: an extension of Simple Coloring that colors candidates across
@@ -315,13 +309,9 @@ export function find3DMedusa(board: Board): Medusa3DResult | null {
       const eliminations = buildColorEliminations(
         rule1Color === 'A' ? colorA : colorB,
       );
-      const invalidNodes = (rule1Color === 'A' ? colorA : colorB)
-        .map(nodeLabel)
-        .join(',');
       const explanation =
-        `3D Medusa: cluster A=[${colorA.map(nodeLabel).join(',')}] B=[${colorB.map(nodeLabel).join(',')}]; ` +
-        `colour ${rule1Color} contains both ${rule1Digits[0]} and ${rule1Digits[1]} at ${cellLabel(rule1Cell)}, ` +
-        `so colour ${rule1Color} is invalid; eliminate ${invalidNodes}`;
+        `3D Medusa: colour ${rule1Color} forces both ${rule1Digits[0]} and ${rule1Digits[1]} into the same cell — ` +
+        `colour ${rule1Color} is a contradiction, so remove all colour ${rule1Color} candidates.`;
       return {
         technique: '3d-medusa',
         colorA,
@@ -379,13 +369,9 @@ export function find3DMedusa(board: Board): Medusa3DResult | null {
       const eliminations = buildColorEliminations(
         rule2Color === 'A' ? colorA : colorB,
       );
-      const invalidNodes = (rule2Color === 'A' ? colorA : colorB)
-        .map(nodeLabel)
-        .join(',');
       const explanation =
-        `3D Medusa: cluster A=[${colorA.map(nodeLabel).join(',')}] B=[${colorB.map(nodeLabel).join(',')}]; ` +
-        `colour ${rule2Color} places ${rule2Digit} at both ${cellLabel(rule2Cells[0])} and ${cellLabel(rule2Cells[1])} in ${rule2House}, ` +
-        `so colour ${rule2Color} is invalid; eliminate ${invalidNodes}`;
+        `3D Medusa: colour ${rule2Color} places ${rule2Digit} twice in ${rule2House} — ` +
+        `colour ${rule2Color} is a contradiction, so remove all colour ${rule2Color} candidates.`;
       return {
         technique: '3d-medusa',
         colorA,
@@ -442,12 +428,9 @@ export function find3DMedusa(board: Board): Medusa3DResult | null {
     }
 
     if (elims.length > 0) {
-      const elimList = elims
-        .map((e) => `${cellLabel(e.cell)}={${e.digits.join(',')}}`)
-        .join(',');
       const explanation =
-        `3D Medusa: cluster A=[${colorA.map(nodeLabel).join(',')}] B=[${colorB.map(nodeLabel).join(',')}]; ` +
-        `each eliminated candidate sees both an A and a B node for its digit; eliminate ${elimList}`;
+        `3D Medusa: each eliminated candidate can see a colour A and a colour B cell for its digit — ` +
+        `whichever colour is correct, these candidates are ruled out.`;
       return {
         technique: '3d-medusa',
         colorA,

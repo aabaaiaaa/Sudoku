@@ -92,8 +92,7 @@ describe('findBugPlus1', () => {
     // for digit 1 (R1C1, R1C2, R1C3 all carry 1).
     expect(result!.forcedHouse).toBe('row');
 
-    expect(result!.explanation).toContain('BUG+1');
-    expect(result!.explanation).toContain('R1C2');
+    expect(result!.explanation).toContain('Place');
     expect(result!.explanation).toContain('1');
   });
 

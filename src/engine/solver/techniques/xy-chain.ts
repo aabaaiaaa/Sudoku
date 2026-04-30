@@ -126,14 +126,8 @@ function findChainEliminations(
   return eliminations;
 }
 
-function buildExplanation(chain: BivalueCell[], z: Digit): string {
-  const parts: string[] = [];
-  for (const c of chain) {
-    parts.push(
-      `R${c.pos.row + 1}C${c.pos.col + 1}{${c.digits[0]},${c.digits[1]}}`,
-    );
-  }
-  return `XY-Chain on ${z}: ${parts.join(' → ')}; one of the endpoints must be ${z}, so eliminate ${z} from cells seeing both`;
+function buildExplanation(_chain: BivalueCell[], z: Digit): string {
+  return `XY-Chain: a chain of cells, each with only two possible numbers, links two ends. Both ends share ${z}. Any cell that sees both chain ends can't be ${z} — remove it.`;
 }
 
 interface SearchContext {

@@ -180,12 +180,6 @@ export function findBugPlus1(board: Board): BugPlus1Result | null {
     candidates: sortedCandidates,
     digit: forcedDigit,
     forcedHouse,
-    explanation: `BUG+1: every other unsolved cell is bivalue, so R${plusOne.row + 1}C${plusOne.col + 1} must take ${forcedDigit} — the only candidate appearing three times in its ${describeHouse(forcedHouse)}; any other choice would leave a deadly bivalue pattern with multiple solutions`,
+    explanation: `Place ${forcedDigit} in the highlighted cell. Every other open cell has only two possibilities, so this cell has to take the only number that's left over.`,
   };
-}
-
-function describeHouse(house: BugPlus1House): string {
-  if (house === 'row') return 'row';
-  if (house === 'col') return 'column';
-  return 'box';
 }

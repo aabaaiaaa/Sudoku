@@ -459,35 +459,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/empty-rectangle.test.ts src/engine/solver/techniques/skyscraper.test.ts src/engine/solver/techniques/two-string-kite.test.ts`.
 
 ### TASK-064: Rewrite unique-rectangle / hidden-rectangle / avoidable-rectangle explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite the three (or more, if multiple types per file) explanation templates.
 - **Verification**: `npx vitest run src/engine/solver/techniques/unique-rectangle.test.ts src/engine/solver/techniques/hidden-rectangle.test.ts src/engine/solver/techniques/avoidable-rectangle.test.ts`.
 
 ### TASK-065: Rewrite bug-plus-one explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `bug.ts`. See requirements §8 for example target wording.
 - **Verification**: `npx vitest run src/engine/solver/techniques/bug.test.ts`.
 
 ### TASK-066: Rewrite als-xz / death-blossom explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `als-xz.ts` and `death-blossom.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/als-xz.test.ts src/engine/solver/techniques/death-blossom.test.ts`.
 
 ### TASK-067: Rewrite xy-chain / nice-loop explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `xy-chain.ts` and `nice-loop.ts` (the latter has two: continuous and discontinuous).
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-chain.test.ts src/engine/solver/techniques/nice-loop.test.ts`.
 
 ### TASK-068: Rewrite 3d-medusa explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `medusa-3d.ts`.

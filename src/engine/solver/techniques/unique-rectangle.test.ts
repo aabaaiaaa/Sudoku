@@ -122,7 +122,6 @@ describe('findUniqueRectangle', () => {
       assertExpectedEliminations(result!, fixtureType1.deduction.eliminations!);
 
       expect(result!.explanation).toContain('Type 1');
-      expect(result!.explanation).toContain('R5C4');
     });
 
     it('fixture pattern cells match the rectangle the finder identifies', () => {

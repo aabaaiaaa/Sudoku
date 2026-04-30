@@ -423,8 +423,7 @@ function buildContinuousResult(
   );
   for (const e of eliminations) e.digits.sort((a, b) => a - b);
 
-  const cellList = nodes.map(formatNode).join(' → ');
-  const explanation = `Nice Loop: continuous cycle ${cellList} (length ${nodes.length}); each weak link forces eliminations`;
+  const explanation = `Nice Loop (continuous): the highlighted cells form a closed loop. Switching back and forth between two options works without contradiction — remove any number ruled out by both directions.`;
 
   return {
     technique: 'nice-loop',
@@ -449,8 +448,7 @@ function buildDiscontinuousStrongResult(
   const cand = ctx.grid[start.pos.row][start.pos.col];
   if (cand == null || !cand.has(start.digit)) return null;
 
-  const cellList = nodes.map(formatNode).join(' → ');
-  const explanation = `Nice Loop: discontinuous cycle ${cellList} (length ${nodes.length}); two strong links meet at ${formatNode(start)}, placing ${start.digit} at ${formatCell(start.pos)}`;
+  const explanation = `Nice Loop (discontinuous): the loop breaks at one cell — the same conclusion follows from both directions. The number at that cell is forced — place it.`;
 
   return {
     technique: 'nice-loop',
@@ -476,8 +474,7 @@ function buildDiscontinuousWeakResult(
   const cand = ctx.grid[start.pos.row][start.pos.col];
   if (cand == null || !cand.has(start.digit)) return null;
 
-  const cellList = nodes.map(formatNode).join(' → ');
-  const explanation = `Nice Loop: discontinuous cycle ${cellList} (length ${nodes.length}); two weak links meet at ${formatNode(start)}, eliminating ${start.digit} from ${formatCell(start.pos)}`;
+  const explanation = `Nice Loop (discontinuous): the loop breaks at one cell — the same conclusion follows from both directions. Remove the number the loop rules out at that cell.`;
 
   return {
     technique: 'nice-loop',

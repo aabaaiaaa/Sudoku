@@ -124,9 +124,6 @@ describe('findDeathBlossom', () => {
     }
 
     expect(result!.explanation).toContain('Death Blossom');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R1C3');
-    expect(result!.explanation).toContain('R1C5');
   });
 
   it('fixture deduction matches the finder output', () => {

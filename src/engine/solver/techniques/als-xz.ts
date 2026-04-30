@@ -295,11 +295,6 @@ export function findAlsXz(board: Board): AlsXzResult | null {
           }
           if (eliminations.length === 0) continue;
 
-          const aCellList = a.cells.map(cellLabel).join(',');
-          const bCellList = b.cells.map(cellLabel).join(',');
-          const aCandList = a.candidates.join(',');
-          const bCandList = b.candidates.join(',');
-          const elimList = eliminations.map((e) => cellLabel(e.cell)).join(',');
           return {
             technique: 'als-xz',
             alsA: a,
@@ -307,7 +302,7 @@ export function findAlsXz(board: Board): AlsXzResult | null {
             x,
             z,
             eliminations,
-            explanation: `ALS-XZ: ALS A in ${a.house} = [${aCellList}] {${aCandList}} and ALS B in ${b.house} = [${bCellList}] {${bCandList}} share restricted common ${x}; one of A or B must hold ${z}, so eliminate ${z} from ${elimList}`,
+            explanation: `ALS-XZ: two small groups of cells in ${a.house} and ${b.house} almost nail down their numbers. They share ${x}, so one group must hold ${z}. You can remove ${z} from any cell that sees both groups.`,
           };
         }
       }

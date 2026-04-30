@@ -111,8 +111,6 @@ describe('findXyChain', () => {
     expect(findElim(result!.eliminations, { row: 8, col: 7 })).toBeUndefined();
 
     expect(result!.explanation).toContain('XY-Chain');
-    expect(result!.explanation).toContain('R1C2');
-    expect(result!.explanation).toContain('R9C8');
   });
 
   it('fixture deduction matches the finder output', () => {

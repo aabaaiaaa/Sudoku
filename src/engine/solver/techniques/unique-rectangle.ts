@@ -236,7 +236,7 @@ function tryType1(
     floorCells: floor,
     roofCells: roof,
     eliminations,
-    explanation: `Unique Rectangle Type 1 on {${X},${Y}}: three corners are bivalue {${X},${Y}}; if R${target.pos.row + 1}C${target.pos.col + 1} also took ${X} or ${Y} the four corners would form a deadly pattern, so eliminate ${X} and ${Y} from R${target.pos.row + 1}C${target.pos.col + 1}`,
+    explanation: `Unique Rectangle Type 1: three corners can only be ${X} or ${Y}. If the fourth corner also took one of those, the puzzle would have two answers — so remove ${X} and ${Y} from the highlighted corner.`,
   };
 }
 
@@ -285,7 +285,7 @@ function tryType2(
     roofCells: roof,
     extraDigit: Z,
     eliminations,
-    explanation: `Unique Rectangle Type 2 on {${X},${Y}}: roof cells R${r1.pos.row + 1}C${r1.pos.col + 1} and R${r2.pos.row + 1}C${r2.pos.col + 1} each carry one extra ${Z}; one of them must be ${Z}, so eliminate ${Z} from cells seeing both roofs`,
+    explanation: `Unique Rectangle Type 2: two corners each have an extra ${Z} beyond ${X} and ${Y}. One of them must be ${Z}, so you can remove ${Z} from any cell that sees both of those corners.`,
   };
 }
 
@@ -348,7 +348,7 @@ function tryType4(
         confinedDigit: candidate,
         sharedHouse: house,
         eliminations,
-        explanation: `Unique Rectangle Type 4 on {${X},${Y}}: in the shared ${describeHouse(house, r1.pos)}, ${candidate} is confined to roof cells R${r1.pos.row + 1}C${r1.pos.col + 1} and R${r2.pos.row + 1}C${r2.pos.col + 1}; eliminate ${other} from both`,
+        explanation: `Unique Rectangle Type 4: in the shared ${describeHouse(house, r1.pos)}, ${candidate} can only go in the two highlighted corner cells. That forces ${other} out of those corners — remove ${other} from both.`,
       };
     }
   }
@@ -404,5 +404,5 @@ function describeHouse(
 ): string {
   if (house === 'row') return `row ${a.row + 1}`;
   if (house === 'col') return `column ${a.col + 1}`;
-  return `box containing R${a.row + 1}C${a.col + 1}`;
+  return `this box`;
 }

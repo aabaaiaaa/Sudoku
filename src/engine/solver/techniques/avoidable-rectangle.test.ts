@@ -96,8 +96,6 @@ describe('findAvoidableRectangle', () => {
     expect(result!.eliminations[0].digits).toEqual([1]);
 
     expect(result!.explanation).toContain('Avoidable Rectangle');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R2C4');
   });
 
   it('fixture pattern cells match the rectangle the finder identifies', () => {

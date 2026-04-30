@@ -144,9 +144,6 @@ describe('findAlsXz', () => {
     expect(elim!.digits).toEqual([1]);
 
     expect(result!.explanation).toContain('ALS-XZ');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R4C1');
-    expect(result!.explanation).toContain('R5C1');
   });
 
   it('fixture deduction matches the finder output', () => {
