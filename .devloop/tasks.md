@@ -151,28 +151,28 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-020: Rewrite box-line-reduction fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-013
 - **Description**: Rewrite description; intersection cells → `pattern-primary`; box-internal eliminations → `elimination`. Catalog `glossaryTerms: ['box', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-021: Rewrite naked-pair fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-014
 - **Description**: Rewrite description per §5.3 example; subset cells → `pattern-primary`; eliminations → `elimination`. Catalog `glossaryTerms: ['pair', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-022: Rewrite naked-triple fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-014
 - **Description**: Rewrite as TASK-021. `glossaryTerms: ['pair', 'elimination']` (the pair entry covers triples/quads).
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-023: Rewrite naked-quad fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-014
 - **Description**: Rewrite as TASK-021. `glossaryTerms: ['pair', 'elimination']`.
@@ -200,7 +200,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-quad.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-027: Rewrite x-wing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-012
 - **Description**: Rewrite description per §5.3 example; corner cells → `pattern-primary`; the line cells (rest of the two rows or columns) where the digit is being eliminated → `elimination`. Catalog `glossaryTerms: ['candidate', 'elimination']`.

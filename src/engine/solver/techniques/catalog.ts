@@ -107,24 +107,28 @@ export const TECHNIQUE_CATALOG: Record<TechniqueId, TechniqueCatalogEntry> = {
     tier: 'Hard',
     fixture: boxLineReductionFixture,
     description: boxLineReductionFixture.description,
+    glossaryTerms: ['box', 'elimination'],
   },
   'naked-pair': {
     displayName: 'Naked Pair',
     tier: 'Hard',
     fixture: nakedPairFixture,
     description: nakedPairFixture.description,
+    glossaryTerms: ['pair', 'elimination'],
   },
   'naked-triple': {
     displayName: 'Naked Triple',
     tier: 'Hard',
     fixture: nakedTripleFixture,
     description: nakedTripleFixture.description,
+    glossaryTerms: ['pair', 'elimination'],
   },
   'naked-quad': {
     displayName: 'Naked Quad',
     tier: 'Hard',
     fixture: nakedQuadFixture,
     description: nakedQuadFixture.description,
+    glossaryTerms: ['pair', 'elimination'],
   },
   'hidden-pair': {
     displayName: 'Hidden Pair',
@@ -152,6 +156,7 @@ export const TECHNIQUE_CATALOG: Record<TechniqueId, TechniqueCatalogEntry> = {
     tier: 'Expert',
     fixture: xWingFixture,
     description: xWingFixture.description,
+    glossaryTerms: ['candidate', 'elimination'],
   },
   swordfish: {
     displayName: 'Swordfish',

@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -58,6 +59,11 @@ export const fixture: TechniqueFixture = {
     { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 4 }, role: 'elimination' },
+    { pos: { row: 0, col: 5 }, role: 'elimination' },
+    { pos: { row: 0, col: 6 }, role: 'elimination' },
+    { pos: { row: 0, col: 7 }, role: 'elimination' },
+    { pos: { row: 0, col: 8 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -69,5 +75,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'In a row, column, or box, four cells whose combined candidates are exactly four digits form a naked quad. Those four cells must hold those four digits between them, so the four digits can be eliminated from every other cell in the same house.',
+    'When four cells in the same row, column, or box can only hold the same four numbers between them, those numbers must go in those four cells. You can rule them out everywhere else in that row, column, or box.',
 };

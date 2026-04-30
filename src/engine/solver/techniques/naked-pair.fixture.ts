@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -52,6 +53,13 @@ export const fixture: TechniqueFixture = {
   roles: [
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 2 }, role: 'elimination' },
+    { pos: { row: 0, col: 3 }, role: 'elimination' },
+    { pos: { row: 0, col: 4 }, role: 'elimination' },
+    { pos: { row: 0, col: 5 }, role: 'elimination' },
+    { pos: { row: 0, col: 6 }, role: 'elimination' },
+    { pos: { row: 0, col: 7 }, role: 'elimination' },
+    { pos: { row: 0, col: 8 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -65,5 +73,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Two cells in a row, column, or box that share the same two candidates and only those two candidates form a naked pair. Those digits must occupy those two cells, so they can be eliminated from every other cell in the house.',
+    'When two cells in the same row, column, or box can each only be one of the same two numbers, those two numbers have to go in those two cells. You can rule them out everywhere else in that row, column, or box.',
 };

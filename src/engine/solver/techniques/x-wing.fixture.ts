@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -55,6 +56,20 @@ export const fixture: TechniqueFixture = {
     { pos: { row: 0, col: 6 }, role: 'pattern-primary' },
     { pos: { row: 5, col: 3 }, role: 'pattern-primary' },
     { pos: { row: 5, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 3 }, role: 'elimination' },
+    { pos: { row: 1, col: 6 }, role: 'elimination' },
+    { pos: { row: 2, col: 3 }, role: 'elimination' },
+    { pos: { row: 2, col: 6 }, role: 'elimination' },
+    { pos: { row: 3, col: 3 }, role: 'elimination' },
+    { pos: { row: 3, col: 6 }, role: 'elimination' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
+    { pos: { row: 4, col: 6 }, role: 'elimination' },
+    { pos: { row: 6, col: 3 }, role: 'elimination' },
+    { pos: { row: 6, col: 6 }, role: 'elimination' },
+    { pos: { row: 7, col: 3 }, role: 'elimination' },
+    { pos: { row: 7, col: 6 }, role: 'elimination' },
+    { pos: { row: 8, col: 3 }, role: 'elimination' },
+    { pos: { row: 8, col: 6 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -75,5 +90,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    "Two rows where a digit's candidate cells are confined to the same two columns form an X-Wing. Whichever way the digit ends up placed, those two columns must hold it on those rows — so it can be eliminated from those columns in every other row. The same idea works with rows and columns swapped.",
+    "Look for two rows where one number can only go in two cells each, and those four cells line up to form a rectangle. The number has to go in two opposite corners of the rectangle. You can rule it out from any other cell in the rectangle's two columns. (The same idea works swapping rows and columns.)",
 };
