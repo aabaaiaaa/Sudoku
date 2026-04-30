@@ -23,6 +23,10 @@ import type {
   Variant,
 } from '../engine/types';
 import type { TechniqueId } from '../engine/solver/techniques';
+import { roleLabels, mergeCellRoles } from '../engine/solver/techniques/roles';
+import { GLOSSARY } from '../engine/solver/techniques/glossary';
+import type { CellRole } from '../engine/solver/techniques/roles';
+import type { GlossaryTermId } from '../engine/solver/techniques/glossary';
 
 type WalkthroughStep = 'initial' | 'pattern' | 'deduction' | 'applied';
 
@@ -117,24 +121,36 @@ function boardForStep(
   return board;
 }
 
-function formatPosition(pos: Position): string {
-  return `r${pos.row + 1}c${pos.col + 1}`;
-}
-
-function deductionSummary(fixture: TechniqueFixture): string {
-  const parts: string[] = [];
-  if (fixture.deduction.placement) {
-    const { pos, digit } = fixture.deduction.placement;
-    parts.push(`Place ${digit} at ${formatPosition(pos)}`);
-  }
-  if (fixture.deduction.eliminations) {
-    for (const elim of fixture.deduction.eliminations) {
-      parts.push(
-        `Remove ${elim.digits.join(',')} from ${formatPosition(elim.pos)}`,
-      );
-    }
-  }
-  return parts.join('; ');
+function GlossarySection({ terms }: { terms: GlossaryTermId[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section data-testid="glossary-section" className="text-sm">
+      <button
+        type="button"
+        data-testid="glossary-toggle"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1 font-medium underline"
+      >
+        {open ? '▾' : '▸'} Terms used here
+      </button>
+      {open && (
+        <ul data-testid="glossary-list" className="mt-2 space-y-2">
+          {terms.map(termId => {
+            const entry = GLOSSARY[termId];
+            const Diagram = entry.diagram;
+            return (
+              <li key={termId} className="flex gap-2 items-start">
+                <div className="flex-shrink-0"><Diagram /></div>
+                <div>
+                  <strong>{entry.term}</strong>: {entry.definition}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
 }
 
 interface TechniqueDetailProps {
@@ -176,6 +192,44 @@ export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
     });
   }, [step, store, fixture, initialBoard]);
 
+  // Build cellHighlights based on walkthrough step
+  const cellHighlights: Array<{ pos: Position; role: CellRole }> = useMemo(() => {
+    if (step === 'initial') return [];
+
+    // Start with fixture pattern roles
+    const roleMap = new Map<string, CellRole>();
+    for (const { pos, role } of fixture.roles) {
+      const key = `${pos.row},${pos.col}`;
+      const existing = roleMap.get(key);
+      roleMap.set(key, existing ? mergeCellRoles([existing, role]) : role);
+    }
+
+    if (step === 'pattern') {
+      return [...roleMap.entries()].map(([k, role]) => {
+        const [row, col] = k.split(',').map(Number);
+        return { pos: { row, col }, role };
+      });
+    }
+
+    // For deduction and applied steps, overlay deduction roles (placement/elimination win)
+    if (fixture.deduction.placement) {
+      const { pos } = fixture.deduction.placement;
+      const key = `${pos.row},${pos.col}`;
+      roleMap.set(key, 'placement');
+    }
+    if (fixture.deduction.eliminations) {
+      for (const elim of fixture.deduction.eliminations) {
+        const key = `${elim.pos.row},${elim.pos.col}`;
+        const existing = roleMap.get(key);
+        roleMap.set(key, existing ? mergeCellRoles([existing, 'elimination']) : 'elimination');
+      }
+    }
+    return [...roleMap.entries()].map(([k, role]) => {
+      const [row, col] = k.split(',').map(Number);
+      return { pos: { row, col }, role };
+    });
+  }, [step, fixture]);
+
   const slug = entry.tier.toLowerCase();
 
   return (
@@ -211,7 +265,26 @@ export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
         </p>
       </header>
 
-      <Board store={store} />
+      {/* Legend strip - show roles used by this fixture */}
+      {(() => {
+        const usedRoles = [...new Set(fixture.roles.map(r => r.role))];
+        if (usedRoles.length === 0) return null;
+        return (
+          <div data-testid="role-legend" className="flex flex-wrap gap-2 text-xs">
+            {usedRoles.map(role => (
+              <div key={role} className="flex items-center gap-1">
+                <span
+                  className="inline-block w-3 h-3 rounded-sm"
+                  style={{ background: `var(--role-${role})` }}
+                />
+                <span>{roleLabels[role]}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
+      <Board store={store} cellHighlights={cellHighlights} />
 
       <section
         data-testid="walkthrough-panel"
@@ -221,16 +294,27 @@ export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
         <div data-testid="walkthrough-step" className="font-medium">
           {step === 'initial' && 'Tap Highlight pattern to begin.'}
           {step === 'pattern' && (
-            <span>
-              Pattern cells:{' '}
-              <span data-testid="walkthrough-pattern-cells">
-                {fixture.patternCells.map(formatPosition).join(', ')}
-              </span>
+            <span data-testid="walkthrough-pattern-cells">
+              {fixture.roles.length === 1
+                ? 'The highlighted cell is the pattern to look for.'
+                : 'The highlighted cells form the technique\'s pattern. The legend below shows what each colour means.'}
             </span>
           )}
           {step === 'deduction' && (
             <span data-testid="walkthrough-deduction">
-              {deductionSummary(fixture)}
+              {fixture.deduction.placement
+                ? `Place ${fixture.deduction.placement.digit} in the highlighted cell.`
+                : fixture.deduction.eliminations && fixture.deduction.eliminations.length > 0
+                  ? (() => {
+                      const allDigits = [...new Set(fixture.deduction.eliminations.flatMap(e => e.digits))].sort((a, b) => a - b);
+                      const digitsStr = allDigits.length === 1
+                        ? String(allDigits[0])
+                        : allDigits.length === 2
+                          ? `${allDigits[0]} and ${allDigits[1]}`
+                          : allDigits.slice(0, -1).join(', ') + ', and ' + allDigits[allDigits.length - 1];
+                      return `Remove ${digitsStr} from the highlighted cells.`;
+                    })()
+                  : 'Deduction applied.'}
             </span>
           )}
           {step === 'applied' && <span>Deduction applied to the board.</span>}
@@ -279,6 +363,10 @@ export function TechniqueDetail({ id, onBack }: TechniqueDetailProps) {
           Reset
         </button>
       </div>
+
+      {entry.glossaryTerms && entry.glossaryTerms.length > 0 && (
+        <GlossarySection terms={entry.glossaryTerms} />
+      )}
     </div>
   );
 }

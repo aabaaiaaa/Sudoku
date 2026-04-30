@@ -494,28 +494,28 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts`.
 
 ### TASK-069: Rewrite forcing-chains explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `forcing-chains.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/forcing-chains.test.ts`.
 
 ### TASK-070: Wire `Hint.onHighlight` through `Game.tsx` to `Board.cellHighlights`
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-007, TASK-008
 - **Description**: In `src/screens/Game.tsx`, add a local `[hintHighlights, setHintHighlights] = useState<HintHighlight[]>([])` and pass `onHighlight={setHintHighlights}` to `<Hint>`. Pass `cellHighlights={hintHighlights}` to `<Board>`. Subscribe to `store.board` and clear `hintHighlights` whenever `board` changes (use a `useEffect` with `board` as dependency, comparing reference equality is fine).
 - **Verification**: `npx vitest run src/screens/Game.test.tsx`.
 
 ### TASK-071: Update `Hint.test.tsx` plain-English copy assertions
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-008, TASK-052
 - **Description**: Update the `expect(getByTestId('hint-explanation').textContent).toBe('R1C1 has only 9 as a candidate')` assertion (and any like it) to match the rewritten plain-English copy from TASK-052+. Use a regex-based match (e.g. `expect(...).toMatch(/place 9 in the highlighted cell/i)`) to allow minor authoring tweaks. Add an assertion that the explanation does NOT contain `/[Rr]\d+[Cc]\d+/` and does NOT contain banned-jargon terms (`bivalue`, `house`, `strong link`, etc. — pick a representative subset for the regex). Payload-shape assertions are already covered by TASK-008.
 - **Verification**: `npx vitest run src/components/Hint.test.tsx`.
 
 ### TASK-072: Update `TechniqueDetail.tsx` for legend strip, role highlights, and glossary section
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-007, TASK-005, TASK-051
 - **Description**: In `src/screens/TechniqueDetail.tsx`:
@@ -550,7 +550,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/screens/Game.test.tsx`.
 
 ### TASK-075: Update `catalog.test.ts` for glossary-term integrity and roles non-empty
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-005, TASK-049
 - **Description**: In `src/engine/solver/techniques/catalog.test.ts` (or wherever catalog assertions live), add:

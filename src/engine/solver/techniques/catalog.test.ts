@@ -4,6 +4,7 @@ import {
   TECHNIQUE_ORDER,
   type TechniqueCatalogEntry,
 } from './catalog';
+import { GLOSSARY } from './glossary';
 import { techniques, type TechniqueId } from './index';
 import { DIFFICULTY_ORDER } from '../../generator/rate';
 import { createEmptyBoard, createGivenCell } from '../../types';
@@ -94,6 +95,28 @@ describe('TECHNIQUE_CATALOG', () => {
     const orderSet = new Set(TECHNIQUE_ORDER);
     expect(orderSet.size).toBe(TECHNIQUE_ORDER.length);
     expect(orderSet).toEqual(catalogIds);
+  });
+
+  it('every glossaryTerms entry is a valid GlossaryTermId', () => {
+    const validIds = new Set(Object.keys(GLOSSARY));
+    for (const [id, entry] of Object.entries(TECHNIQUE_CATALOG) as Array<[TechniqueId, TechniqueCatalogEntry]>) {
+      if (!entry.glossaryTerms) continue;
+      for (const term of entry.glossaryTerms) {
+        expect(
+          validIds.has(term),
+          `${id} glossaryTerms includes unknown term "${term}"`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('every fixture roles array is non-empty', () => {
+    for (const [id, entry] of Object.entries(TECHNIQUE_CATALOG) as Array<[TechniqueId, TechniqueCatalogEntry]>) {
+      expect(
+        entry.fixture.roles.length,
+        `${id} fixture.roles must be non-empty`,
+      ).toBeGreaterThan(0);
+    }
   });
 });
 

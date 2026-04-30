@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import { variants } from '../engine/variants';
@@ -5,6 +6,7 @@ import { Board } from '../components/Board';
 import { NumberPad } from '../components/NumberPad';
 import { Timer } from '../components/Timer';
 import { Hint } from '../components/Hint';
+import type { HintHighlight } from '../components/Hint';
 import { KeyboardHandler } from '../components/KeyboardHandler';
 import { WinModal } from '../components/WinModal';
 import { LoadingOverlay } from '../components/LoadingOverlay';
@@ -39,6 +41,10 @@ export function Game({ store = gameStore, onBack }: GameProps) {
   const resume = useStore(store, (s) => s.resume);
   const hasRun = timer.accumulatedMs > 0 || timer.startTs != null;
   const showPauseOverlay = timer.paused && hasRun;
+
+  const board = useStore(store, (s) => s.board);
+  const [hintHighlights, setHintHighlights] = useState<HintHighlight[]>([]);
+  useEffect(() => { setHintHighlights([]); }, [board]);
 
   const loading = useStore(store, (s) => s.loading);
   const cancelGeneration = useStore(store, (s) => s.cancelGeneration);
@@ -81,7 +87,7 @@ export function Game({ store = gameStore, onBack }: GameProps) {
           }}
           aria-hidden={showPauseOverlay}
         >
-          <Board store={store} />
+          <Board store={store} cellHighlights={hintHighlights} />
         </div>
         {showPauseOverlay && (
           <div
@@ -115,7 +121,7 @@ export function Game({ store = gameStore, onBack }: GameProps) {
 
       <NumberPad store={store} />
 
-      <Hint store={store} />
+      <Hint store={store} onHighlight={setHintHighlights} />
 
       <WinModal store={store} onNewGame={handleNewGame} onHome={() => onBack?.()} />
 

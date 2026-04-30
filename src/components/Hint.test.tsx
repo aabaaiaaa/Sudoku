@@ -49,9 +49,13 @@ describe('Hint', () => {
     const panel = getByTestId('hint-panel');
     expect(panel).toBeTruthy();
     expect(getByTestId('hint-technique').textContent).toBe('Naked Single');
-    expect(getByTestId('hint-explanation').textContent).toBe(
-      'R1C1 has only 9 as a candidate',
+    expect(getByTestId('hint-explanation').textContent).toMatch(
+      /place 9 in the highlighted cell/i,
     );
+    // No r/c coordinate patterns like R1C1
+    expect(getByTestId('hint-explanation').textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+    // No banned jargon
+    expect(getByTestId('hint-explanation').textContent).not.toMatch(/\bbivalue\b|\bhouse\b|\bstrong link\b|\bconjugate\b|\balternation\b/i);
 
     // Should have reported the affected cell for highlighting.
     expect(highlighted).toEqual([[{ pos: { row: 0, col: 0 }, role: 'placement' }]]);

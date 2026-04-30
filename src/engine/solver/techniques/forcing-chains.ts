@@ -136,10 +136,6 @@ function cellKey(p: Position): string {
   return `${p.row},${p.col}`;
 }
 
-function cellLabel(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
-
 function buildInitialState(
   board: Board,
   initialGrid: (Set<Digit> | null)[][],
@@ -293,38 +289,18 @@ function propagateBranch(
 }
 
 function buildExplanation(
-  source: Position,
-  sourceDigits: Digit[],
-  branches: ForcingChainsBranch[],
+  _source: Position,
+  _sourceDigits: Digit[],
+  _branches: ForcingChainsBranch[],
   forced:
     | { kind: 'placement'; pos: Position; digit: Digit }
     | { kind: 'elimination'; eliminations: ForcingChainsElimination[] },
 ): string {
-  const parts: string[] = [];
-  parts.push(
-    `Forcing Chains on ${cellLabel(source)} {${sourceDigits.join(',')}}`,
-  );
-  for (const b of branches) {
-    const tail = b.implications
-      .filter((i) => i.pos.row !== source.row || i.pos.col !== source.col)
-      .map((i) => `${cellLabel(i.pos)}=${i.digit}`)
-      .join(' → ');
-    const branchDesc = b.contradicted
-      ? `if ${cellLabel(source)}=${b.candidate}: contradiction`
-      : `if ${cellLabel(source)}=${b.candidate}: ${tail || '(no further implications)'}`;
-    parts.push(branchDesc);
-  }
   if (forced.kind === 'placement') {
-    parts.push(
-      `every branch places ${forced.digit} at ${cellLabel(forced.pos)}`,
-    );
+    return `Every possible number for the highlighted cell leads to placing ${forced.digit}. Put ${forced.digit} in the highlighted cell.`;
   } else {
-    const elimDescs = forced.eliminations
-      .map((e) => `${cellLabel(e.cell)}={${e.digits.join(',')}}`)
-      .join(', ');
-    parts.push(`every branch eliminates ${elimDescs}`);
+    return `Every possible number for the highlighted cell leads to the same removal. Remove the highlighted candidates from those cells.`;
   }
-  return parts.join('; ');
 }
 
 /**
