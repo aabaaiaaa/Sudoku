@@ -587,7 +587,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx playwright test tests/e2e/hint-learn-more.spec.ts --project=chromium --project=webkit` passes on both browsers.
 
 ### TASK-080: Full E2E sweep on Chromium and WebKit
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-079
 - **Description**: Run `npx playwright test --project=chromium && npx playwright test --project=webkit` (or the project's standard E2E command). No regressions expected outside the hint and learn surface; investigate any unexpected failures.
