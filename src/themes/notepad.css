@@ -11,6 +11,18 @@
   --border: #b9a97a;
   --accent: #6b5b3a;
   --ruled-line: #c9b98a;
+
+  /* Role highlight tokens — technique visualization */
+  --role-pattern-primary:   #f5e6a3;
+  --role-pattern-secondary: #edcf7a;
+  --role-pivot:             #d8d0f7;
+  --role-pincer:            #e8d8f2;
+  --role-cluster-a:         #cce8d4;
+  --role-cluster-b:         #f5d8b0;
+  --role-chain-link:        #dce4f5;
+  --role-corner:            #f5edcc;
+  --role-elimination:       #f2c9c9;
+  --role-placement:         #cce8d4;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,

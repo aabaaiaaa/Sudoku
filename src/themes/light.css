@@ -10,4 +10,16 @@
   --cell-highlight: #fff3bf;
   --border: #c4c4c4;
   --accent: #2563eb;
+
+  /* Role highlight tokens — technique visualization */
+  --role-pattern-primary:   #fff3bf;
+  --role-pattern-secondary: #fde7a8;
+  --role-pivot:             #c7d2fe;
+  --role-pincer:            #ddd6fe;
+  --role-cluster-a:         #bbf7d0;
+  --role-cluster-b:         #fed7aa;
+  --role-chain-link:        #e0e7ff;
+  --role-corner:            #fef3c7;
+  --role-elimination:       #fecaca;
+  --role-placement:         #bbf7d0;
 }

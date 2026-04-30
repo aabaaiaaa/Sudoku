@@ -10,6 +10,18 @@
   --cell-highlight: #3d2f5e;
   --border: #2a2f5c;
   --accent: #a78bfa;
+
+  /* Role highlight tokens — technique visualization */
+  --role-pattern-primary:   #4a4200;
+  --role-pattern-secondary: #6b5e00;
+  --role-pivot:             #1a2680;
+  --role-pincer:            #2e1a7a;
+  --role-cluster-a:         #004d2e;
+  --role-cluster-b:         #5a2e00;
+  --role-chain-link:        #0d1a6e;
+  --role-corner:            #3d3300;
+  --role-elimination:       #6b0033;
+  --role-placement:         #004d2e;
   background-image:
     radial-gradient(1px 1px at 20% 30%, #ffffff, transparent 50%),
     radial-gradient(1px 1px at 75% 15%, #cfd7ff, transparent 50%),

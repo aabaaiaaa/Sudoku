@@ -8,7 +8,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  patternCells: Position[];
+  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -48,23 +48,23 @@ export const fixture: TechniqueFixture = {
     '.4.567.8.' +
     '.........' +
     '.5.892.4.',
-  patternCells: [
-    { row: 0, col: 0 },
-    { row: 0, col: 2 },
-    { row: 0, col: 6 },
-    { row: 0, col: 8 },
-    { row: 2, col: 0 },
-    { row: 2, col: 2 },
-    { row: 2, col: 6 },
-    { row: 2, col: 8 },
-    { row: 6, col: 0 },
-    { row: 6, col: 2 },
-    { row: 6, col: 6 },
-    { row: 6, col: 8 },
-    { row: 8, col: 0 },
-    { row: 8, col: 2 },
-    { row: 8, col: 6 },
-    { row: 8, col: 8 },
+  roles: [
+    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 8 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 8 }, role: 'pattern-primary' },
+    { pos: { row: 6, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 6, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 6, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 6, col: 8 }, role: 'pattern-primary' },
+    { pos: { row: 8, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 8, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 8, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 8, col: 8 }, role: 'pattern-primary' },
   ],
   deduction: {
     eliminations: [

@@ -8,7 +8,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  patternCells: Position[];
+  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -49,10 +49,10 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........' +
     '.........',
-  patternCells: [
-    { row: 4, col: 3 },
-    { row: 4, col: 4 },
-    { row: 4, col: 5 },
+  roles: [
+    { pos: { row: 4, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 4, col: 4 }, role: 'pattern-primary' },
+    { pos: { row: 4, col: 5 }, role: 'pattern-primary' },
   ],
   deduction: {
     eliminations: [

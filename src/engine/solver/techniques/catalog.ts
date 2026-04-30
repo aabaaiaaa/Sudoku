@@ -1,6 +1,8 @@
 import type { Difficulty } from '../../generator/rate';
 import type { TechniqueId } from './index';
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
+import type { GlossaryTermId } from './glossary';
 
 import { fixture as nakedSingleFixture } from './naked-single.fixture';
 import { fixture as hiddenSingleFixture } from './hidden-single.fixture';
@@ -37,17 +39,25 @@ import { fixture as medusa3DFixture } from './medusa-3d.fixture';
 import { fixture as deathBlossomFixture } from './death-blossom.fixture';
 import { fixture as forcingChainsFixture } from './forcing-chains.fixture';
 
+/** A cell position paired with the display role it plays in a technique fixture. */
+export interface FixtureCellRole {
+  pos: Position;
+  role: CellRole;
+}
+
 /**
  * Canonical shape of every technique fixture file. Each `<name>.fixture.ts`
  * exports a value structurally compatible with this interface; the catalog
  * widens the per-file types into this single shared definition so consumers
  * (the help index, the detail page, the hint Learn-more link) only need one
  * import.
+ *
+ * TODO: `patternCells` was removed in iteration 7 and replaced with `roles`.
  */
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
   board: string;
-  patternCells: Position[];
+  roles: FixtureCellRole[];
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -60,6 +70,8 @@ export interface TechniqueCatalogEntry {
   tier: Difficulty;
   fixture: TechniqueFixture;
   description: string;
+  /** Glossary terms shown in the "Terms used here" section on the technique's page. */
+  glossaryTerms?: GlossaryTermId[];
 }
 
 /**

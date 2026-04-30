@@ -4,6 +4,12 @@ import { gameStore } from '../store/game';
 import { nextStep, type TechniqueResult } from '../engine/solver/techniques';
 import { TECHNIQUE_CATALOG } from '../engine/solver/techniques/catalog';
 import type { Board, Position } from '../engine/types';
+import type { CellRole } from '../engine/solver/techniques/roles';
+
+export interface HintHighlight {
+  pos: Position;
+  role: CellRole;
+}
 
 interface HintProps {
   /** Optional store override, primarily for tests. */
@@ -14,11 +20,12 @@ interface HintProps {
    */
   board?: Board;
   /**
-   * Optional callback invoked with the positions of the cells the hint
-   * touches. Consumers can use this to visually highlight those cells on
-   * the board. Called with an empty array when no hint is available.
+   * Optional callback invoked with the highlighted cells the hint refers to,
+   * each annotated with a role. Consumers can use this to visually highlight
+   * those cells on the board. Called with an empty array when no hint is
+   * available.
    */
-  onHighlight?: (cells: Position[]) => void;
+  onHighlight?: (highlights: HintHighlight[]) => void;
 }
 
 /** Human-readable label for each technique id. */
@@ -26,79 +33,107 @@ function techniqueLabel(result: TechniqueResult): string {
   return TECHNIQUE_CATALOG[result.technique].displayName;
 }
 
-/** Extracts the set of cells the hint refers to, for highlighting. */
-function cellsFromResult(result: TechniqueResult): Position[] {
+/** Convenience constructor for a HintHighlight. */
+function h(pos: Position, role: CellRole): HintHighlight {
+  return { pos, role };
+}
+
+/** Extracts the set of cells the hint refers to, annotated with roles. */
+function cellsAndRolesFromResult(result: TechniqueResult): HintHighlight[] {
   switch (result.technique) {
     case 'naked-single':
     case 'hidden-single':
     case 'bug-plus-one':
-      return [result.cell];
+      return [h(result.cell, 'placement')];
     case 'naked-pair':
     case 'naked-triple':
     case 'naked-quad':
     case 'hidden-pair':
     case 'hidden-triple':
     case 'hidden-quad':
+      return result.cells.map((pos) => h(pos, 'pattern-primary'));
     case 'x-wing':
     case 'swordfish':
     case 'jellyfish':
+      return result.cells.map((pos) => h(pos, 'pattern-primary'));
     case 'x-cycle':
-      return result.cells;
+      return result.cells.map((pos) => h(pos, 'chain-link'));
     case 'pointing':
     case 'box-line-reduction':
-      return result.intersectionCells;
+      return result.intersectionCells.map((pos) => h(pos, 'pattern-primary'));
     case 'xy-wing':
     case 'xyz-wing':
-      return [result.pivot, ...result.pincers];
+      return [
+        h(result.pivot, 'pivot'),
+        ...result.pincers.map((pos) => h(pos, 'pincer')),
+      ];
     case 'w-wing':
-      return [...result.bivalues, ...result.strongLink];
+      return [
+        ...result.bivalues.map((pos) => h(pos, 'pattern-primary')),
+        ...result.strongLink.map((pos) => h(pos, 'pattern-secondary')),
+      ];
     case 'simple-coloring':
-      return [...result.colorA, ...result.colorB];
+      return [
+        ...result.colorA.map((pos) => h(pos, 'cluster-a')),
+        ...result.colorB.map((pos) => h(pos, 'cluster-b')),
+      ];
     case 'empty-rectangle':
       return [
-        ...result.boxCells,
-        result.strongLink.from,
-        result.strongLink.to,
+        ...result.boxCells.map((pos) => h(pos, 'pattern-primary')),
+        h(result.strongLink.from, 'pattern-secondary'),
+        h(result.strongLink.to, 'pattern-secondary'),
       ];
     case 'skyscraper':
-      return [...result.roof, ...result.baseCells];
+      return [
+        ...result.roof.map((pos) => h(pos, 'pattern-primary')),
+        ...result.baseCells.map((pos) => h(pos, 'pattern-secondary')),
+      ];
     case 'two-string-kite':
       return [
-        result.rowBoxCell,
-        result.colBoxCell,
-        result.rowTail,
-        result.colTail,
+        h(result.rowBoxCell, 'pattern-primary'),
+        h(result.colBoxCell, 'pattern-primary'),
+        h(result.rowTail, 'pattern-secondary'),
+        h(result.colTail, 'pattern-secondary'),
       ];
     case 'unique-rectangle':
     case 'hidden-rectangle':
     case 'avoidable-rectangle':
-      return [...result.corners];
+      return [...result.corners].map((pos) => h(pos, 'corner'));
     case 'xy-chain':
-      return result.chain.map((link) => link.pos);
+      return result.chain.map((link) => h(link.pos, 'chain-link'));
     case 'multi-coloring':
       return [
-        ...result.cluster1A,
-        ...result.cluster1B,
-        ...result.cluster2A,
-        ...result.cluster2B,
+        ...result.cluster1A.map((pos) => h(pos, 'cluster-a')),
+        ...result.cluster2A.map((pos) => h(pos, 'cluster-a')),
+        ...result.cluster1B.map((pos) => h(pos, 'cluster-b')),
+        ...result.cluster2B.map((pos) => h(pos, 'cluster-b')),
       ];
     case 'als-xz':
-      return [...result.alsA.cells, ...result.alsB.cells];
+      return [
+        ...result.alsA.cells.map((pos) => h(pos, 'cluster-a')),
+        ...result.alsB.cells.map((pos) => h(pos, 'cluster-b')),
+      ];
     case 'wxyz-wing':
-      return [result.hinge, ...result.pincers];
+      return [
+        h(result.hinge, 'pivot'),
+        ...result.pincers.map((pos) => h(pos, 'pincer')),
+      ];
     case 'nice-loop':
-      return result.nodes.map((n) => n.pos);
+      return result.nodes.map((n) => h(n.pos, 'chain-link'));
     case 'grouped-x-cycle':
-      return result.nodes.flatMap((n) => n.cells);
+      return result.nodes.flatMap((n) => n.cells.map((pos) => h(pos, 'chain-link')));
     case '3d-medusa':
       return [
-        ...result.colorA.map((n) => n.cell),
-        ...result.colorB.map((n) => n.cell),
+        ...result.colorA.map((n) => h(n.cell, 'cluster-a')),
+        ...result.colorB.map((n) => h(n.cell, 'cluster-b')),
       ];
     case 'death-blossom':
-      return [result.stem, ...result.petals.flatMap((p) => p.als.cells)];
+      return [
+        h(result.stem, 'pivot'),
+        ...result.petals.flatMap((p) => p.als.cells.map((pos) => h(pos, 'pincer'))),
+      ];
     case 'forcing-chains':
-      return [result.source];
+      return [h(result.source, 'pivot')];
   }
 }
 
@@ -121,7 +156,7 @@ export function Hint({ store = gameStore, board, onHighlight }: HintProps) {
       return;
     }
     setState({ kind: 'hit', result });
-    onHighlight?.(cellsFromResult(result));
+    onHighlight?.(cellsAndRolesFromResult(result));
   };
 
   return (

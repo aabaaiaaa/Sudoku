@@ -14,14 +14,14 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/roles.ts` and `npm test -- src/engine/solver/techniques/roles` (a small unit test of `mergeCellRoles` precedence is added in this task).
 
 ### TASK-002: Add `--role-*` CSS tokens to all four themes
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-001
 - **Description**: Add a `--role-pattern-primary`, `--role-pattern-secondary`, `--role-pivot`, `--role-pincer`, `--role-cluster-a`, `--role-cluster-b`, `--role-chain-link`, `--role-corner`, `--role-elimination`, `--role-placement` block to each of `src/themes/light.css`, `dark.css`, `notepad.css`, `space.css`. Tune per-theme so each role is visually distinguishable from the existing `--cell-*` tokens and from the other roles within the same theme. Use the requirements §4.1 light-theme palette as a starting point.
 - **Verification**: `npx tsc --noEmit` (catches any TS that references the new vars) and visual smoke check by booting the dev server and toggling each theme on a Settings page screenshot. No automated test changes.
 
 ### TASK-003: Extend `TechniqueFixture` interface with `roles`
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/solver/techniques/catalog.ts`, replace the `patternCells: Position[]` field on `TechniqueFixture` with `roles: FixtureCellRole[]` (where `FixtureCellRole = { pos: Position; role: CellRole }`). Existing fixture files temporarily still expose `patternCells`; this task narrows the type but does not yet rewrite fixtures. Add a deprecation TODO comment at the top of the interface noting that `patternCells` is removed. Provide a one-shot mechanical migration on every fixture file: `roles: patternCells.map(p => ({ pos: p, role: 'pattern-primary' as const }))`. Per-fixture authoring of correct roles happens in later tasks.
@@ -36,7 +36,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/glossary.ts` and `npm test -- glossary` (small unit test that every `GlossaryTermId` has a matching `GLOSSARY` entry).
 
 ### TASK-005: Extend `TechniqueCatalogEntry` with `glossaryTerms`
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-004
 - **Description**: Add optional `glossaryTerms?: GlossaryTermId[]` to `TechniqueCatalogEntry` in `catalog.ts`. Leave every existing entry without the field for now — per-technique population happens in the per-fixture rewrite tasks.
@@ -60,7 +60,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/components/Board.test.tsx`.
 
 ### TASK-008: Add `HintHighlight` type and `cellsAndRolesFromResult`
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-001
 - **Description**: In `src/components/Hint.tsx`, add `export interface HintHighlight { pos: Position; role: CellRole }` and rename `cellsFromResult(result): Position[]` to `cellsAndRolesFromResult(result): HintHighlight[]`. Each branch of the exhaustive `result.technique` switch maps the result's semantic fields to roles per requirements §9 (e.g. `xy-wing → [{pos: result.pivot, role: 'pivot'}, ...result.pincers.map(p => ({pos: p, role: 'pincer'}))]` plus elimination cells with role `'elimination'`). The `onHighlight` prop signature changes from `(cells: Position[]) => void` to `(highlights: HintHighlight[]) => void`. Update `src/components/Hint.test.tsx`'s `Position[][]` type alias to `HintHighlight[][]` and update the `expect(highlighted).toEqual(...)` shape assertions to the new `{pos, role}` shape. (Plain-English copy assertions are left for TASK-071.)
@@ -368,7 +368,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-051: Author glossary diagrams
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-004
 - **Description**: Replace each `GLOSSARY[id].diagram` placeholder in `src/engine/solver/techniques/glossary.ts` with a tiny inline SVG (≤ 120×120 px) returning JSX. Each diagram visualizes the term using the role colours from §4.1. Exact visual is author-discretion; the glossary entry is considered complete when the diagram conveys the term in one glance.

@@ -4,7 +4,7 @@ import { createGameStore } from '../store/game';
 import { createEmptyBoard } from '../engine/types';
 import { classicVariant } from '../engine/variants';
 import { Hint } from './Hint';
-import type { Position } from '../engine/types';
+import type { HintHighlight } from './Hint';
 
 /**
  * Builds a classic board where R1C1 has only digit 9 as a candidate (a naked
@@ -34,13 +34,13 @@ describe('Hint', () => {
   it('shows the technique name and explanation on click for a naked single', () => {
     const board = makeNakedSingleBoard();
     const store = createGameStore('classic');
-    const highlighted: Position[][] = [];
+    const highlighted: HintHighlight[][] = [];
 
     const { getByTestId } = render(
       <Hint
         store={store}
         board={board}
-        onHighlight={(cells) => highlighted.push(cells)}
+        onHighlight={(highlights) => highlighted.push(highlights)}
       />,
     );
 
@@ -54,20 +54,20 @@ describe('Hint', () => {
     );
 
     // Should have reported the affected cell for highlighting.
-    expect(highlighted).toEqual([[{ row: 0, col: 0 }]]);
+    expect(highlighted).toEqual([[{ pos: { row: 0, col: 0 }, role: 'placement' }]]);
   });
 
   it('shows a friendly message when no hint is available', () => {
     // An empty classic board has no progress available via any technique.
     const board = createEmptyBoard(classicVariant);
     const store = createGameStore('classic');
-    const highlighted: Position[][] = [];
+    const highlighted: HintHighlight[][] = [];
 
     const { getByTestId, queryByTestId } = render(
       <Hint
         store={store}
         board={board}
-        onHighlight={(cells) => highlighted.push(cells)}
+        onHighlight={(highlights) => highlighted.push(highlights)}
       />,
     );
 
