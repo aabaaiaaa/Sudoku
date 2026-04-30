@@ -3,12 +3,12 @@ import { test, expect } from '@playwright/test';
 /**
  * E2E — Difficulty picker hides infeasible tiers per variant.
  *
- * Iteration-4 §6 lever 3 descopes tiers the rater cannot reliably hit on a
- * given grid. The picker only exposes tiers each variant can realistically
- * produce — see `src/engine/generator/variant-tiers.ts`:
+ * Iteration-7 §4.3 collapses the ladder to six tiers. The picker only exposes
+ * tiers each variant can realistically produce — see
+ * `src/engine/generator/variant-tiers.ts`:
  *
- *   - Classic (9×9): Easy, Medium, Expert, Diabolical, Demonic, Nightmare
- *                    (Hard and Master descoped)
+ *   - Classic (9×9): Easy, Medium, Hard, Expert, Master, Nightmare
+ *                    (all six tiers advertised)
  *   - Six (6×6):     Easy, Medium (iteration-6 lever-2 rescue at clueFloor=14;
  *                    Hard+ remain unreachable on the 6×6 grid)
  *   - Mini (4×4):    Easy only (harder tiers unreachable on the 4×4 grid)
@@ -23,13 +23,11 @@ const ALL_TIERS = [
   'hard',
   'expert',
   'master',
-  'diabolical',
-  'demonic',
   'nightmare',
 ] as const;
 
 const VARIANT_TIERS: Record<'classic' | 'six' | 'mini', readonly string[]> = {
-  classic: ['easy', 'medium', 'expert', 'diabolical', 'demonic', 'nightmare'],
+  classic: ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'],
   six: ['easy', 'medium'],
   mini: ['easy'],
 };
@@ -67,8 +65,6 @@ test('Home difficulty picker hides infeasible tiers per variant', async ({
     'hard',
     'expert',
     'master',
-    'diabolical',
-    'demonic',
     'nightmare',
   ] as const) {
     await expect(page.getByTestId(`home-difficulty-${tier}`)).toHaveCount(0);

@@ -168,7 +168,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npx tsc --noEmit` exits 0 and `npm run build` exits 0.
 
 ### TASK-024: Update E2E specs and full E2E sweep on Chromium and WebKit
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-021, TASK-022, TASK-023
 - **Description**: Two E2E specs reference the old tier names and need updating before the sweep: (a) `tests/e2e/variant-tier-caps.spec.ts` — its hardcoded `DIFFICULTY_ORDER` (8 entries) and `VARIANT_TIERS` per-variant lists must be rewritten to match the iteration-7 ladder (6 entries: `easy/medium/hard/expert/master/nightmare`); the file-level docblock listing the per-variant advertised tiers must be updated. (b) `tests/e2e/difficulty-loading.spec.ts` — uses `Demonic` as the example "slow generate" tier; replace with `Master` (the renamed equivalent). Then run the full Playwright suite. The strict matrix `tests/e2e/difficulty-matrix.spec.ts` iterates `availableTiers(variant)` — for classic this is now six tiers, so the spec exercises Hard/Expert/Master generation end-to-end. Other specs (resume, new-game, notes, hint-learn-more, pwa-update, worker) should be unaffected. If any spec fails because of a v3 → v4 storage-key mismatch, update the spec to seed `'sudoku.save.v4'`.

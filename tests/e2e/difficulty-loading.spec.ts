@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
  * TASK-059 / TASK-037: E2E — observe spinner and cancel via the slow-generate
  * test hatch.
  *
- * Picks Classic + Demonic on Home and starts a new game with the
+ * Picks Classic + Master on Home and starts a new game with the
  * `?slowGenerate=15000` query param, which the worker client honours in DEV
  * builds (see `src/workers/generator-client.ts`) by pausing the worker for the
  * configured number of milliseconds before generating. That gives us a
@@ -20,7 +20,7 @@ import { test, expect } from '@playwright/test';
 // 15s slow-generate + ~10s cancel-button wait + overhead. 30s is plenty.
 const TEST_TIMEOUT_MS = 30_000;
 
-test('Classic + Demonic shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
+test('Classic + Master shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
   page,
 }) => {
   test.setTimeout(TEST_TIMEOUT_MS);
@@ -36,9 +36,9 @@ test('Classic + Demonic shows spinner, reveals Cancel after delay, returns Home 
 
   await expect(page.getByTestId('home-new-game')).toBeVisible();
 
-  // --- Pick Classic + Demonic and start. -----------------------------------
+  // --- Pick Classic + Master and start. ------------------------------------
   await page.getByTestId('home-variant-classic').check();
-  await page.getByTestId('home-difficulty-demonic').check();
+  await page.getByTestId('home-difficulty-master').check();
   await page.getByTestId('home-new-game').click();
 
   // --- Spinner overlay appears (after the 200ms debounce). -----------------
@@ -50,7 +50,7 @@ test('Classic + Demonic shows spinner, reveals Cancel after delay, returns Home 
   await expect(page.getByTestId('board-wrapper')).toBeVisible();
 
   // --- Cancel button fades in 10 seconds after the overlay appears. --------
-  // Generous timeout because Demonic generation can keep running well past
+  // Generous timeout because Master generation can keep running well past
   // 10s and we just need the threshold to elapse.
   const cancelButton = page.getByTestId('loading-cancel');
   await expect(cancelButton).toBeVisible({ timeout: 15_000 });

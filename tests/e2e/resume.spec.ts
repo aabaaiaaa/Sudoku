@@ -54,7 +54,7 @@ test('resumes a saved Classic game after page reload', async ({ page }) => {
   // Ensure a clean slate so no prior save leaks between tests.
   await page.goto('/');
   await page.evaluate(() => {
-    window.localStorage.removeItem('sudoku.save.v1');
+    window.localStorage.clear();
   });
   await page.reload();
 

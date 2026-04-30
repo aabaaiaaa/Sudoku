@@ -32,7 +32,7 @@ test('Mini game → place final digit → win modal appears with non-zero time',
   // Clean slate so no prior save leaks between runs.
   await page.goto('/');
   await page.evaluate(() => {
-    window.localStorage.removeItem('sudoku.save.v1');
+    window.localStorage.clear();
   });
   await page.reload();
 
