@@ -153,8 +153,7 @@ export function findHiddenPair(board: Board): HiddenPairResult | null {
         }
         if (eliminations.length === 0) continue;
 
-        const cellList = pairCells.map(cellLabel).join(', ');
-        const digitList = `${d1},${d2}`;
+        const digitList = `${d1} and ${d2}`;
         return {
           technique: 'hidden-pair',
           house: house.house,
@@ -162,7 +161,7 @@ export function findHiddenPair(board: Board): HiddenPairResult | null {
           cells: pairCells,
           digits: [d1, d2],
           eliminations,
-          explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} are the only places for {${digitList}}, so other candidates can be eliminated`,
+          explanation: `When two cells in ${houseLabel(house.house, house.houseIndex)} are the only places for ${digitList}, those numbers must go there — so you can remove any other possible numbers from those two cells.`,
         };
       }
     }

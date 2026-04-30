@@ -168,7 +168,7 @@ export function findXyzWing(board: Board): XYZWingResult | null {
             pincers: orderedPincers,
             z,
             eliminations,
-            explanation: `XYZ-wing: pivot R${pivot.pos.row + 1}C${pivot.pos.col + 1} {${d0},${d1},${d2}} with pincers R${orderedPincers[0].row + 1}C${orderedPincers[0].col + 1} and R${orderedPincers[1].row + 1}C${orderedPincers[1].col + 1} sharing ${z}; eliminate ${z} from cells seeing pivot and both pincers`,
+            explanation: `When a pivot holds three possible numbers including ${z}, and two pincers each share ${z} with it, any cell that sees the pivot and both pincers cannot be ${z}.`,
           };
         }
       }

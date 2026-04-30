@@ -389,35 +389,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts`.
 
 ### TASK-054: Rewrite intersection explanation templates (pointing + box-line-reduction)
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/solver/techniques/intersection.ts`, rewrite the two `explanation:` templates (one each for pointing and box-line-reduction).
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts`.
 
 ### TASK-055: Rewrite naked-subset explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/solver/techniques/naked-subset.ts`, rewrite the explanation templates for naked-pair / naked-triple / naked-quad.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts`.
 
 ### TASK-056: Rewrite hidden-pair / triple / quad explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `hidden-pair.ts`, `hidden-triple.ts`, `hidden-quad.ts` (separate files per the existing structure; if they share a `hidden-subset.ts`, edit that single file).
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-pair.test.ts src/engine/solver/techniques/hidden-triple.test.ts src/engine/solver/techniques/hidden-quad.test.ts`.
 
 ### TASK-057: Rewrite x-wing / swordfish / jellyfish explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `x-wing.ts`, `swordfish.ts`, `jellyfish.ts` (or shared `fish.ts` if used).
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts src/engine/solver/techniques/swordfish.test.ts src/engine/solver/techniques/jellyfish.test.ts`.
 
 ### TASK-058: Rewrite xy-wing / xyz-wing / wxyz-wing explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `xy-wing.ts`, `xyz-wing.ts`, `wxyz-wing.ts`.

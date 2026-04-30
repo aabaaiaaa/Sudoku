@@ -179,8 +179,7 @@ export function findHiddenTriple(board: Board): HiddenTripleResult | null {
       }
       if (eliminations.length === 0) continue;
 
-      const cellList = tripleCells.map(cellLabel).join(', ');
-      const digitList = combo.join(',');
+      const digitList = combo.join(', ');
       return {
         technique: 'hidden-triple',
         house: house.house,
@@ -188,7 +187,7 @@ export function findHiddenTriple(board: Board): HiddenTripleResult | null {
         cells: tripleCells,
         digits: [...combo],
         eliminations,
-        explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} are the only places for {${digitList}}, so other candidates can be eliminated`,
+        explanation: `When three cells in ${houseLabel(house.house, house.houseIndex)} are the only places for ${digitList}, those numbers must go there — so you can remove any other possible numbers from those three cells.`,
       };
     }
   }

@@ -185,7 +185,7 @@ export function findWxyzWing(board: Board): WxyzWingResult | null {
               pincers: orderedPincers,
               z,
               eliminations,
-              explanation: `WXYZ-wing: hinge R${hinge.pos.row + 1}C${hinge.pos.col + 1} {${d0},${d1},${d2},${d3}} with pincers R${orderedPincers[0].row + 1}C${orderedPincers[0].col + 1}, R${orderedPincers[1].row + 1}C${orderedPincers[1].col + 1} and R${orderedPincers[2].row + 1}C${orderedPincers[2].col + 1} sharing ${z}; eliminate ${z} from cells seeing all four`,
+              explanation: `When a pivot holds four possible numbers and three pincers each share ${z} with it, any cell that sees all four cells cannot be ${z}.`,
             };
           }
         }

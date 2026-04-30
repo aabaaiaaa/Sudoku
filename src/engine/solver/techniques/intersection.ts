@@ -121,10 +121,6 @@ function houseLabel(house: 'row' | 'col' | 'box', houseIndex: number): string {
   return `box ${houseIndex + 1}`;
 }
 
-function cellLabel(pos: Position): string {
-  return `R${pos.row + 1}C${pos.col + 1}`;
-}
-
 function posKey(pos: Position): string {
   return `${pos.row},${pos.col}`;
 }
@@ -176,7 +172,6 @@ export function findPointing(board: Board): IntersectionResult | null {
           }
         }
         if (eliminations.length > 0) {
-          const cellList = candidateCells.map(cellLabel).join(', ');
           return {
             technique: 'pointing',
             digit,
@@ -186,7 +181,7 @@ export function findPointing(board: Board): IntersectionResult | null {
             targetHouseIndex: firstRow,
             intersectionCells: candidateCells,
             eliminations,
-            explanation: `In ${houseLabel('box', box.houseIndex)}, digit ${digit} is confined to ${houseLabel('row', firstRow)} (${cellList}); eliminate ${digit} from the rest of ${houseLabel('row', firstRow)}`,
+            explanation: `When ${digit} can only go in ${houseLabel('row', firstRow)} within ${houseLabel('box', box.houseIndex)}, you can remove ${digit} from the rest of ${houseLabel('row', firstRow)}.`,
           };
         }
       }
@@ -204,7 +199,6 @@ export function findPointing(board: Board): IntersectionResult | null {
           }
         }
         if (eliminations.length > 0) {
-          const cellList = candidateCells.map(cellLabel).join(', ');
           return {
             technique: 'pointing',
             digit,
@@ -214,7 +208,7 @@ export function findPointing(board: Board): IntersectionResult | null {
             targetHouseIndex: firstCol,
             intersectionCells: candidateCells,
             eliminations,
-            explanation: `In ${houseLabel('box', box.houseIndex)}, digit ${digit} is confined to ${houseLabel('col', firstCol)} (${cellList}); eliminate ${digit} from the rest of ${houseLabel('col', firstCol)}`,
+            explanation: `When ${digit} can only go in ${houseLabel('col', firstCol)} within ${houseLabel('box', box.houseIndex)}, you can remove ${digit} from the rest of ${houseLabel('col', firstCol)}.`,
           };
         }
       }
@@ -288,7 +282,6 @@ export function findBoxLineReduction(board: Board): IntersectionResult | null {
         }
         if (eliminations.length === 0) continue;
 
-        const cellList = candidateCells.map(cellLabel).join(', ');
         return {
           technique: 'box-line-reduction',
           digit,
@@ -298,7 +291,7 @@ export function findBoxLineReduction(board: Board): IntersectionResult | null {
           targetHouseIndex: firstBox,
           intersectionCells: candidateCells,
           eliminations,
-          explanation: `In ${houseLabel(line.house, line.houseIndex)}, digit ${digit} is confined to ${houseLabel('box', firstBox)} (${cellList}); eliminate ${digit} from the rest of ${houseLabel('box', firstBox)}`,
+          explanation: `When ${digit} can only go in ${houseLabel('box', firstBox)} within ${houseLabel(line.house, line.houseIndex)}, you can remove ${digit} from the rest of ${houseLabel('box', firstBox)}.`,
         };
       }
     }

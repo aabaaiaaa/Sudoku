@@ -161,7 +161,7 @@ export function findXyWing(board: Board): XYWingResult | null {
           pivotDigits: [X, Y],
           z,
           eliminations,
-          explanation: `XY-wing: pivot R${pivot.pos.row + 1}C${pivot.pos.col + 1} {${X},${Y}} with pincers R${pincer1.pos.row + 1}C${pincer1.pos.col + 1} and R${pincer2.pos.row + 1}C${pincer2.pos.col + 1} sharing ${z}; eliminate ${z} from cells seeing both pincers`,
+          explanation: `When a pivot holds only ${X} and ${Y}, and two pincers each share ${z} with it, any cell that sees both pincers cannot be ${z}.`,
         };
       }
     }

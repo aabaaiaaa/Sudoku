@@ -141,7 +141,7 @@ export function findSwordfish(board: Board): SwordfishResult | null {
             coverHouses: [c1, c2, c3],
             cells,
             eliminations,
-            explanation: `Digit ${digit} forms a swordfish on rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}, confined to columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}; eliminate ${digit} from those columns in other rows`,
+            explanation: `In rows ${r1 + 1}, ${r2 + 1}, and ${r3 + 1}, ${digit} only appears in columns ${c1 + 1}, ${c2 + 1}, and ${c3 + 1}. Because ${digit} must go in those columns within those rows, you can remove it from the rest of those three columns.`,
           };
         }
       }
@@ -211,7 +211,7 @@ export function findSwordfish(board: Board): SwordfishResult | null {
             coverHouses: [r1, r2, r3],
             cells,
             eliminations,
-            explanation: `Digit ${digit} forms a swordfish on columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}, confined to rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}; eliminate ${digit} from those rows in other columns`,
+            explanation: `In columns ${c1 + 1}, ${c2 + 1}, and ${c3 + 1}, ${digit} only appears in rows ${r1 + 1}, ${r2 + 1}, and ${r3 + 1}. Because ${digit} must go in those rows within those columns, you can remove it from the rest of those three rows.`,
           };
         }
       }

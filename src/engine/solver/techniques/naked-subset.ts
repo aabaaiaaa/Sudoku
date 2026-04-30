@@ -79,10 +79,6 @@ function houseLabel(house: 'row' | 'col' | 'box', houseIndex: number): string {
   return `box ${houseIndex + 1}`;
 }
 
-function cellLabel(pos: Position): string {
-  return `R${pos.row + 1}C${pos.col + 1}`;
-}
-
 function* combinations<T>(items: T[], k: number, start = 0, picked: T[] = []): Generator<T[]> {
   if (picked.length === k) {
     yield picked.slice();
@@ -147,9 +143,16 @@ function findNakedSubsetOfSize(
       const cells = combo.map((e) => e.pos);
       const technique: NakedSubsetResult['technique'] =
         size === 2 ? 'naked-pair' : size === 3 ? 'naked-triple' : 'naked-quad';
-      const subsetWord = size === 2 ? 'pair' : size === 3 ? 'triple' : 'quad';
-      const cellList = cells.map(cellLabel).join(', ');
-      const digitList = digits.join(',');
+      const hl = houseLabel(house.house, house.houseIndex);
+      const digitList = digits.join(', ');
+      let explanation: string;
+      if (size === 2) {
+        explanation = `When two cells in the same ${hl} can each only be one of the same two numbers (${digitList}), those two numbers have to go in those two cells. You can rule them out everywhere else in that ${hl}.`;
+      } else if (size === 3) {
+        explanation = `When three cells in the same ${hl} only contain possible numbers from the same set of three (${digitList}), those numbers are locked in those cells. You can remove them from every other cell in that ${hl}.`;
+      } else {
+        explanation = `When four cells in the same ${hl} only contain possible numbers from the same set of four (${digitList}), those numbers are locked in those cells. You can remove them from every other cell in that ${hl}.`;
+      }
       return {
         technique,
         size,
@@ -158,7 +161,7 @@ function findNakedSubsetOfSize(
         cells,
         digits,
         eliminations,
-        explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} form a naked ${subsetWord} on {${digitList}}`,
+        explanation,
       };
     }
   }

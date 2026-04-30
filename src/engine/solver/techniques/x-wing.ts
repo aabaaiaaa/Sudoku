@@ -133,7 +133,7 @@ export function findXWing(board: Board): XWingResult | null {
           coverHouses: [c1, c2],
           cells,
           eliminations,
-          explanation: `Digit ${digit} forms an X-wing on rows ${r1 + 1} and ${r2 + 1}, confined to columns ${c1 + 1} and ${c2 + 1}; eliminate ${digit} from those columns in other rows`,
+          explanation: `In rows ${r1 + 1} and ${r2 + 1}, ${digit} can only go in columns ${c1 + 1} and ${c2 + 1}. Those four cells form a rectangle, so you can remove ${digit} from the rest of columns ${c1 + 1} and ${c2 + 1}.`,
         };
       }
     }
@@ -196,7 +196,7 @@ export function findXWing(board: Board): XWingResult | null {
           coverHouses: [r1, r2],
           cells,
           eliminations,
-          explanation: `Digit ${digit} forms an X-wing on columns ${c1 + 1} and ${c2 + 1}, confined to rows ${r1 + 1} and ${r2 + 1}; eliminate ${digit} from those rows in other columns`,
+          explanation: `In columns ${c1 + 1} and ${c2 + 1}, ${digit} can only go in rows ${r1 + 1} and ${r2 + 1}. Those four cells form a rectangle, so you can remove ${digit} from the rest of rows ${r1 + 1} and ${r2 + 1}.`,
         };
       }
     }

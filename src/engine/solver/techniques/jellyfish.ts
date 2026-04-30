@@ -145,7 +145,7 @@ export function findJellyfish(board: Board): JellyfishResult | null {
               coverHouses: [c1, c2, c3, c4],
               cells,
               eliminations,
-              explanation: `Digit ${digit} forms a jellyfish on rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}, ${r4 + 1}, confined to columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}, ${c4 + 1}; eliminate ${digit} from those columns in other rows`,
+              explanation: `In rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}, and ${r4 + 1}, ${digit} only appears in columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}, and ${c4 + 1}. Because ${digit} must go in those columns, you can remove it from the rest of those four columns.`,
             };
           }
         }
@@ -219,7 +219,7 @@ export function findJellyfish(board: Board): JellyfishResult | null {
               coverHouses: [r1, r2, r3, r4],
               cells,
               eliminations,
-              explanation: `Digit ${digit} forms a jellyfish on columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}, ${c4 + 1}, confined to rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}, ${r4 + 1}; eliminate ${digit} from those rows in other columns`,
+              explanation: `In columns ${c1 + 1}, ${c2 + 1}, ${c3 + 1}, and ${c4 + 1}, ${digit} only appears in rows ${r1 + 1}, ${r2 + 1}, ${r3 + 1}, and ${r4 + 1}. Because ${digit} must go in those rows, you can remove it from the rest of those four rows.`,
             };
           }
         }

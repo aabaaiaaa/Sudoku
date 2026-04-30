@@ -179,8 +179,7 @@ export function findHiddenQuad(board: Board): HiddenQuadResult | null {
       }
       if (eliminations.length === 0) continue;
 
-      const cellList = quadCells.map(cellLabel).join(', ');
-      const digitList = combo.join(',');
+      const digitList = combo.join(', ');
       return {
         technique: 'hidden-quad',
         house: house.house,
@@ -188,7 +187,7 @@ export function findHiddenQuad(board: Board): HiddenQuadResult | null {
         cells: quadCells,
         digits: [...combo],
         eliminations,
-        explanation: `Cells ${cellList} in ${houseLabel(house.house, house.houseIndex)} are the only places for {${digitList}}, so other candidates can be eliminated`,
+        explanation: `When four cells in ${houseLabel(house.house, house.houseIndex)} are the only places for ${digitList}, those numbers must go there — so you can remove any other possible numbers from those four cells.`,
       };
     }
   }
