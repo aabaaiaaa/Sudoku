@@ -147,7 +147,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Breaking**: Players' in-progress saves and stats history at all difficulty tiers are discarded on first launch of v0.6.0. The legacy-cleanup prompt in App and Settings surfaces this once.
 
 ### TASK-021: Run iteration-7 final-snapshot profile
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-014, TASK-015
 - **Description**: Re-run `npm run profile-tiers -- --all-tiers --n=50` after the budget re-pin and fixture refresh land. Commit the resulting `scripts/tier-distribution.md` and `scripts/tier-distribution.summary.json` as the iteration-7 final snapshot. This is the reliability check per requirements §11. Same wall-clock budget as TASK-013 (1–2 hours). If any advertised cell in the final snapshot returns `solvedRate < 0.05`, follow the requirements §11 contingency: revert that tier's advertisement in `VARIANT_TIERS` before shipping.
