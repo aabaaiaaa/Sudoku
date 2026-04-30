@@ -27,7 +27,7 @@ import type { Board, Digit, Variant } from '../../types';
 // Known-broken fixtures — skipped rather than removed so the skip list is
 // visible and easy to re-enable once the underlying issues are resolved.
 // ---------------------------------------------------------------------------
-const KNOWN_BROKEN = new Set<string>(['3d-medusa']);
+const KNOWN_BROKEN = new Set<string>();
 
 // ---------------------------------------------------------------------------
 // Board parser

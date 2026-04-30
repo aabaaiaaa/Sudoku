@@ -81,7 +81,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/fixtures-round-trip.test.ts` exits 0 (35 fixtures pass, 2 skipped).
 
 ### TASK-010: Fix missing fixture import in `hidden-single.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-009, TASK-015
 - **Description**: Add `import { fixture } from './hidden-single.fixture';` to `src/engine/solver/techniques/hidden-single.test.ts`. Add at least one new `it('round-trips its fixture')` case that runs the fixture through `findHiddenSingle` and asserts the deduction. TASK-015 having landed first means the fixture board is valid, so the round-trip case passes when this task lands.
@@ -123,28 +123,28 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts` — the hidden-single round-trip case now runs (no longer skipped) and passes.
 
 ### TASK-016: Replace medusa-3d fixture with a valid construction
-- **Status**: pending
+- **Status**: done
 - **Type**: fix
 - **Dependencies**: TASK-009
 - **Description**: Replace the board in `src/engine/solver/techniques/medusa-3d.fixture.ts` so the cluster cells span at least two boxes. A 2-row × 2-column corner cluster spanning a vertical box boundary (e.g. cells in box 1 and box 2, rows 1–2, columns 3 and 4) is a typical construction; alternatively, run the project's generator at Master tier and capture the first hit that produces a 3D Medusa puzzle, then commit the resulting seed and board as the new fixture (per requirements §17 fallback). Whichever construction is chosen, one bipartite colouring of the fixture's strong-link graph must hit a contradiction (digit twice in a row/column/box, or two digits in one cell) and the other colouring must be valid. Update the fixture's docblock with the new colouring analysis. Remove `'3d-medusa'` from `KNOWN_BAD_FIXTURES` in `fixtures-round-trip.test.ts`. Description rewrite happens in TASK-050.
 - **Verification**: `npx vitest run src/engine/solver/techniques/medusa-3d.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts` — the medusa-3d round-trip case now passes.
 
 ### TASK-017: Rewrite naked-single fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-009
 - **Description**: In `src/engine/solver/techniques/naked-single.fixture.ts`, rewrite the `description` string in plain English at the §5 reading level, replace the placeholder `pattern-primary` roles (from TASK-003's mechanical migration) with hand-authored roles — at minimum, the placement target gets `placement`, the constraining row/col/box cells get `pattern-primary`. In `catalog.ts`, set `glossaryTerms: ['placement']` on the naked-single entry.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-018: Rewrite hidden-single fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-015
 - **Description**: After TASK-015 fixes the board, rewrite the description in plain English (target wording in requirements §5.3); replace placeholder roles with hand-authored ones — placement target gets `placement`, the four constraining 9s on row/col blocks get `pattern-primary`. Catalog `glossaryTerms: ['placement']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-019: Rewrite pointing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-013
 - **Description**: Rewrite description in plain English; intersection cells (the candidate cells in the box that all share one line) → `pattern-primary`; cells where the digit gets removed from the line → `elimination`. Catalog `glossaryTerms: ['box', 'elimination']`.

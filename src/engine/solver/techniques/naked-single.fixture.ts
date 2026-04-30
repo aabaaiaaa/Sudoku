@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -47,10 +48,20 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........' +
     '.........',
-  roles: [{ pos: { row: 0, col: 0 }, role: 'pattern-primary' }],
+  roles: [
+    { pos: { row: 0, col: 0 }, role: 'placement' },
+    { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 2, col: 2 }, role: 'pattern-primary' },
+  ],
   deduction: {
     placement: { pos: { row: 0, col: 0 }, digit: 9 },
   },
   description:
-    "A cell whose row, column, and box together rule out every digit except one. The remaining digit must be placed in that cell.",
+    'A cell that has room for only one number, because every other number already appears somewhere in its row, column, or box.',
 };

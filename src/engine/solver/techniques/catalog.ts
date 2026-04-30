@@ -86,18 +86,21 @@ export const TECHNIQUE_CATALOG: Record<TechniqueId, TechniqueCatalogEntry> = {
     tier: 'Easy',
     fixture: nakedSingleFixture,
     description: nakedSingleFixture.description,
+    glossaryTerms: ['placement'],
   },
   'hidden-single': {
     displayName: 'Hidden Single',
     tier: 'Medium',
     fixture: hiddenSingleFixture,
     description: hiddenSingleFixture.description,
+    glossaryTerms: ['placement'],
   },
   pointing: {
     displayName: 'Pointing Pair',
     tier: 'Hard',
     fixture: pointingFixture,
     description: pointingFixture.description,
+    glossaryTerms: ['box', 'elimination'],
   },
   'box-line-reduction': {
     displayName: 'Box/Line Reduction',

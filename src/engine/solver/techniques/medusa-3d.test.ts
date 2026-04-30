@@ -92,36 +92,36 @@ describe('find3DMedusa', () => {
     expect(result).not.toBeNull();
     expect(result!.technique).toBe('3d-medusa');
     expect(result!.rule).toBe('color-twice-in-house');
-    expect(result!.invalidColor).toBe('A');
+    expect(result!.invalidColor).toBe('B');
     expect(result!.conflictHouse).toBe('box 1');
     expect(result!.conflictHouseDigit).toBe(1);
     expect(result!.conflictHouseCells).toEqual([
-      { row: 0, col: 0 },
-      { row: 1, col: 1 },
+      { row: 0, col: 1 },
+      { row: 1, col: 0 },
     ]);
 
     // BFS coloring starts at the lowest node (1@R1C1) and assigns it A.
-    // The bipartite cluster covers all eight (cell, digit) pairs at the
-    // four corner cells with candidates {1, 5}.
+    // ColorA = { 1@R1C1, 2@R1C2, 1@R2C8, 2@R4C1 }
+    // ColorB = { 2@R1C1, 1@R1C2, 1@R2C1 }
+    // (R4C1 and R2C8 are not bivalue, so no cell links extend from them;
+    // BFS stops when all reachable nodes are visited.)
     expect(result!.colorA).toEqual([
       { cell: { row: 0, col: 0 }, digit: 1 },
-      { cell: { row: 0, col: 1 }, digit: 5 },
-      { cell: { row: 1, col: 0 }, digit: 5 },
-      { cell: { row: 1, col: 1 }, digit: 1 },
+      { cell: { row: 0, col: 1 }, digit: 2 },
+      { cell: { row: 1, col: 7 }, digit: 1 },
+      { cell: { row: 3, col: 0 }, digit: 2 },
     ]);
     expect(result!.colorB).toEqual([
-      { cell: { row: 0, col: 0 }, digit: 5 },
+      { cell: { row: 0, col: 0 }, digit: 2 },
       { cell: { row: 0, col: 1 }, digit: 1 },
       { cell: { row: 1, col: 0 }, digit: 1 },
-      { cell: { row: 1, col: 1 }, digit: 5 },
     ]);
 
-    // Eliminate every colour-A candidate.
+    // Eliminate every colour-B candidate.
     const expectedElims: Array<{ pos: Position; digits: Digit[] }> = [
-      { pos: { row: 0, col: 0 }, digits: [1] },
-      { pos: { row: 0, col: 1 }, digits: [5] },
-      { pos: { row: 1, col: 0 }, digits: [5] },
-      { pos: { row: 1, col: 1 }, digits: [1] },
+      { pos: { row: 0, col: 0 }, digits: [2] },
+      { pos: { row: 0, col: 1 }, digits: [1] },
+      { pos: { row: 1, col: 0 }, digits: [1] },
     ];
     expect(result!.eliminations).toHaveLength(expectedElims.length);
     for (const e of expectedElims) {
@@ -130,16 +130,16 @@ describe('find3DMedusa', () => {
       expect(got!.digits).toEqual(e.digits);
     }
 
-    // Every colour-A node was found; every colour-B node was preserved.
+    // Spot-check nodes in each color.
     expect(findNode(result!.colorA, { row: 0, col: 0 }, 1)).toBeDefined();
-    expect(findNode(result!.colorA, { row: 1, col: 1 }, 1)).toBeDefined();
-    expect(findNode(result!.colorB, { row: 0, col: 0 }, 5)).toBeDefined();
-    expect(findNode(result!.colorB, { row: 1, col: 1 }, 5)).toBeDefined();
+    expect(findNode(result!.colorA, { row: 3, col: 0 }, 2)).toBeDefined();
+    expect(findNode(result!.colorB, { row: 0, col: 0 }, 2)).toBeDefined();
+    expect(findNode(result!.colorB, { row: 1, col: 0 }, 1)).toBeDefined();
 
     expect(result!.explanation).toContain('3D Medusa');
     expect(result!.explanation).toContain('box 1');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R2C2');
+    expect(result!.explanation).toContain('R1C2');
+    expect(result!.explanation).toContain('R2C1');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -156,8 +156,7 @@ describe('find3DMedusa', () => {
       expect(got!.digits).toEqual(expected.digits);
     }
 
-    // The fixture's patternCells must equal the unique cells covered by the
-    // cluster — what the help screen highlights as "the pattern".
+    // The fixture's roles must cover the unique cells in the cluster.
     const cellSet = new Set<string>();
     for (const n of [...result!.colorA, ...result!.colorB]) {
       cellSet.add(`${n.cell.row},${n.cell.col}`);
@@ -168,7 +167,7 @@ describe('find3DMedusa', () => {
         return { row: r, col: c };
       })
       .sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixturePattern = [...fixture.patternCells].sort(
+    const fixturePattern = fixture.roles.map(r => r.pos).sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderPattern).toEqual(fixturePattern);

@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { findHiddenSingle } from './hidden-single';
-import { createEmptyBoard } from '../../types';
+import { createEmptyBoard, createGivenCell } from '../../types';
+import type { Digit } from '../../types';
 import { classicVariant, miniVariant } from '../../variants';
+import { fixture } from './hidden-single.fixture';
 
 describe('findHiddenSingle', () => {
   it('returns null for an empty classic board', () => {
@@ -102,5 +104,25 @@ describe('findHiddenSingle', () => {
     expect(result!.house).toBe('row');
     expect(result!.houseIndex).toBe(0);
     expect(result!.explanation).toBe('R1C1 is the only cell in row 1 that can be 4');
+  });
+
+  it('round-trips its fixture', () => {
+    const board = createEmptyBoard(classicVariant);
+    const chars = fixture.board.replace(/\s/g, '');
+    let idx = 0;
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const ch = chars[idx++];
+        if (ch >= '1' && ch <= '9') {
+          board.cells[r][c] = createGivenCell(Number(ch) as Digit);
+        }
+      }
+    }
+
+    const result = findHiddenSingle(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('hidden-single');
+    expect(result!.cell).toEqual(fixture.deduction.placement!.pos);
+    expect(result!.digit).toBe(fixture.deduction.placement!.digit);
   });
 });

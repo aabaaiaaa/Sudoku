@@ -18,76 +18,78 @@ export interface TechniqueFixture {
 }
 
 /**
- * 3D Medusa fixture (Classic 9×9), spanning digits 1 and 5.
+ * 3D Medusa fixture (Classic 9×9), colour-twice-in-house contradiction.
  *
- * The givens leave four empty cells in the top-left 2×2 corner, each with
- * candidates exactly {1, 5}: R1C1, R1C2, R2C1, R2C2. Row 1 elsewhere holds
- * {2,3,4,6,7,8,9}; row 2 elsewhere holds the same set; column 1 below row 2
- * holds {3,6,7,8,9,2,4} (any permutation of {2,3,4,6,7,8,9}); column 2 below
- * row 2 holds another permutation; box 1's other cells (R3C1=3, R3C2=4,
- * R3C3=8, plus R1C3=2 and R2C3=6) avoid both 1 and 5.
+ * Cluster cells:
+ *   R1C1 = {1,2},  R1C2 = {1,2},  R2C1 = {1,3},  R2C8 = {1,2},  R4C1 = {2,5}
  *
- * The 3D-Medusa graph contains:
- *   - **Cell links** (each empty cell is bivalue {1,5}): 1@R1C1—5@R1C1,
- *     1@R1C2—5@R1C2, 1@R2C1—5@R2C1, 1@R2C2—5@R2C2.
- *   - **House links** (each strong-link house has exactly two candidate cells):
- *     row 1 on digits 1 and 5 (R1C1↔R1C2 each); row 2 on 1 and 5 (R2C1↔R2C2);
- *     column 1 on 1 and 5 (R1C1↔R2C1); column 2 on 1 and 5 (R1C2↔R2C2).
+ * Strong links that seed the graph:
+ *   row 1, digit 1 : R1C1 ↔ R1C2  (only two cand-1 cells in row 1)
+ *   row 1, digit 2 : R1C1 ↔ R1C2  (only two cand-2 cells in row 1)
+ *   col 1, digit 1 : R1C1 ↔ R2C1  (only two cand-1 cells in col 1)
+ *   col 1, digit 2 : R1C1 ↔ R4C1  (only two cand-2 cells in col 1)
+ *   Cell links (each bivalue cell):
+ *     R1C1 : 1—2,  R1C2 : 1—2,  R2C1 : 1—3,  R2C8 : 1—2,  R4C1 : 2—5
  *
- * All eight nodes form one bipartite component. Two-coloured starting at
- * 1@R1C1 = A, BFS produces:
+ * BFS starts at the lowest node (1@R1C1 = A) and propagates:
+ *   row-1/d1 → 1@R1C2 = B
+ *   col-1/d1 → 1@R2C1 = B
+ *   cell R1C1 → 2@R1C1 = B
+ *   cell R1C2 (from B) → 2@R1C2 = A
+ *   cell R2C1 (from B) → 3@R2C1 = A
+ *   col-1/d2 from 2@R1C1=B → 2@R4C1 = A
+ *   cell R4C1 (from A) → 5@R4C1 = B
+ *   row-2/d1 (R2C1=B has 1; is there another cand-1 in row 2?) → 1@R2C8 = A
+ *   cell R2C8 (from A) → 2@R2C8 = B
  *
- *   A = { 1@R1C1, 5@R1C2, 5@R2C1, 1@R2C2 }
- *   B = { 5@R1C1, 1@R1C2, 1@R2C1, 5@R2C2 }
+ *   ColorA = { 1@R1C1, 2@R1C2, 1@R2C8, 2@R4C1 }
+ *   ColorB = { 2@R1C1, 1@R1C2, 1@R2C1, 5@R4C1, 2@R2C8 }
  *
- * Box 1 contains all four cluster cells. For digit 1 in box 1, colour A holds
- * R1C1 and R2C2 — both colour A, both digit 1, both in box 1. So colour A
- * cannot be true (digit 1 would appear twice in box 1). All colour-A
- * candidates are eliminated:
+ * Rule 2 fires for digit 1, box 1 (rows 1–3, cols 1–3):
+ *   ColorB has 1@R1C2 and 1@R2C1 — two colour-B nodes with digit 1 in box 1.
+ *   → invalidColor = B
  *
- *   - digit 1 from R1C1
- *   - digit 5 from R1C2
- *   - digit 5 from R2C1
- *   - digit 1 from R2C2
+ * All colour-B candidates are eliminated:
+ *   digit 2 from R1C1  (was cand {1,2} → forced to 1)
+ *   digit 1 from R1C2  (was cand {1,2} → forced to 2)
+ *   digit 1 from R2C1  (was cand {1,3} → forced to 3)
  *
- * After the eliminations each cell becomes a naked single, fixing the corner.
- *
- *   . . 2 | 3 4 6 | 7 8 9
- *   . . 6 | 7 8 9 | 2 3 4
- *   3 4 8 | . . . | . . .
+ *   . . 4 | 5 6 7 | 8 9 3
+ *   . 5 6 | 2 8 9 | 4 . 7
+ *   7 8 9 | 1 3 4 | 2 5 6
  *   ------+-------+------
- *   6 2 . | . . . | . . .
- *   7 3 . | . . . | . . .
- *   8 9 . | . . . | . . .
+ *   . 6 1 | 3 4 8 | 9 7 .
+ *   3 . . | . . . | . . 1
+ *   4 . . | . . . | . . 2
  *   ------+-------+------
- *   9 6 . | . . . | . . .
- *   2 7 . | . . . | . . .
- *   4 8 . | . . . | . . .
+ *   5 . . | . . . | . . .
+ *   6 . . | . . . | . . .
+ *   8 . . | . . . | . . .
  */
 export const fixture: TechniqueFixture = {
   variant: 'classic',
   board:
-    '..2346789' +
-    '..6789234' +
-    '348......' +
-    '62.......' +
-    '73.......' +
-    '89.......' +
-    '96.......' +
-    '27.......' +
-    '48.......',
+    '..4567893' +
+    '.562894.7' +
+    '789134256' +
+    '.6134897.' +
+    '3.......1' +
+    '4.......2' +
+    '5........' +
+    '6........' +
+    '8........',
   roles: [
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
     { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 7 }, role: 'pattern-primary' },
+    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
   ],
   deduction: {
     eliminations: [
-      { pos: { row: 0, col: 0 }, digits: [1] },
-      { pos: { row: 0, col: 1 }, digits: [5] },
-      { pos: { row: 1, col: 0 }, digits: [5] },
-      { pos: { row: 1, col: 1 }, digits: [1] },
+      { pos: { row: 0, col: 0 }, digits: [2] },
+      { pos: { row: 0, col: 1 }, digits: [1] },
+      { pos: { row: 1, col: 0 }, digits: [1] },
     ],
   },
   description:
