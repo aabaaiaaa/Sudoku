@@ -7,7 +7,7 @@ check / build / E2E sweeps are the closing tasks.
 ---
 
 ### TASK-001: Create role taxonomy module
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: none
 - **Description**: Create `src/engine/solver/techniques/roles.ts` exporting the `CellRole` enum, the `roleLabels: Record<CellRole, string>` table, and the `mergeCellRoles(roles: CellRole[]): CellRole` helper with the precedence chain from requirements §4. Reading-level for `roleLabels`: same target as descriptions (`pattern-primary` → "Pattern", `pattern-secondary` → "Supporting cells", `pivot` → "Centre cell", `pincer` → "Side cell", `cluster-a` → "Group A", `cluster-b` → "Group B", `chain-link` → "Chain step", `corner` → "Rectangle corner", `elimination` → "Cells affected", `placement` → "Place number here").
@@ -29,7 +29,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx tsc --noEmit` passes (every fixture compiles after the mechanical migration); `npm test -- catalog` still passes.
 
 ### TASK-004: Create glossary module with term entries
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: none
 - **Description**: Create `src/engine/solver/techniques/glossary.ts` with `GlossaryTermId` union, `GlossaryEntry` interface, and `GLOSSARY: Record<GlossaryTermId, GlossaryEntry>` populated with the 8 entries from requirements §6 (terms + plain-English definitions). Each entry's `diagram` field is initially a placeholder `() => null`; per-term SVG diagrams are authored in TASK-052.
@@ -43,7 +43,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/catalog.ts`.
 
 ### TASK-006: Create `FINDER_BY_ID` lookup table
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: none
 - **Description**: In `src/engine/solver/techniques/index.ts` (or a new colocated file `finders.ts` if the index is overcrowded), export `FINDER_BY_ID: Record<TechniqueId, (board: Board) => TechniqueResult | null>`. Each entry references the existing finder function for that technique. The exhaustive switch in `nextStep` may be refactored to consult this table; otherwise leave `nextStep` unchanged.

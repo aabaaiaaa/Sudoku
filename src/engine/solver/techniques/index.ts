@@ -174,6 +174,48 @@ export const techniques: readonly Technique[] = [
 ];
 
 /**
+ * Lookup table mapping each technique id to its finder function. Used by the
+ * round-trip fixture test and any consumer that needs to run a specific
+ * technique by id without walking the full cascade.
+ */
+export const FINDER_BY_ID: Record<TechniqueId, (board: Board) => TechniqueResult | null> = {
+  'naked-single': findNakedSingle,
+  'hidden-single': findHiddenSingle,
+  'pointing': findPointing,
+  'box-line-reduction': findBoxLineReduction,
+  'naked-pair': findNakedPair,
+  'naked-triple': findNakedTriple,
+  'naked-quad': findNakedQuad,
+  'hidden-pair': findHiddenPair,
+  'hidden-triple': findHiddenTriple,
+  'hidden-quad': findHiddenQuad,
+  'x-wing': findXWing,
+  'swordfish': findSwordfish,
+  'jellyfish': findJellyfish,
+  'xy-wing': findXyWing,
+  'xyz-wing': findXyzWing,
+  'w-wing': findWWing,
+  'simple-coloring': findSimpleColoring,
+  'x-cycle': findXCycle,
+  'empty-rectangle': findEmptyRectangle,
+  'skyscraper': findSkyscraper,
+  'two-string-kite': findTwoStringKite,
+  'unique-rectangle': findUniqueRectangle,
+  'bug-plus-one': findBugPlus1,
+  'xy-chain': findXyChain,
+  'multi-coloring': findMultiColoring,
+  'als-xz': findAlsXz,
+  'wxyz-wing': findWxyzWing,
+  'hidden-rectangle': findHiddenRectangle,
+  'avoidable-rectangle': findAvoidableRectangle,
+  'nice-loop': findNiceLoop,
+  'grouped-x-cycle': findGroupedXCycle,
+  '3d-medusa': find3DMedusa,
+  'death-blossom': findDeathBlossom,
+  'forcing-chains': findForcingChains,
+};
+
+/**
  * Apply the technique list in order and return the first result that makes
  * progress on the board, or null if no implemented technique advances it.
  */
