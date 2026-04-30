@@ -580,7 +580,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: Both commands exit 0.
 
 ### TASK-079: Targeted Playwright spot-check on hint and learn flow
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-078
 - **Description**: Run `npx playwright test tests/e2e/hint-learn-more.spec.ts` (the existing Playwright spec covering hint Learn-more navigation). Patch any assertions that check old-style `r1c1` text in hint output; the test should now expect on-board highlighting and plain-English copy. Spec file edits in scope.
