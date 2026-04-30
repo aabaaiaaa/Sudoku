@@ -204,7 +204,7 @@ export function findWWing(board: Board): WWingResult | null {
             strongLink: orderedStrongLink,
             strongLinkHouse: house.description,
             eliminations,
-            explanation: `W-wing: bivalue cells R${A.pos.row + 1}C${A.pos.col + 1} and R${B.pos.row + 1}C${B.pos.col + 1} both {${d0},${d1}}, connected by strong link on ${y} in ${house.description} (R${orderedStrongLink[0].row + 1}C${orderedStrongLink[0].col + 1} and R${orderedStrongLink[1].row + 1}C${orderedStrongLink[1].col + 1}); eliminate ${x} from cells seeing both bivalues`,
+            explanation: `When two cells can each only be ${d0} or ${d1}, and ${y} can only go in two places in a shared row, column, or box, any cell that can see both of those first cells cannot be ${x}.`,
           };
         }
       }

@@ -424,35 +424,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-wing.test.ts src/engine/solver/techniques/xyz-wing.test.ts src/engine/solver/techniques/wxyz-wing.test.ts`.
 
 ### TASK-059: Rewrite w-wing explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `w-wing.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/w-wing.test.ts`.
 
 ### TASK-060: Rewrite simple-coloring explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `simple-coloring.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/simple-coloring.test.ts`.
 
 ### TASK-061: Rewrite multi-coloring explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation in `multi-coloring.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/multi-coloring.test.ts`.
 
 ### TASK-062: Rewrite x-cycle / grouped-x-cycle explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in `x-cycle.ts` and `grouped-x-cycle.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-cycle.test.ts src/engine/solver/techniques/grouped-x-cycle.test.ts`.
 
 ### TASK-063: Rewrite empty-rectangle / skyscraper / two-string-kite explanation templates
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: Rewrite explanation templates in the three files.

@@ -242,7 +242,7 @@ export function findSimpleColoring(board: Board): SimpleColoringResult | null {
               conflict: [cells[i], cells[j]],
               conflictHouse,
               eliminations,
-              explanation: `Simple coloring on ${digit}: chain colors A=[${aCellList}] B=[${bCellList}]; color ${which} contains R${cells[i].row + 1}C${cells[i].col + 1} and R${cells[j].row + 1}C${cells[j].col + 1} together in ${conflictHouse}, so color ${which} is invalid; eliminate ${digit} from ${elimList}`,
+              explanation: `When you mark all the places ${digit} could go in two alternating groups, and one group ends up with two cells in the same row, column, or box, that group can't be right. Then you can remove ${digit} from every cell in that group.`,
             };
           }
         }

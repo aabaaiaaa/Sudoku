@@ -311,7 +311,7 @@ export function findMultiColoring(board: Board): MultiColoringResult | null {
               bridge: bridgeFound,
               bridgeHouse,
               eliminations,
-              explanation: `Multi-coloring on ${digit}: cluster 1 A=[${c1A}] B=[${c1B}]; cluster 2 A=[${c2A}] B=[${c2B}]; cluster 1 ${color1} cell ${cellLabel(bridgeFound[0])} sees cluster 2 ${color2} cell ${cellLabel(bridgeFound[1])} in ${bridgeHouse}, so cluster 1 ${opp1Label} (${opp1List}) or cluster 2 ${opp2Label} (${opp2List}) holds the digit; eliminate ${digit} from ${elimList}`,
+              explanation: `When two separate groups of linked cells for ${digit} are connected — because a cell from one group can see a cell from the other — at least one side of the connection must be wrong. You can remove ${digit} from any cell that can see one cell from each connected side.`,
             };
           }
         }

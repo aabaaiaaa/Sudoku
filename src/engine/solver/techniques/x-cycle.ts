@@ -463,7 +463,7 @@ function buildResult(
       cells: cells.slice(),
       edges: edges.slice(),
       eliminations,
-      explanation: `X-Cycle on ${digit}: continuous nice loop ${formatCellList(cells)} (length ${cells.length}); for each weak link, eliminate ${digit} from cells seeing both endpoints — ${formatCellList(elimCells)}`,
+      explanation: `When a chain of cells for ${digit} closes into a complete loop, switching between "must be" and "can't be" at each step, you can remove ${digit} from any cell that can see two consecutive "can't be" cells in the loop.`,
     };
   }
 
@@ -478,7 +478,7 @@ function buildResult(
       edges: edges.slice(),
       placement: { pos: start, digit },
       eliminations: [],
-      explanation: `X-Cycle on ${digit}: discontinuous loop ${formatCellList(cells)} with two strong links meeting at R${start.row + 1}C${start.col + 1}; place ${digit} at R${start.row + 1}C${start.col + 1}`,
+      explanation: `When a chain of cells for ${digit} almost closes into a loop but the start cell ends up with two "must be" connections, that cell has to be ${digit} — place it there.`,
     };
   }
 
@@ -495,6 +495,6 @@ function buildResult(
     cells: cells.slice(),
     edges: edges.slice(),
     eliminations: [{ cell: start, digits: [digit] }],
-    explanation: `X-Cycle on ${digit}: discontinuous loop ${formatCellList(cells)} with two weak links meeting at R${start.row + 1}C${start.col + 1}; eliminate ${digit} from R${start.row + 1}C${start.col + 1}`,
+    explanation: `When a chain of cells for ${digit} almost closes into a loop but the start cell ends up with two "can't be" connections, that cell cannot be ${digit} — remove it.`,
   };
 }

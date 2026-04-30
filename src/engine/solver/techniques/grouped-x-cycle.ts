@@ -511,7 +511,7 @@ function buildResult(
       nodes,
       edges,
       eliminations,
-      explanation: `Grouped X-Cycle on ${digit}: continuous nice loop ${formatNodeList(nodes)} (length ${nodes.length}); for each weak link, eliminate ${digit} from cells seeing both endpoints — ${formatCellList(elimCells)}`,
+      explanation: `When a chain of cells (or small groups of cells) for ${digit} closes into a complete loop, switching between "must be" and "can't be" at each step, you can remove ${digit} from any cell that can see two consecutive "can't be" cells in the loop.`,
     };
   }
 
@@ -530,7 +530,7 @@ function buildResult(
       edges,
       placement: { pos, digit },
       eliminations: [],
-      explanation: `Grouped X-Cycle on ${digit}: discontinuous loop ${formatNodeList(nodes)} with two strong links meeting at ${formatCell(pos)}; place ${digit} at ${formatCell(pos)}`,
+      explanation: `When a chain of cells for ${digit} almost closes into a loop but the start position ends up with two "must be" connections, that position has to be ${digit} — place it there.`,
     };
   }
 
@@ -552,7 +552,7 @@ function buildResult(
     nodes,
     edges,
     eliminations,
-    explanation: `Grouped X-Cycle on ${digit}: discontinuous loop ${formatNodeList(nodes)} with two weak links meeting at ${formatNode(start)}; eliminate ${digit} from ${formatCellList(eliminations.map((e) => e.cell))}`,
+    explanation: `When a chain of cells for ${digit} almost closes into a loop but the start position ends up with two "can't be" connections, ${digit} cannot go in any of those cells — remove it from them.`,
   };
 }
 

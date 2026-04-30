@@ -175,7 +175,7 @@ export function findEmptyRectangle(board: Board): EmptyRectangleResult | null {
                   orientation: 'column',
                 },
                 eliminations: [{ cell: elimCell, digits: [digit] }],
-                explanation: `Empty rectangle on ${digit} in box ${boxIndex + 1} (cross at R${erRow + 1}C${erCol + 1}); strong link in column ${cPrime + 1} between R${linkRowEnd.row + 1}C${linkRowEnd.col + 1} and R${otherEnd.row + 1}C${otherEnd.col + 1}; eliminate ${digit} from R${elimCell.row + 1}C${elimCell.col + 1}`,
+                explanation: `When all the places ${digit} can go in a box line up on a single row and column, that crossing point can act like a stepping stone in a chain. You can remove ${digit} from a cell that can see both the chain's far end and that crossing point.`,
               };
             }
 
@@ -212,7 +212,7 @@ export function findEmptyRectangle(board: Board): EmptyRectangleResult | null {
                   orientation: 'row',
                 },
                 eliminations: [{ cell: elimCell, digits: [digit] }],
-                explanation: `Empty rectangle on ${digit} in box ${boxIndex + 1} (cross at R${erRow + 1}C${erCol + 1}); strong link in row ${rPrime + 1} between R${linkColEnd.row + 1}C${linkColEnd.col + 1} and R${otherEnd.row + 1}C${otherEnd.col + 1}; eliminate ${digit} from R${elimCell.row + 1}C${elimCell.col + 1}`,
+                explanation: `When all the places ${digit} can go in a box line up on a single row and column, that crossing point can act like a stepping stone in a chain. You can remove ${digit} from a cell that can see both the chain's far end and that crossing point.`,
               };
             }
           }

@@ -167,7 +167,7 @@ export function findSkyscraper(board: Board): SkyscraperResult | null {
             { row: r2, col: baseCol },
           ],
           eliminations,
-          explanation: `Skyscraper on ${digit}: rows ${r1 + 1} and ${r2 + 1} each have ${digit} in only two cells, both sharing column ${baseCol + 1}; the roofs at R${roof1.row + 1}C${roof1.col + 1} and R${roof2.row + 1}C${roof2.col + 1} eliminate ${digit} from cells seeing both`,
+          explanation: `When two rows each have ${digit} in only two cells, and one of those cells is in the same column in both rows, the other two cells act like two possible tops of a tower. Any cell that can see both of those tops cannot be ${digit} — remove it.`,
         };
       }
     }
@@ -236,7 +236,7 @@ export function findSkyscraper(board: Board): SkyscraperResult | null {
             { row: baseRow, col: c2 },
           ],
           eliminations,
-          explanation: `Skyscraper on ${digit}: columns ${c1 + 1} and ${c2 + 1} each have ${digit} in only two cells, both sharing row ${baseRow + 1}; the roofs at R${roof1.row + 1}C${roof1.col + 1} and R${roof2.row + 1}C${roof2.col + 1} eliminate ${digit} from cells seeing both`,
+          explanation: `When two columns each have ${digit} in only two cells, and one of those cells is in the same row in both columns, the other two cells act like two possible tops of a tower. Any cell that can see both of those tops cannot be ${digit} — remove it.`,
         };
       }
     }

@@ -198,7 +198,7 @@ export function findTwoStringKite(board: Board): TwoStringKiteResult | null {
               rowTail,
               colTail,
               eliminations,
-              explanation: `Two-String Kite on ${digit}: row ${r + 1} and column ${c + 1} each have ${digit} in only two cells, with R${rowCell.row + 1}C${rowCell.col + 1} and R${colCell.row + 1}C${colCell.col + 1} sharing a box; the tails at R${rowTail.row + 1}C${rowTail.col + 1} and R${colTail.row + 1}C${colTail.col + 1} eliminate ${digit} from cells seeing both`,
+              explanation: `When a row and a column each have ${digit} in only two cells, and one cell from the row and one from the column share a box, the two remaining "tail" cells are linked. Any cell that can see both tails cannot be ${digit} — remove it.`,
             };
           }
         }
