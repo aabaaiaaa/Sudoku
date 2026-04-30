@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,14 +66,15 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.....8...',
   roles: [
-    { pos: { row: 0, col: 4 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 7 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 5 }, role: 'pattern-primary' },
     { pos: { row: 7, col: 5 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 4 }, role: 'pattern-secondary' },
+    { pos: { row: 1, col: 5 }, role: 'pattern-secondary' },
+    { pos: { row: 7, col: 7 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 7, col: 7 }, digits: [1] }],
   },
   description:
-    'Pick a digit and look for one row and one column that each have the digit confined to exactly two cells, where one row cell and one column cell share a box. The shared box can hold the digit only once, so at most one of those two cells holds it; the other end of each strong link — the two "tails" — must therefore between them place the digit. Any cell that sees both tails (via row, column, or box) cannot hold the digit and is eliminated.',
+    'Pick a number and find one row and one column where it can only go in exactly two cells each. If one cell from the row pair and one from the column pair share a box, the box can hold the number only once — so at most one of those two shared cells has it. That means one of the other two cells (one from each pair) must hold the number. Any cell that can see both of those outer cells cannot hold the number.',
 };

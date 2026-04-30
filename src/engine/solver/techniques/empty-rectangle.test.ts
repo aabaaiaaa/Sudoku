@@ -139,16 +139,17 @@ describe('findEmptyRectangle', () => {
       fixture.deduction.eliminations!.length,
     );
 
-    // The fixture's patternCells are the box cells plus the two strong-link
-    // endpoints — all the cells the help screen highlights.
+    // The fixture's pattern-primary (box) and pattern-secondary (strong-link) roles
+    // must equal the box cells plus the two strong-link endpoints.
     const finderCells: Position[] = [
       ...result!.boxCells,
       result!.strongLink.from,
       result!.strongLink.to,
     ].sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixtureCells = [...fixture.patternCells].sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixtureCells = fixture.roles
+      .filter((r) => r.role === 'pattern-primary' || r.role === 'pattern-secondary')
+      .map((r) => r.pos)
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderCells).toEqual(fixtureCells);
   });
 

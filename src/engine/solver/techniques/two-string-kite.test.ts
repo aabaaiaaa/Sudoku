@@ -113,18 +113,18 @@ describe('findTwoStringKite', () => {
       fixture.deduction.eliminations!.length,
     );
 
-    // The fixture's patternCells are the four cells of the two strong links —
-    // the row-link box cell, the row tail, the col-link box cell, and the col
-    // tail.
+    // The fixture's pattern-primary (tails) and pattern-secondary (box cells) roles
+    // must equal the four cells of the two strong links.
     const finderCells: Position[] = [
       result!.rowBoxCell,
       result!.rowTail,
       result!.colBoxCell,
       result!.colTail,
     ].sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixtureCells = [...fixture.patternCells].sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixtureCells = fixture.roles
+      .filter((r) => r.role === 'pattern-primary' || r.role === 'pattern-secondary')
+      .map((r) => r.pos)
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderCells).toEqual(fixtureCells);
   });
 });

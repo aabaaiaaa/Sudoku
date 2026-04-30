@@ -141,15 +141,16 @@ describe('findSkyscraper', () => {
       fixture.deduction.eliminations!.length,
     );
 
-    // The fixture's patternCells are the four cells of the two strong links —
-    // the two base cells and the two roof cells.
+    // The fixture's pattern-primary (roof) and pattern-secondary (base) roles
+    // must equal the four cells of the two strong links.
     const finderCells: Position[] = [
       ...result!.baseCells,
       ...result!.roof,
     ].sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixtureCells = [...fixture.patternCells].sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixtureCells = fixture.roles
+      .filter((r) => r.role === 'pattern-primary' || r.role === 'pattern-secondary')
+      .map((r) => r.pos)
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderCells).toEqual(fixtureCells);
   });
 

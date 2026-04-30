@@ -139,14 +139,14 @@ describe('findSimpleColoring', () => {
       expect(got!.digits).toEqual(expected.digits);
     }
 
-    // The fixture's patternCells must equal the full chain (colorA ∪ colorB),
-    // which is what the help screen highlights as "the pattern".
+    // The fixture's cluster-a and cluster-b roles must equal the full chain (colorA ∪ colorB).
     const finderChain: Position[] = [...result!.colorA, ...result!.colorB].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
-    const fixtureChain = [...fixture.patternCells].sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixtureChain = fixture.roles
+      .filter((r) => r.role === 'cluster-a' || r.role === 'cluster-b')
+      .map((r) => r.pos)
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderChain).toEqual(fixtureChain);
   });
 });

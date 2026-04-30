@@ -137,13 +137,14 @@ describe('findXCycle', () => {
       expect(got!.digits).toEqual(expected.digits);
     }
 
-    // The fixture's patternCells should be the four cells of the cycle.
+    // The fixture's chain-link roles should be the four cells of the cycle.
     const finderCycle = [...result!.cells].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
-    const fixtureCells = [...fixture.patternCells].sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixtureCells = fixture.roles
+      .filter((r) => r.role === 'chain-link')
+      .map((r) => r.pos)
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderCycle).toEqual(fixtureCells);
   });
 });

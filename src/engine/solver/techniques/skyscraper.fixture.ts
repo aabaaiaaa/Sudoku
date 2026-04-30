@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -62,10 +63,14 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.3.254769',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 8, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 8, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'pattern-secondary' },
+    { pos: { row: 8, col: 0 }, role: 'pattern-secondary' },
+    { pos: { row: 1, col: 2 }, role: 'elimination' },
+    { pos: { row: 2, col: 2 }, role: 'elimination' },
+    { pos: { row: 6, col: 1 }, role: 'elimination' },
+    { pos: { row: 7, col: 1 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -76,5 +81,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Pick a digit and look for two rows where the digit has exactly two candidate cells each, with one shared column. The shared column is the "base", and the two non-shared cells are the "roofs". Because the base column can only hold the digit once, at least one of the two roofs must hold the digit — so any cell that sees both roofs (via row, column, or box) cannot hold the digit and is eliminated. The mirror works for two columns sharing one row.',
+    'Pick a number and find two rows where it can only go in exactly two cells each. If one cell from each row lies in the same column, that column can hold the number only once — meaning the number must go in one of the two cells not in the shared column. Any cell that can see both of those outer cells cannot hold the number. The same works with two columns sharing a row.',
 };

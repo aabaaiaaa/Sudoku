@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,12 +66,13 @@ export const fixture: TechniqueFixture = {
     { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
     { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 2, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 4 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 4 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 4 }, role: 'pattern-secondary' },
+    { pos: { row: 5, col: 4 }, role: 'pattern-secondary' },
+    { pos: { row: 5, col: 0 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 5, col: 0 }, digits: [1] }],
   },
   description:
-    'Look at one digit in one box. If every candidate of that digit in the box lies on a single row R and a single column C of the box (with cells on each line — otherwise it is a pointing pair), the box must place the digit either somewhere along R or somewhere along C. Now find a strong link for the same digit in another house: a row or column where the digit appears in only two cells, with one of those cells sitting on R or C but in another box. The cell at the intersection of the two ends — the row R or column C of the empty rectangle and the line of the strong link — cannot hold the digit and is eliminated.',
+    'Find a box where one number\'s possible positions all lie on one row and one column within the box. The number must end up somewhere along that row or column. Find another row or column outside the box where the number can only go in exactly two cells, with one of them on the box\'s constrained row or column. The far end of that pair is ruled out: one path places the number on the constrained line, the other places it in the far end\'s own row or column — either way, the far end is blocked.',
 };

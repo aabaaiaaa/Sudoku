@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -59,10 +60,24 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 6 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 3 }, role: 'chain-link' },
+    { pos: { row: 0, col: 6 }, role: 'chain-link' },
+    { pos: { row: 5, col: 3 }, role: 'chain-link' },
+    { pos: { row: 5, col: 6 }, role: 'chain-link' },
+    { pos: { row: 1, col: 3 }, role: 'elimination' },
+    { pos: { row: 1, col: 6 }, role: 'elimination' },
+    { pos: { row: 2, col: 3 }, role: 'elimination' },
+    { pos: { row: 2, col: 6 }, role: 'elimination' },
+    { pos: { row: 3, col: 3 }, role: 'elimination' },
+    { pos: { row: 3, col: 6 }, role: 'elimination' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
+    { pos: { row: 4, col: 6 }, role: 'elimination' },
+    { pos: { row: 6, col: 3 }, role: 'elimination' },
+    { pos: { row: 6, col: 6 }, role: 'elimination' },
+    { pos: { row: 7, col: 3 }, role: 'elimination' },
+    { pos: { row: 7, col: 6 }, role: 'elimination' },
+    { pos: { row: 8, col: 3 }, role: 'elimination' },
+    { pos: { row: 8, col: 6 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -83,5 +98,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Pick a digit. Build its link graph: a "strong" link joins two cells when the digit appears in only those two cells of some house, and a "weak" link joins any two cells of the same house that both have the digit as a candidate. A closed alternating chain of strong/weak links is an X-Cycle. When the alternation is consistent all the way around the loop (continuous), the digit can be removed from any cell outside the cycle that sees both endpoints of any weak link in the cycle. When the alternation breaks at one cell (discontinuous), that cell is forced — two strong links meeting there place the digit there, two weak links meeting there eliminate it.',
+    'Trace a closed loop of cells for one number: each step between consecutive cells is either a must (the number fits only those two cells in a row, column, or box) or a maybe (both cells share a row, column, or box and both still allow the number). Alternate must and maybe steps all the way around the loop. If the loop closes evenly, remove the number from any cell outside the loop that can see both ends of a maybe step. If one cell has two must-steps meeting it, place the number there; if one cell has two maybe-steps meeting it, remove it from that cell.',
 };

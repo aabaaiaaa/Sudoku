@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -57,11 +58,14 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '..1......',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'cluster-a' },
+    { pos: { row: 0, col: 1 }, role: 'cluster-b' },
+    { pos: { row: 2, col: 1 }, role: 'cluster-a' },
+    { pos: { row: 2, col: 3 }, role: 'cluster-b' },
+    { pos: { row: 4, col: 3 }, role: 'cluster-a' },
+    { pos: { row: 0, col: 0 }, role: 'elimination' },
+    { pos: { row: 2, col: 1 }, role: 'elimination' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -71,5 +75,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Pick a digit. Within each house where that digit has only two candidate cells, the two cells form a "strong link" — one of them must be the digit. Two-color the resulting graph by alternating colors along the links. If two same-colored cells ever share a house, that color cannot be the true set (the digit would appear twice in the shared house), so the digit can be eliminated from every cell of that color.',
+    'Pick a number. In each row, column, and box where that number can only go in two cells, those two cells are paired — one of them must hold the number. Follow a chain of these pairs and label the cells in two alternating groups (A and B). If two A-cells end up in the same row, column, or box, they cannot both be right, so remove the number from every A-cell. The same goes if two B-cells clash.',
 };

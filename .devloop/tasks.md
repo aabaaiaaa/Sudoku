@@ -242,35 +242,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/w-wing.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-033: Rewrite simple-coloring fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; one-colour cluster → `cluster-a`; the other → `cluster-b`; eliminations → `elimination`. Catalog `glossaryTerms: ['cluster', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/simple-coloring.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-034: Rewrite x-cycle fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; cycle nodes → `chain-link`; eliminations → `elimination`. Catalog `glossaryTerms: ['chain', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-cycle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-035: Rewrite empty-rectangle fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; box cells → `pattern-primary`; strong link cells → `pattern-secondary`; eliminations → `elimination`. Catalog `glossaryTerms: ['box', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/empty-rectangle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-036: Rewrite skyscraper fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; roof cells → `pattern-primary`; base cells → `pattern-secondary`; eliminations → `elimination`. Catalog `glossaryTerms: ['candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/skyscraper.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-037: Rewrite two-string-kite fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; row tail and col tail cells → `pattern-primary`; row-box and col-box cells (the two cells inside the shared box) → `pattern-secondary`; eliminations → `elimination`. Catalog `glossaryTerms: ['box', 'candidate', 'elimination']`.
