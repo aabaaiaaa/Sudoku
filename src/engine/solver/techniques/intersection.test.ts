@@ -5,9 +5,24 @@ import {
   findIntersection,
   type IntersectionElimination,
 } from './intersection';
-import { createEmptyBoard } from '../../types';
+import { fixture as pointingFixture } from './pointing.fixture';
+import { fixture as boxLineReductionFixture } from './box-line-reduction.fixture';
+import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant } from '../../variants';
-import type { Position } from '../../types';
+import type { Board, Digit, Position } from '../../types';
+
+function parseBoardString(boardStr: string): Board {
+  const cleaned = boardStr.replace(/\s+/g, '');
+  const board = createEmptyBoard(classicVariant);
+  for (let i = 0; i < 81; i++) {
+    const ch = cleaned[i];
+    if (ch === '.' || ch === '0') continue;
+    board.cells[Math.floor(i / 9)][i % 9] = createGivenCell(
+      Number.parseInt(ch, 10) as Digit,
+    );
+  }
+  return board;
+}
 
 function findElim(
   eliminations: IntersectionElimination[],
@@ -202,6 +217,38 @@ describe('findBoxLineReduction', () => {
     const board = createEmptyBoard(classicVariant);
     board.cells[4][4].value = 5;
     expect(findBoxLineReduction(board)).toBeNull();
+  });
+});
+
+describe('findPointing fixture round-trip', () => {
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(pointingFixture.board);
+    const result = findPointing(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('pointing');
+    for (const expected of pointingFixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
+  });
+});
+
+describe('findBoxLineReduction fixture round-trip', () => {
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(boxLineReductionFixture.board);
+    const result = findBoxLineReduction(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('box-line-reduction');
+    for (const expected of boxLineReductionFixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
   });
 });
 

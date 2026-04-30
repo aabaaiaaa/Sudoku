@@ -5,9 +5,26 @@ import {
   findNakedSubset,
   type NakedSubsetElimination,
 } from './naked-subset';
-import { createEmptyBoard } from '../../types';
+import { findNakedQuad } from './naked-quad';
+import { fixture as nakedPairFixture } from './naked-pair.fixture';
+import { fixture as nakedTripleFixture } from './naked-triple.fixture';
+import { fixture as nakedQuadFixture } from './naked-quad.fixture';
+import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant } from '../../variants';
-import type { Position } from '../../types';
+import type { Board, Digit, Position } from '../../types';
+
+function parseBoardString(boardStr: string): Board {
+  const cleaned = boardStr.replace(/\s+/g, '');
+  const board = createEmptyBoard(classicVariant);
+  for (let i = 0; i < 81; i++) {
+    const ch = cleaned[i];
+    if (ch === '.' || ch === '0') continue;
+    board.cells[Math.floor(i / 9)][i % 9] = createGivenCell(
+      Number.parseInt(ch, 10) as Digit,
+    );
+  }
+  return board;
+}
 
 function findElim(
   eliminations: NakedSubsetElimination[],
@@ -116,6 +133,54 @@ describe('findNakedTriple', () => {
 
     expect(result!.explanation).toContain('naked triple');
     expect(result!.explanation).toContain('row 1');
+  });
+});
+
+describe('naked-pair fixture round-trip', () => {
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(nakedPairFixture.board);
+    const result = findNakedPair(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('naked-pair');
+    for (const expected of nakedPairFixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
+  });
+});
+
+describe('naked-triple fixture round-trip', () => {
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(nakedTripleFixture.board);
+    const result = findNakedTriple(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('naked-triple');
+    for (const expected of nakedTripleFixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
+  });
+});
+
+describe('naked-quad fixture round-trip', () => {
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(nakedQuadFixture.board);
+    const result = findNakedQuad(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('naked-quad');
+    for (const expected of nakedQuadFixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
   });
 });
 

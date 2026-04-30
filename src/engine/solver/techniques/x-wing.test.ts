@@ -1,8 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { findXWing, type XWingElimination } from './x-wing';
-import { createEmptyBoard } from '../../types';
+import { fixture } from './x-wing.fixture';
+import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant } from '../../variants';
-import type { Position } from '../../types';
+import type { Board, Digit, Position } from '../../types';
+
+function parseBoardString(boardStr: string): Board {
+  const cleaned = boardStr.replace(/\s+/g, '');
+  const board = createEmptyBoard(classicVariant);
+  for (let i = 0; i < 81; i++) {
+    const ch = cleaned[i];
+    if (ch === '.' || ch === '0') continue;
+    board.cells[Math.floor(i / 9)][i % 9] = createGivenCell(
+      Number.parseInt(ch, 10) as Digit,
+    );
+  }
+  return board;
+}
 
 function findElim(
   eliminations: XWingElimination[],
@@ -127,5 +141,19 @@ describe('findXWing', () => {
       if (row5[c] !== 0) board.cells[5][c].value = row5[c];
     }
     expect(findXWing(board)).toBeNull();
+  });
+
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(fixture.board);
+    const result = findXWing(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('x-wing');
+    for (const expected of fixture.deduction.eliminations!) {
+      const got = result!.eliminations.find(
+        (e) => e.cell.row === expected.pos.row && e.cell.col === expected.pos.col,
+      );
+      expect(got, `expected elimination at (${expected.pos.row},${expected.pos.col})`).toBeDefined();
+      expect(got!.digits).toEqual(expected.digits);
+    }
   });
 });

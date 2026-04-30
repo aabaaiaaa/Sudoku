@@ -1,7 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { findNakedSingle } from './naked-single';
-import { createEmptyBoard } from '../../types';
+import { fixture } from './naked-single.fixture';
+import { createEmptyBoard, createGivenCell } from '../../types';
 import { classicVariant, miniVariant } from '../../variants';
+import type { Board, Digit } from '../../types';
+
+function parseBoardString(boardStr: string): Board {
+  const cleaned = boardStr.replace(/\s+/g, '');
+  const board = createEmptyBoard(classicVariant);
+  for (let i = 0; i < 81; i++) {
+    const ch = cleaned[i];
+    if (ch === '.' || ch === '0') continue;
+    board.cells[Math.floor(i / 9)][i % 9] = createGivenCell(
+      Number.parseInt(ch, 10) as Digit,
+    );
+  }
+  return board;
+}
 
 describe('findNakedSingle', () => {
   it('returns null for an empty classic board', () => {
@@ -73,5 +88,14 @@ describe('findNakedSingle', () => {
     expect(result!.cell).toEqual({ row: 0, col: 0 });
     expect(result!.digit).toBe(4);
     expect(result!.explanation).toBe('R1C1 has only 4 as a candidate');
+  });
+
+  it('round-trips its fixture', () => {
+    const board = parseBoardString(fixture.board);
+    const result = findNakedSingle(board);
+    expect(result).not.toBeNull();
+    expect(result!.technique).toBe('naked-single');
+    expect(result!.cell).toEqual(fixture.deduction.placement!.pos);
+    expect(result!.digit).toBe(fixture.deduction.placement!.digit);
   });
 });

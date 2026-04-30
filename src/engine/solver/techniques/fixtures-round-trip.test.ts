@@ -10,10 +10,8 @@
  *      in the JSON-serialised result — a lightweight guard that the returned
  *      result at least references the documented cell(s).
  *
- * Two fixtures are known to be unworkable with this generic check and are
+ * One fixture is known to be unworkable with this generic check and is
  * explicitly skipped:
- *   - hidden-single: the fixture board is designed for illustration and the
- *     finder may not fire on it as a standalone step.
  *   - 3d-medusa: the result shape uses `cell` for eliminations rather than
  *     `pos`, which the generic JSON position check cannot match reliably.
  */
@@ -29,7 +27,7 @@ import type { Board, Digit, Variant } from '../../types';
 // Known-broken fixtures — skipped rather than removed so the skip list is
 // visible and easy to re-enable once the underlying issues are resolved.
 // ---------------------------------------------------------------------------
-const KNOWN_BROKEN = new Set<string>(['hidden-single', '3d-medusa']);
+const KNOWN_BROKEN = new Set<string>(['3d-medusa']);
 
 // ---------------------------------------------------------------------------
 // Board parser

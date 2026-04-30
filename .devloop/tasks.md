@@ -88,35 +88,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-single.test.ts` — the new case passes.
 
 ### TASK-011: Fix missing fixture import in `naked-single.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-009
 - **Description**: Add fixture import and round-trip case to `naked-single.test.ts` mirroring TASK-010.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts`.
 
 ### TASK-012: Fix missing fixture import in `x-wing.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-009
 - **Description**: Add fixture import and round-trip case to `x-wing.test.ts` mirroring TASK-010.
 - **Verification**: `npx vitest run src/engine/solver/techniques/x-wing.test.ts`.
 
 ### TASK-013: Fix missing fixture imports in `intersection.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-009
 - **Description**: Add `import { fixture as pointingFixture } from './pointing.fixture';` and `import { fixture as boxLineReductionFixture } from './box-line-reduction.fixture';` plus round-trip cases for both techniques in `src/engine/solver/techniques/intersection.test.ts`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/intersection.test.ts`.
 
 ### TASK-014: Fix missing fixture imports in `naked-subset.test.ts`
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-009
 - **Description**: Add fixture imports for `naked-pair`, `naked-triple`, and `naked-quad` in `src/engine/solver/techniques/naked-subset.test.ts` plus a round-trip case per technique.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts`.
 
 ### TASK-015: Replace hidden-single fixture with a valid construction
-- **Status**: pending
+- **Status**: done
 - **Type**: fix
 - **Dependencies**: TASK-009
 - **Description**: Rewrite the board in `src/engine/solver/techniques/hidden-single.fixture.ts` so digit 9 occupies positions that block each row and column entering box 0 (top-left 3×3) without duplicating digit 9 in any row, column, or box. One valid layout: 9 at (1,4) blocking row 1 from box 0; 9 at (2,7) blocking row 2; 9 at (3,1) blocking column 1; 9 at (4,2) blocking column 2 — verify each pair sits in distinct rows, columns, and boxes from the others before committing. Update the fixture's docblock to match. Remove `'hidden-single'` from `KNOWN_BAD_FIXTURES` in `fixtures-round-trip.test.ts`. Description rewrite happens in TASK-018.

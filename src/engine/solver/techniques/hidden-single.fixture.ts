@@ -20,27 +20,29 @@ export interface TechniqueFixture {
 /**
  * Hidden Single fixture (Classic 9x9).
  *
- * Digit 9 is placed elsewhere on the grid so that within box 0 the only cell
- * that can still hold 9 is (0,0):
- *  - 9 at (1,3) blocks 9 from row 1 inside box 0.
- *  - 9 at (2,4) blocks 9 from row 2 inside box 0.
- *  - 9 at (3,1) blocks 9 from column 1 inside box 0.
- *  - 9 at (4,2) blocks 9 from column 2 inside box 0.
+ * Digit 9 is placed at four positions in distinct rows, columns, and boxes,
+ * eliminating it from all box-0 cells except (0,0):
+ *  - 9 at (1,4): blocks row 1 inside box 0; fills box 1, so (0,3)-(0,5)
+ *    in row 0 also lose digit 9.
+ *  - 9 at (2,7): blocks row 2 inside box 0; fills box 2, so (0,6)-(0,8)
+ *    in row 0 also lose digit 9.
+ *  - 9 at (4,1): blocks column 1, so (0,1) loses digit 9.
+ *  - 9 at (7,2): blocks column 2, so (0,2) loses digit 9.
  *
- * Cell (0,0) still has many candidates overall, but it is the only cell of
- * box 0 that can hold 9 — a hidden single.
+ * In row 0, digit 9 has exactly one candidate: (0,0). The finder returns a
+ * row hidden single — (0,0) is the only cell in row 1 that can be 9.
  */
 export const fixture: TechniqueFixture = {
   variant: 'classic',
   board:
     '.........' +
-    '...9.....' +
     '....9....' +
+    '.......9.' +
+    '.........' +
     '.9.......' +
+    '.........' +
+    '.........' +
     '..9......' +
-    '.........' +
-    '.........' +
-    '.........' +
     '.........',
   roles: [
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
