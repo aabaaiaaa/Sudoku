@@ -170,8 +170,7 @@ describe('findGroupedXCycle', () => {
       expect(findElim(result!.eliminations, { row: r, col: c })).toBeUndefined();
     }
 
-    expect(result!.explanation).toContain('Grouped X-Cycle');
-    expect(result!.explanation).toContain('continuous');
+    expect(result!.explanation).toContain('complete loop');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -194,7 +193,7 @@ describe('findGroupedXCycle', () => {
       }
     }
     const fixtureCellSet = new Set(
-      fixture.patternCells.map((p) => `${p.row},${p.col}`),
+      fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos).map((p) => `${p.row},${p.col}`),
     );
     expect(finderCellSet).toEqual(fixtureCellSet);
   });

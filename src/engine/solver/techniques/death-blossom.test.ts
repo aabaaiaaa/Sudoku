@@ -146,7 +146,7 @@ describe('findDeathBlossom', () => {
       result!.stem,
       ...result!.petals.flatMap((p) => p.als.cells),
     ].sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixturePattern = [...fixture.patternCells].sort(
+    const fixturePattern = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderPattern).toEqual(fixturePattern);

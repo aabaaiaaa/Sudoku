@@ -121,11 +121,7 @@ describe('findSimpleColoring', () => {
     expect(findElim(result!.eliminations, { row: 0, col: 1 })).toBeUndefined();
     expect(findElim(result!.eliminations, { row: 2, col: 3 })).toBeUndefined();
 
-    expect(result!.explanation).toContain('Simple coloring');
-    expect(result!.explanation).toContain('box 1');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R3C2');
-    expect(result!.explanation).toContain('R5C4');
+    expect(result!.explanation).toContain('alternating groups');
   });
 
   it('fixture deduction matches the finder output', () => {

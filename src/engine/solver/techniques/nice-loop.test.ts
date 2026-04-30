@@ -140,7 +140,7 @@ describe('findNiceLoop', () => {
     const loopCells = new Set(
       result!.nodes.map((n) => `${n.pos.row},${n.pos.col}`),
     );
-    for (const cell of fixture.patternCells) {
+    for (const cell of fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)) {
       expect(loopCells.has(`${cell.row},${cell.col}`)).toBe(true);
     }
   });
@@ -223,7 +223,7 @@ describe('findNiceLoop', () => {
     const loopCells = new Set(
       result!.nodes.map((n) => `${n.pos.row},${n.pos.col}`),
     );
-    for (const cell of discontinuousFixture.patternCells) {
+    for (const cell of discontinuousFixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)) {
       expect(loopCells.has(`${cell.row},${cell.col}`)).toBe(true);
     }
   });

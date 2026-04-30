@@ -118,7 +118,7 @@ export function findHiddenSingle(board: Board): HiddenSingleResult | null {
           digit,
           house: house.house,
           houseIndex: house.houseIndex,
-          explanation: `R${foundCell.row + 1}C${foundCell.col + 1} is the only cell in ${houseLabel(house.house, house.houseIndex)} that can be ${digit}`,
+          explanation: `In ${houseLabel(house.house, house.houseIndex)}, the highlighted cell is the only place ${digit} can go. Place ${digit} there.`,
         };
       }
     }

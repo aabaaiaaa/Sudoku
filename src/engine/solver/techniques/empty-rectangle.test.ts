@@ -119,9 +119,7 @@ describe('findEmptyRectangle', () => {
     expect(elim).toBeDefined();
     expect(elim!.digits).toEqual([1]);
 
-    expect(result!.explanation).toContain('Empty rectangle');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R6C1');
+    expect(result!.explanation).toContain('stepping stone');
   });
 
   it('fixture deduction matches the finder output', () => {

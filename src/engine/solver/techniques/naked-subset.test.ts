@@ -86,8 +86,7 @@ describe('findNakedPair', () => {
     expect(findElim(result!.eliminations, { row: 0, col: 0 })).toBeUndefined();
     expect(findElim(result!.eliminations, { row: 0, col: 1 })).toBeUndefined();
 
-    expect(result!.explanation).toContain('naked pair');
-    expect(result!.explanation).toContain('row 1');
+    expect(result!.explanation).toContain('same two numbers');
   });
 
   it('returns null when no naked pair yields eliminations', () => {
@@ -131,8 +130,7 @@ describe('findNakedTriple', () => {
       expect(elim!.digits).toEqual([1, 2, 3]);
     }
 
-    expect(result!.explanation).toContain('naked triple');
-    expect(result!.explanation).toContain('row 1');
+    expect(result!.explanation).toContain('same set of three');
   });
 });
 

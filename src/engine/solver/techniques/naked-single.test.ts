@@ -41,7 +41,8 @@ describe('findNakedSingle', () => {
     expect(result!.technique).toBe('naked-single');
     expect(result!.cell).toEqual({ row: 0, col: 0 });
     expect(result!.digit).toBe(9);
-    expect(result!.explanation).toBe('R1C1 has only 9 as a candidate');
+    expect(result!.explanation).toMatch(/place 9 in the highlighted cell/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('returns the first naked single in row-major order', () => {
@@ -87,7 +88,8 @@ describe('findNakedSingle', () => {
     expect(result).not.toBeNull();
     expect(result!.cell).toEqual({ row: 0, col: 0 });
     expect(result!.digit).toBe(4);
-    expect(result!.explanation).toBe('R1C1 has only 4 as a candidate');
+    expect(result!.explanation).toMatch(/place 4 in the highlighted cell/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('round-trips its fixture', () => {

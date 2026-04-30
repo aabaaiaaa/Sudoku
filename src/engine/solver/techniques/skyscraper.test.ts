@@ -121,9 +121,7 @@ describe('findSkyscraper', () => {
       expect(elim!.digits).toEqual([1]);
     }
 
-    expect(result!.explanation).toContain('Skyscraper');
-    expect(result!.explanation).toContain('R1C2');
-    expect(result!.explanation).toContain('R9C3');
+    expect(result!.explanation).toContain('tops of a tower');
   });
 
   it('fixture deduction matches the finder output', () => {

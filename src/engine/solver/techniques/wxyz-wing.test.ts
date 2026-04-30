@@ -112,8 +112,7 @@ describe('findWxyzWing', () => {
     expect(findElim(result!.eliminations, { row: 1, col: 2 })).toBeUndefined();
     expect(findElim(result!.eliminations, { row: 2, col: 1 })).toBeUndefined();
 
-    expect(result!.explanation).toContain('WXYZ-wing');
-    expect(result!.explanation).toContain('R1C1');
+    expect(result!.explanation).toContain('four possible numbers');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -132,7 +131,7 @@ describe('findWxyzWing', () => {
       result!.hinge,
       ...result!.pincers,
     ].sort((a, b) => (a.row - b.row) || (a.col - b.col));
-    const fixtureCells = [...fixture.patternCells].sort(
+    const fixtureCells = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
       (a, b) => (a.row - b.row) || (a.col - b.col),
     );
     expect(finderCells).toEqual(fixtureCells);

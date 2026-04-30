@@ -129,7 +129,7 @@ describe('findUniqueRectangle', () => {
       const result = findUniqueRectangle(board);
       expect(result).not.toBeNull();
       const finderCorners = sortPositions([...result!.corners]);
-      const fixtureCells = sortPositions(fixtureType1.patternCells);
+      const fixtureCells = sortPositions(fixtureType1.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos));
       expect(finderCorners).toEqual(fixtureCells);
     });
   });

@@ -134,10 +134,7 @@ describe('findMultiColoring', () => {
     expect(findElim(result!.eliminations, { row: 0, col: 6 })).toBeUndefined();
     expect(findElim(result!.eliminations, { row: 5, col: 6 })).toBeUndefined();
 
-    expect(result!.explanation).toContain('Multi-coloring');
-    expect(result!.explanation).toContain('column 4');
-    expect(result!.explanation).toContain('R1C4');
-    expect(result!.explanation).toContain('R6C4');
+    expect(result!.explanation).toContain('connected side');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -162,7 +159,7 @@ describe('findMultiColoring', () => {
       ...result!.cluster2A,
       ...result!.cluster2B,
     ].sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixturePattern = [...fixture.patternCells].sort(
+    const fixturePattern = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderPattern).toEqual(fixturePattern);

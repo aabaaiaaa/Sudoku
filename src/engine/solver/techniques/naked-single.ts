@@ -30,7 +30,7 @@ export function findNakedSingle(board: Board): NakedSingleResult | null {
           technique: 'naked-single',
           cell: { row: r, col: c },
           digit,
-          explanation: `R${r + 1}C${c + 1} has only ${digit} as a candidate`,
+          explanation: `The highlighted cell can only be ${digit} — every other number is already used by a cell in the same row, column, or box. Place ${digit} in the highlighted cell.`,
         };
       }
     }

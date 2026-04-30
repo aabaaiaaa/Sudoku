@@ -131,7 +131,7 @@ describe('findXyChain', () => {
     const finderCells = result!.chain
       .map((c) => c.pos)
       .sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixtureCells = [...fixture.patternCells].sort(
+    const fixtureCells = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderCells).toEqual(fixtureCells);

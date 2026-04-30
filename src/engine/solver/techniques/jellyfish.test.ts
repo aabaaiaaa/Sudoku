@@ -77,7 +77,7 @@ describe('findJellyfish', () => {
     expect(result!.orientation).toBe('rows');
     expect(result!.baseHouses).toEqual([0, 2, 6, 8]);
     expect(result!.coverHouses).toEqual([0, 2, 6, 8]);
-    expect(result!.cells).toEqual(fixture.patternCells);
+    expect(result!.cells).toEqual(fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos));
 
     // Digit 1 should be eliminated from columns 0, 2, 6, 8 in every row outside
     // the four base rows.

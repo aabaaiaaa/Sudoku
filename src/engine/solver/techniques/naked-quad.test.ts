@@ -77,7 +77,7 @@ describe('findNakedQuad', () => {
     expect(result!.house).toBe('row');
     expect(result!.houseIndex).toBe(0);
     expect(result!.digits).toEqual([1, 2, 3, 4]);
-    expect(result!.cells).toEqual(fixture.patternCells);
+    expect(result!.cells).toEqual(fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos));
 
     // Every other empty cell in row 0 should have {1,2,3,4} eliminated.
     for (let c = 4; c < 9; c++) {
@@ -87,7 +87,7 @@ describe('findNakedQuad', () => {
     }
 
     // The quad cells themselves are not listed as eliminations.
-    for (const pos of fixture.patternCells) {
+    for (const pos of fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)) {
       expect(findElim(result!.eliminations, pos)).toBeUndefined();
     }
 

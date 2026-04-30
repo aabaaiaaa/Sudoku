@@ -114,10 +114,7 @@ describe('findWWing', () => {
     expect(findElim(result!.eliminations, { row: 0, col: 4 })).toBeUndefined();
     expect(findElim(result!.eliminations, { row: 2, col: 4 })).toBeUndefined();
 
-    expect(result!.explanation).toContain('W-wing');
-    expect(result!.explanation).toContain('R1C1');
-    expect(result!.explanation).toContain('R3C9');
-    expect(result!.explanation).toContain('column 5');
+    expect(result!.explanation).toContain('two places in a shared');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -135,7 +132,7 @@ describe('findWWing', () => {
     const finderCells: Position[] = [...result!.bivalues].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
-    const fixtureCells = [...fixture.patternCells].sort(
+    const fixtureCells = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderCells).toEqual(fixtureCells);

@@ -72,7 +72,7 @@ describe('findSwordfish', () => {
     expect(result!.orientation).toBe('rows');
     expect(result!.baseHouses).toEqual([0, 4, 8]);
     expect(result!.coverHouses).toEqual([0, 4, 8]);
-    expect(result!.cells).toEqual(fixture.patternCells);
+    expect(result!.cells).toEqual(fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos));
 
     // Digit 1 should be eliminated from columns 0, 4, 8 in every row outside
     // the three base rows.

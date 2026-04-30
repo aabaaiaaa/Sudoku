@@ -91,11 +91,7 @@ describe('findTwoStringKite', () => {
     expect(elim).toBeDefined();
     expect(elim!.digits).toEqual([1]);
 
-    expect(result!.explanation).toContain('Two-String Kite');
-    expect(result!.explanation).toContain('R1C5');
-    expect(result!.explanation).toContain('R2C6');
-    expect(result!.explanation).toContain('R1C8');
-    expect(result!.explanation).toContain('R8C6');
+    expect(result!.explanation).toContain('both tails');
   });
 
   it('fixture deduction matches the finder output', () => {

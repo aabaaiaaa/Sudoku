@@ -77,7 +77,6 @@ describe('findXWing', () => {
       }
     }
 
-    expect(result!.explanation).toContain('X-wing');
     expect(result!.explanation).toContain('rows 1 and 6');
     expect(result!.explanation).toContain('columns 4 and 7');
   });

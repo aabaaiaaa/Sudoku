@@ -121,8 +121,7 @@ describe('findXCycle', () => {
       }
     }
 
-    expect(result!.explanation).toContain('X-Cycle');
-    expect(result!.explanation).toContain('continuous');
+    expect(result!.explanation).toContain('complete loop');
   });
 
   it('fixture deduction matches the finder output', () => {

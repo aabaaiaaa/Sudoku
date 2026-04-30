@@ -30,7 +30,8 @@ describe('findHiddenSingle', () => {
     expect(result!.digit).toBe(9);
     expect(result!.house).toBe('row');
     expect(result!.houseIndex).toBe(0);
-    expect(result!.explanation).toBe('R1C1 is the only cell in row 1 that can be 9');
+    expect(result!.explanation).toMatch(/only place 9 can go/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('finds a column hidden single', () => {
@@ -54,7 +55,8 @@ describe('findHiddenSingle', () => {
     expect(result!.digit).toBe(9);
     expect(result!.house).toBe('col');
     expect(result!.houseIndex).toBe(0);
-    expect(result!.explanation).toBe('R1C1 is the only cell in column 1 that can be 9');
+    expect(result!.explanation).toMatch(/only place 9 can go/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('finds a box hidden single', () => {
@@ -80,7 +82,8 @@ describe('findHiddenSingle', () => {
     expect(result!.digit).toBe(9);
     expect(result!.house).toBe('box');
     expect(result!.houseIndex).toBe(0);
-    expect(result!.explanation).toBe('R1C1 is the only cell in box 1 that can be 9');
+    expect(result!.explanation).toMatch(/only place 9 can go/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('returns null when no house has a hidden single', () => {
@@ -103,7 +106,8 @@ describe('findHiddenSingle', () => {
     expect(result!.digit).toBe(4);
     expect(result!.house).toBe('row');
     expect(result!.houseIndex).toBe(0);
-    expect(result!.explanation).toBe('R1C1 is the only cell in row 1 that can be 4');
+    expect(result!.explanation).toMatch(/only place 4 can go/i);
+    expect(result!.explanation).not.toMatch(/[Rr]\d+[Cc]\d+/);
   });
 
   it('round-trips its fixture', () => {
