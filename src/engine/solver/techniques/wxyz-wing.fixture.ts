@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -57,14 +58,15 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 2 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'pivot' },
+    { pos: { row: 0, col: 3 }, role: 'pincer' },
+    { pos: { row: 1, col: 2 }, role: 'pincer' },
+    { pos: { row: 2, col: 1 }, role: 'pincer' },
+    { pos: { row: 0, col: 1 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 0, col: 1 }, digits: [4] }],
   },
   description:
-    'A four-candidate hinge cell {W, X, Y, Z} together with three bivalue pincer cells {W, Z}, {X, Z} and {Y, Z}, where each pincer shares a house with the hinge. One of the four cells must be Z, so Z can be eliminated from every cell that sees all four.',
+    'Look for a cell with four possible numbers (the pivot) and three cells each with only two possible numbers (the pincers), where every pincer shares a row, column, or box with the pivot, and all four cells share one common possible number. No matter which number goes into the pivot, one of the four cells must end up holding that shared number. Remove it from any cell that can see all four cells at once.',
 };

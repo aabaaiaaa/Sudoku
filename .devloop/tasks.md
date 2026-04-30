@@ -312,35 +312,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/als-xz.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-043: Rewrite wxyz-wing fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; hinge → `pivot`; three pincers → `pincer`; eliminations → `elimination`. Catalog `glossaryTerms: ['pivot-pincer', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/wxyz-wing.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-044: Rewrite hidden-rectangle fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; rectangle corners → `corner`; eliminations → `elimination`. Catalog `glossaryTerms: ['candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-rectangle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-045: Rewrite avoidable-rectangle fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description, explaining that the technique works when *you* placed three of the four corners (not part of the original puzzle); placed corners → `pattern-primary`; target corner → `elimination` or `placement` depending on Type 1 vs other types; remaining patterns → `corner`. Avoidable-rectangle has multiple types; if multiple `fixture*` constants exist, handle each like TASK-038. Catalog `glossaryTerms: ['placement', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/avoidable-rectangle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-046: Rewrite nice-loop fixtures (continuous + discontinuous)
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Two fixtures in `nice-loop.fixture.ts`. Rewrite both descriptions; loop nodes → `chain-link`; eliminations or placement → `elimination` / `placement`. Catalog `glossaryTerms: ['chain', 'candidate', 'elimination']`. Sentence cap relaxed to 5.
 - **Verification**: `npx vitest run src/engine/solver/techniques/nice-loop.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-047: Rewrite grouped-x-cycle fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; cycle nodes (each may span multiple cells) → `chain-link`; eliminations → `elimination`. Catalog `glossaryTerms: ['chain', 'candidate', 'elimination']`.

@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -15,7 +16,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -86,21 +87,11 @@ export const fixture: TechniqueFixture = {
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
     { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 3 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 1, col: 3 }, digits: [1] }],
   },
   description:
-    'Spot four cells at the corners of a rectangle that span exactly two ' +
-    'boxes, where three corners are already filled with values you placed ' +
-    'yourself (not original clues). The three placed values use only two ' +
-    'digits {X, Y}: one corner holds one of them, the two off-diagonal ' +
-    'corners both hold the other. The fourth corner is empty and bivalue, ' +
-    'with the digit at its diagonal partner among its two candidates. If ' +
-    'the empty corner took that diagonal-matching digit, the four corners ' +
-    'would form the deadly {X, Y} pattern — and because none of the three ' +
-    'placed corners is a given, the puzzle could swap X↔Y and yield a ' +
-    'second solution. So the empty corner cannot take the diagonal digit ' +
-    'and is forced to its other candidate.',
+    'Look for four cells at the corners of a rectangle spanning two boxes, where you (not the original puzzle) have already filled in three of them using only two numbers. If the empty fourth corner has the same number as its diagonal partner as a possibility, placing that number there would let you swap the two numbers at all four corners and still satisfy every rule — giving the puzzle two answers. Remove that number from the empty corner.',
 };

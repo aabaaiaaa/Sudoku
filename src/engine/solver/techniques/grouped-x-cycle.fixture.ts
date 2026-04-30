@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -70,11 +71,23 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 5 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 2 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 5 }, role: 'pattern-primary' },
+    { pos: { row: 1, col: 0 }, role: 'chain-link' },
+    { pos: { row: 1, col: 1 }, role: 'chain-link' },
+    { pos: { row: 1, col: 5 }, role: 'chain-link' },
+    { pos: { row: 2, col: 2 }, role: 'chain-link' },
+    { pos: { row: 2, col: 5 }, role: 'chain-link' },
+    { pos: { row: 0, col: 0 }, role: 'elimination' },
+    { pos: { row: 0, col: 1 }, role: 'elimination' },
+    { pos: { row: 0, col: 2 }, role: 'elimination' },
+    { pos: { row: 0, col: 3 }, role: 'elimination' },
+    { pos: { row: 0, col: 4 }, role: 'elimination' },
+    { pos: { row: 0, col: 5 }, role: 'elimination' },
+    { pos: { row: 3, col: 5 }, role: 'elimination' },
+    { pos: { row: 4, col: 5 }, role: 'elimination' },
+    { pos: { row: 5, col: 5 }, role: 'elimination' },
+    { pos: { row: 6, col: 5 }, role: 'elimination' },
+    { pos: { row: 7, col: 5 }, role: 'elimination' },
+    { pos: { row: 8, col: 5 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -93,5 +106,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Like X-Cycle, but some "nodes" are groups: 2 or 3 candidates of the same digit aligned within a single box, all in the same row or column. A group acts as one node — saying "the digit is at one of these cells." A strong link joins two nodes when, in some shared house, the digit\'s only candidates are the union of those two nodes; a weak link merely needs both nodes to lie in the same house. Look for an alternating chain of strong/weak links that closes into a loop, with at least one node a group; the same eliminations as X-Cycle then follow — for continuous loops, the digit is removed from any cell outside the loop that sees every cell of both endpoints of any weak link.',
+    'Look for a closed loop of cells for one number, just like in X-Cycle, except some of the loop\'s steps can start or end at a small group of two or three cells in the same box that all share a row or column — when the number must land in exactly that group, treat the whole group as a single stop in the loop. Alternate must and maybe steps around the loop, where a must step involving a group means the number can only be in that group or the single cell it pairs with in a shared row, column, or box. Remove the number from any cell outside the loop that can see every cell in both ends of a maybe step.',
 };

@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -64,10 +65,24 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 6 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 3 }, role: 'chain-link' },
+    { pos: { row: 0, col: 6 }, role: 'chain-link' },
+    { pos: { row: 5, col: 3 }, role: 'chain-link' },
+    { pos: { row: 5, col: 6 }, role: 'chain-link' },
+    { pos: { row: 1, col: 3 }, role: 'elimination' },
+    { pos: { row: 1, col: 6 }, role: 'elimination' },
+    { pos: { row: 2, col: 3 }, role: 'elimination' },
+    { pos: { row: 2, col: 6 }, role: 'elimination' },
+    { pos: { row: 3, col: 3 }, role: 'elimination' },
+    { pos: { row: 3, col: 6 }, role: 'elimination' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
+    { pos: { row: 4, col: 6 }, role: 'elimination' },
+    { pos: { row: 6, col: 3 }, role: 'elimination' },
+    { pos: { row: 6, col: 6 }, role: 'elimination' },
+    { pos: { row: 7, col: 3 }, role: 'elimination' },
+    { pos: { row: 7, col: 6 }, role: 'elimination' },
+    { pos: { row: 8, col: 3 }, role: 'elimination' },
+    { pos: { row: 8, col: 6 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -88,7 +103,7 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Treat each (cell, digit) candidate as a node. A strong link connects two nodes when at least one of them must be true (a bivalue cell between its two digits, or a digit conjugate in some house between its two cells). A weak link connects two nodes when at most one of them can be true (any two digits sharing a cell, or any two cells of a house both holding a digit). A nice loop is a closed cycle whose edges alternate strong/weak. When the alternation wraps cleanly all the way around (continuous), every weak link tightens to "exactly one true": for inter-cell weak links, the digit can be removed from any cell outside the loop seeing both endpoints; for intra-cell weak links, every other candidate of the cell can be removed.',
+    'Look for a closed loop of cells for one number where the steps alternate between must (the number only fits those two cells in a shared row, column, or box) and maybe (both cells share a row, column, or box and both still allow the number), with the alternation holding all the way around. When the loop closes this way, every maybe step becomes exact — exactly one end holds the number. Remove the number from any cell outside the loop that can see both ends of a maybe step.',
 };
 
 /**
@@ -144,13 +159,13 @@ export const discontinuousFixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 2, col: 2 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'elimination' },
+    { pos: { row: 1, col: 1 }, role: 'chain-link' },
+    { pos: { row: 2, col: 2 }, role: 'chain-link' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 0, col: 0 }, digits: [1] }],
   },
   description:
-    'A discontinuous nice loop occurs when the alternation breaks at one node — both endpoints are the same kind. If two strong links meet at a node, that (cell, digit) is forced true: place the digit there. If two weak links meet at a node, the (cell, digit) is forced false: eliminate the digit from that cell. Look for an odd-length alternating chain that returns to its starting node along edges of the same type as the one it set out on.',
+    'Look for a chain of cells for one number that almost forms a closed loop — alternating must and maybe steps — but where the two ends of the chain meet at the same cell with two steps of the same type. If both steps at that cell are must steps, that cell must hold the number — place it there. If both steps are maybe steps, the number cannot go in that cell — remove it.',
 };

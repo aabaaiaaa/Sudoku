@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -64,21 +65,14 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'corner' },
+    { pos: { row: 0, col: 3 }, role: 'corner' },
+    { pos: { row: 1, col: 0 }, role: 'corner' },
+    { pos: { row: 1, col: 3 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 1, col: 3 }, digits: [1] }],
   },
   description:
-    'Spot four cells at the corners of a rectangle that span exactly two ' +
-    'boxes, with all four containing the same two candidates {X, Y}. One ' +
-    'corner is bivalue {X, Y}. In the row and column of the diagonally ' +
-    'opposite corner, look for one of {X, Y} to appear as a candidate only ' +
-    'at the two rectangle cells of that line — a conjugate pair in both ' +
-    'the row and the column. If you find such a digit, it can be ' +
-    'eliminated from the diagonal corner; otherwise the four corners ' +
-    'would collapse into a deadly {X, Y} pattern with two solutions.',
+    'Spot four cells forming a rectangle that spans exactly two boxes, all four sharing two possible numbers, with one corner holding only those two. For the corner diagonally opposite that one, check its row and its column: if one of the two shared numbers can only go in the rectangle cells of both that row and that column, placing it in the diagonal corner would create a pattern with two valid answers — which is not allowed. Remove that number from the diagonal corner.',
 };
