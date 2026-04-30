@@ -123,7 +123,7 @@ describe('generateInWorker', () => {
 
   it('resolves with failure and terminates on a failed message', async () => {
     const fake = new FakeWorker();
-    const handle = generateInWorker('classic', 'Demonic', {
+    const handle = generateInWorker('classic', 'Master', {
       createWorker: () => fake,
     });
 

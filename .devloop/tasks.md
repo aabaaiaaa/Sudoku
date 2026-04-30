@@ -154,7 +154,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `scripts/tier-distribution.summary.json` shows `solvedRate >= 0.05` for every advertised cell; `sampleSize: 50` per cell.
 
 ### TASK-022: Full unit-test sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-012, TASK-016, TASK-017, TASK-018, TASK-019
 - **Description**: Run the full unit suite to catch any tier-name leak in tests not explicitly enumerated above (e.g. fuzz tests, technique-index tests, hint tests). Resolve any failures by updating the test (most failures will be importing a removed literal).

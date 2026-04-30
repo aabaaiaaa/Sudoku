@@ -240,8 +240,8 @@ describe('rate — Classic Master (X-wing required)', () => {
   });
 });
 
-describe('rate — Classic Diabolical (wings/chains required)', () => {
-  it('rates a sparse Diabolical-target puzzle within the canonical tier range', () => {
+describe('rate — Classic Expert (wings/chains required)', () => {
+  it('rates a sparse Expert-target puzzle within the canonical tier range', () => {
     // Sparse derivation from CLASSIC_SOLUTION, slightly fewer clues than
     // the Master fixture. With this many holes the technique chain
     // typically needs at least a wing or single-digit chain to make
@@ -269,9 +269,9 @@ describe('rate — Classic Diabolical (wings/chains required)', () => {
   });
 });
 
-describe('rate — Classic Demonic (advanced inference required)', () => {
-  it('rates a very sparse Demonic-target puzzle within the canonical tier range', () => {
-    // Even sparser than the Diabolical fixture. With this clue count the
+describe('rate — Classic Master (advanced inference required)', () => {
+  it('rates a very sparse Master-target puzzle within the canonical tier range', () => {
+    // Even sparser than the Expert fixture. With this clue count the
     // chain commonly requires advanced inference (UR, XY-Chain, ALS-XZ,
     // multi-coloring) to make progress. With solved-flag semantics, a
     // stalled cascade still reports the hardest fired technique's tier —
