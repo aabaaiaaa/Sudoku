@@ -161,7 +161,7 @@ full unit / type / build / E2E sweeps run as final tasks.
 - **Verification**: `npm test` passes — every suite green.
 
 ### TASK-023: Type-check and production build sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-006, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011
 - **Description**: Run `npx tsc --noEmit` over the whole project and `npm run build` to catch any remaining tier-name compile error or PWA-build regression. The build emits a service-worker bundle that includes the new tier names; verify the bundle compiles cleanly.
