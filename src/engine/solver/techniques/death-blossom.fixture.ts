@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,9 +66,12 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 4 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'pivot' },
+    { pos: { row: 0, col: 2 }, role: 'cluster-a' },
+    { pos: { row: 0, col: 4 }, role: 'cluster-b' },
+    { pos: { row: 0, col: 1 }, role: 'elimination' },
+    { pos: { row: 0, col: 7 }, role: 'elimination' },
+    { pos: { row: 0, col: 8 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -77,5 +81,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'A "stem" cell with N candidates, each linked to an Almost Locked Set ("petal"): every petal cell that holds the linked stem digit must be a peer of the stem. Placing a stem candidate strips it from the matching petal, locking the petal\'s remaining digits in place. If a digit Z, absent from the stem, is a candidate of every petal, then no matter which value the stem takes, Z must end up somewhere in the union of the petals. Any cell outside the stem and the petals that sees every Z-candidate cell across all petals therefore cannot itself be Z.',
+    'Look for a pivot cell that has only two or three possible numbers, where each possible number connects to a different small group of cells that almost fills its row, column, or box (one number short of being complete). No matter which number ends up in the pivot, each connected group gets one of its possible numbers forced out, leaving one particular number — one that does not appear in the pivot itself — trapped somewhere in every group. Then you can remove that trapped number from any cell that can see all the cells holding it across every group.',
 };

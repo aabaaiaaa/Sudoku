@@ -303,18 +303,21 @@ export const TECHNIQUE_CATALOG: Record<TechniqueId, TechniqueCatalogEntry> = {
     tier: 'Nightmare',
     fixture: medusa3DFixture,
     description: medusa3DFixture.description,
+    glossaryTerms: ['cluster', 'chain', 'candidate', 'elimination'],
   },
   'death-blossom': {
     displayName: 'Death Blossom',
     tier: 'Nightmare',
     fixture: deathBlossomFixture,
     description: deathBlossomFixture.description,
+    glossaryTerms: ['pivot-pincer', 'cluster', 'candidate', 'elimination'],
   },
   'forcing-chains': {
     displayName: 'Forcing Chains',
     tier: 'Nightmare',
     fixture: forcingChainsFixture,
     description: forcingChainsFixture.description,
+    glossaryTerms: ['chain', 'candidate', 'elimination', 'placement'],
   },
 };
 

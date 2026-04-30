@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -79,11 +80,21 @@ export const fixture: TechniqueFixture = {
     '6........' +
     '8........',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 1, col: 7 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
+    // Cluster A: 1@R1C1, 2@R1C2, 1@R2C8, 2@R4C1
+    { pos: { row: 0, col: 0 }, role: 'cluster-a' },
+    { pos: { row: 0, col: 1 }, role: 'cluster-a' },
+    { pos: { row: 1, col: 7 }, role: 'cluster-a' },
+    { pos: { row: 3, col: 0 }, role: 'cluster-a' },
+    // Cluster B: 2@R1C1, 1@R1C2, 1@R2C1, 5@R4C1, 2@R2C8
+    { pos: { row: 0, col: 0 }, role: 'cluster-b' },
+    { pos: { row: 0, col: 1 }, role: 'cluster-b' },
+    { pos: { row: 1, col: 0 }, role: 'cluster-b' },
+    { pos: { row: 3, col: 0 }, role: 'cluster-b' },
+    { pos: { row: 1, col: 7 }, role: 'cluster-b' },
+    // Eliminations: cluster B is invalid — remove 2@R1C1, 1@R1C2, 1@R2C1
+    { pos: { row: 0, col: 0 }, role: 'elimination' },
+    { pos: { row: 0, col: 1 }, role: 'elimination' },
+    { pos: { row: 1, col: 0 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -93,5 +104,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Build a graph whose nodes are every candidate (cell, digit) and whose strong links join two nodes that cannot both be false. Two kinds of strong link feed the graph: a bivalue cell joins its two candidates, and a house with exactly two candidates for some digit joins those two cells for that digit. Two-colour each connected component. If a colour ever places the same digit twice in a single house, or two digits inside a single cell, that colour cannot be true and every candidate of that colour is eliminated. Otherwise, any non-cluster candidate that sees both colours of its own digit is also eliminated.',
+    'Look for cells that have only two possible numbers left, and rows, columns, or boxes where a number can only go in two cells. Follow those connections and paint them in two alternating colours. In this example, cluster B ends up claiming the same number in two cells of the same box — which is impossible. So everything cluster B was claiming is wrong, and you can remove those possible numbers from the affected cells.',
 };

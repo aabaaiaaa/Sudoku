@@ -347,21 +347,21 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/grouped-x-cycle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-048: Rewrite death-blossom fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description, replacing graph-theoretic vocabulary; stem → `pivot`; petal ALSes → `pincer` (or `cluster-a/b` if pincer feels misleading at multiple petals — author discretion); eliminations → `elimination`. Catalog `glossaryTerms: ['pivot-pincer', 'cluster', 'candidate', 'elimination']`. Sentence cap relaxed to 5.
 - **Verification**: `npx vitest run src/engine/solver/techniques/death-blossom.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-049: Rewrite forcing-chains fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description, replacing "forcing chain" with plain language ("try each option; if every option leads to the same conclusion, that conclusion is forced"); source cell → `pivot`; eliminations or placement → `elimination` / `placement`. Catalog `glossaryTerms: ['chain', 'candidate', 'elimination', 'placement']`. Sentence cap relaxed to 5.
 - **Verification**: `npx vitest run src/engine/solver/techniques/forcing-chains.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-050: Rewrite medusa-3d fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005, TASK-016
 - **Description**: After TASK-016 fixes the board, rewrite the description in plain English (target wording in requirements §5.3); colourA cells → `cluster-a`; colourB cells → `cluster-b`; eliminations → `elimination`. Catalog `glossaryTerms: ['cluster', 'chain', 'candidate', 'elimination']`. Sentence cap relaxed to 5.
@@ -375,14 +375,14 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/glossary` (visual is not asserted; tests only verify the diagram returns truthy JSX); spot check by booting the dev server and visiting a TechniqueDetail page that lists each term.
 
 ### TASK-052: Rewrite naked-single explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: In `src/engine/solver/techniques/naked-single.ts`, rewrite the `explanation:` template per §5/§8: drop the `R${row+1}C${col+1}` interpolation; produce a sentence at 12-yo reading level. Example target: `Place ${digit} in the highlighted cell — every other number in its row, column, and box is already taken.`
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-single.test.ts`.
 
 ### TASK-053: Rewrite hidden-single explanation template
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-001
 - **Description**: As TASK-052 for `hidden-single.ts`. Drop cell coordinates; produce plain-English sentence.

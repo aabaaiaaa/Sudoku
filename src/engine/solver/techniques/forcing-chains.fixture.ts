@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,10 +66,15 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........' +
     '.........',
-  roles: [{ pos: { row: 0, col: 0 }, role: 'pattern-primary' }],
+  roles: [
+    { pos: { row: 0, col: 0 }, role: 'pivot' },
+    { pos: { row: 0, col: 1 }, role: 'chain-link' },
+    { pos: { row: 0, col: 2 }, role: 'chain-link' },
+    { pos: { row: 0, col: 3 }, role: 'placement' },
+  ],
   deduction: {
     placement: { pos: { row: 0, col: 3 }, digit: 4 },
   },
   description:
-    'A forcing chain picks a cell with several candidates and, for each candidate, follows the logical implications (naked and hidden singles) that flow from placing that digit. If every branch eventually places the same digit at the same target cell, that placement is forced regardless of which candidate the source actually takes; equivalently, if every branch eliminates the same digit from the same cell, that elimination is forced. The technique caps the chain depth so the search stays bounded.',
+    'When a cell has only two possible numbers, try placing each one in turn and follow where the logic leads. If every path ends up forcing the same number into the same cell, that number must go there — no matter which option you started with. Place it in the highlighted cell.',
 };
