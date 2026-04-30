@@ -67,5 +67,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'In a row, column, or box, three digits whose only candidate cells are the same three cells form a hidden triple. Those three cells must hold those three digits between them, so all other candidates can be eliminated from them.',
+    'When three numbers can only fit within the same three cells in a row, column, or box, those three numbers must occupy those three cells. You can remove every other possibility from those three cells.',
 };

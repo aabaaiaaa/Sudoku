@@ -39,4 +39,41 @@ describe('Board', () => {
 
     expect(store.getState().selection).toEqual({ row: 2, col: 7 });
   });
+
+  it('cellHighlights adds data-role to the specified cells', () => {
+    const store = createGameStore('classic');
+    const highlights = [
+      { pos: { row: 0, col: 0 }, role: 'elimination' as const },
+      { pos: { row: 4, col: 4 }, role: 'placement' as const },
+    ];
+    const { getByTestId } = render(<Board store={store} cellHighlights={highlights} />);
+
+    expect(getByTestId('cell-r0-c0').getAttribute('data-role')).toBe('elimination');
+    expect(getByTestId('cell-r4-c4').getAttribute('data-role')).toBe('placement');
+    // Cell not in highlights has no data-role attribute
+    expect(getByTestId('cell-r1-c1').getAttribute('data-role')).toBeNull();
+  });
+
+  it('multiple cells in cellHighlights all receive their data-role attributes', () => {
+    const store = createGameStore('classic');
+    const highlights = [
+      { pos: { row: 0, col: 0 }, role: 'pattern-primary' as const },
+      { pos: { row: 0, col: 1 }, role: 'pattern-secondary' as const },
+      { pos: { row: 1, col: 0 }, role: 'elimination' as const },
+    ];
+    const { getByTestId } = render(<Board store={store} cellHighlights={highlights} />);
+
+    expect(getByTestId('cell-r0-c0').getAttribute('data-role')).toBe('pattern-primary');
+    expect(getByTestId('cell-r0-c1').getAttribute('data-role')).toBe('pattern-secondary');
+    expect(getByTestId('cell-r1-c0').getAttribute('data-role')).toBe('elimination');
+    expect(getByTestId('cell-r2-c2').getAttribute('data-role')).toBeNull();
+  });
+
+  it('omitting cellHighlights leaves no data-role attributes on any cell', () => {
+    const store = createGameStore('classic');
+    const { container } = render(<Board store={store} />);
+
+    const cellsWithRole = container.querySelectorAll('[data-role]');
+    expect(cellsWithRole.length).toBe(0);
+  });
 });

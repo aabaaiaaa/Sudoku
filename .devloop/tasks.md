@@ -50,7 +50,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx tsc --noEmit src/engine/solver/techniques/index.ts`; `npm test -- src/engine/solver/techniques/index.test.ts`.
 
 ### TASK-007: Add `cellHighlights` prop to Board with role precedence
-- **Status**: pending
+- **Status**: done
 - **Type**: feat
 - **Dependencies**: TASK-001, TASK-002
 - **Description**: In `src/components/Board.tsx`, add the optional `cellHighlights?: ReadonlyArray<{ pos: Position; role: CellRole }>` prop. Convert it to a `Map<positionKey, CellRole>` once at render top, pass `roleHighlight` into `CellView`, and extend the `bg` decision tree with the `conflict → selected → role highlight → completed → given → default` precedence from requirements §10. Add a `data-role={roleHighlight}` attribute to each cell button when set. Update `src/components/Board.test.tsx` with cases asserting:
@@ -67,7 +67,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/components/Hint.test.tsx`.
 
 ### TASK-009: Create round-trip self-validation test infrastructure
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-003, TASK-006
 - **Description**: Create `src/engine/solver/techniques/fixtures-round-trip.test.ts` that uses `it.each(Object.entries(TECHNIQUE_CATALOG))` to iterate fixtures and, for each technique:
@@ -179,21 +179,21 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/naked-subset.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-024: Rewrite hidden-pair fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; subset cells → `pattern-primary`; eliminations (the *other* candidates inside the subset cells) → `elimination`. Catalog `glossaryTerms: ['pair', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-pair.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-025: Rewrite hidden-triple fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite as TASK-024. `glossaryTerms: ['pair', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/hidden-triple.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-026: Rewrite hidden-quad fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite as TASK-024. `glossaryTerms: ['pair', 'candidate', 'elimination']`.

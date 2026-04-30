@@ -69,5 +69,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'In a row, column, or box, four digits whose only candidate cells are the same four cells form a hidden quad. Those four cells must hold those four digits between them, so all other candidates can be eliminated from them.',
+    'When four numbers can only fit within the same four cells in a row, column, or box, those four numbers must occupy those four cells. You can remove every other possibility from those four cells.',
 };

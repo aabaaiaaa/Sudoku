@@ -2,10 +2,12 @@ import { useStore } from 'zustand';
 import { gameStore } from '../store/game';
 import type { Cell, Digit, Position, Variant } from '../engine/types';
 import { completedDigits, findConflicts } from '../engine/board';
+import type { CellRole } from '../engine/solver/techniques/roles';
 
 interface BoardProps {
   store?: typeof gameStore;
   onSelectCell?: (pos: Position) => void;
+  cellHighlights?: ReadonlyArray<{ pos: Position; role: CellRole }>;
 }
 
 interface CellViewProps {
@@ -17,6 +19,7 @@ interface CellViewProps {
   conflict: boolean;
   completed: boolean;
   highlighted: boolean;
+  roleHighlight?: CellRole;
   onClick: () => void;
 }
 
@@ -48,19 +51,22 @@ function CellView({
   conflict,
   completed,
   highlighted,
+  roleHighlight,
   onClick,
 }: CellViewProps) {
   const bg = conflict
     ? 'var(--cell-conflict)'
     : selected
       ? 'var(--cell-selected)'
-      : highlighted
-        ? 'var(--cell-highlight)'
-        : completed
-          ? 'var(--cell-completed)'
-          : cell.given
-            ? 'var(--cell-given-bg, var(--cell-bg))'
-            : 'var(--cell-bg)';
+      : roleHighlight
+        ? `var(--role-${roleHighlight})`
+        : highlighted
+          ? 'var(--cell-highlight)'
+          : completed
+            ? 'var(--cell-completed)'
+            : cell.given
+              ? 'var(--cell-given-bg, var(--cell-bg))'
+              : 'var(--cell-bg)';
   const fg = cell.given ? 'var(--cell-given)' : 'var(--accent)';
   const conflictClass = conflict ? 'conflict' : '';
 
@@ -68,6 +74,7 @@ function CellView({
     <button
       type="button"
       data-testid={`cell-r${row}-c${col}`}
+      data-role={roleHighlight}
       onClick={onClick}
       className={`aspect-square w-full flex items-center justify-center select-none ${cell.given ? 'font-bold' : ''} ${conflictClass} focus:outline-none`}
       style={{
@@ -110,7 +117,7 @@ function NotesGrid({ notes, variant }: NotesGridProps) {
   );
 }
 
-export function Board({ store = gameStore, onSelectCell }: BoardProps) {
+export function Board({ store = gameStore, onSelectCell, cellHighlights }: BoardProps) {
   const board = useStore(store, (s) => s.board);
   const selection = useStore(store, (s) => s.selection);
   const highlightedDigit = useStore(store, (s) => s.highlightedDigit);
@@ -122,6 +129,13 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
     findConflicts(board).map((p) => `${p.row},${p.col}`),
   );
   const completed = completedDigits(board);
+
+  const highlightMap = new Map<string, CellRole>();
+  if (cellHighlights) {
+    for (const { pos, role } of cellHighlights) {
+      highlightMap.set(`${pos.row},${pos.col}`, role);
+    }
+  }
 
   const handleSelect = (pos: Position) => {
     if (onSelectCell) {
@@ -167,6 +181,7 @@ export function Board({ store = gameStore, onSelectCell }: BoardProps) {
               conflict={conflictKeys.has(`${r},${c}`)}
               completed={isCompleted}
               highlighted={isHighlighted}
+              roleHighlight={highlightMap.get(`${r},${c}`)}
               onClick={() => handleSelect({ row: r, col: c })}
             />
           );

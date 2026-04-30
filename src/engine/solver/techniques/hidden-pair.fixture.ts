@@ -60,5 +60,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'In a row, column, or box, two digits whose only candidate cells are the same two cells form a hidden pair. Those two cells must hold those two digits between them, so all other candidates can be eliminated from them.',
+    'When two numbers can only fit in the same two cells within a row, column, or box — even though those cells still show other possibilities — those two numbers must go in those two cells. You can remove every other possibility from those two cells.',
 };

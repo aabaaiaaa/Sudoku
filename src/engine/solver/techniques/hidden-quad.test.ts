@@ -84,11 +84,12 @@ describe('findHiddenQuad', () => {
     expect(result!.house).toBe('row');
     expect(result!.houseIndex).toBe(0);
     expect(result!.digits).toEqual([1, 2, 3, 4]);
-    expect(result!.cells).toEqual(fixture.patternCells);
+    expect(result!.cells).toEqual(fixture.roles.map(r => r.pos));
 
     // Each quad cell loses every candidate other than 1, 2, 3 and 4.
     const expectedRemoved: Digit[] = [5, 6, 7, 8, 9];
-    for (const pos of fixture.patternCells) {
+    const patternPos = fixture.roles.map(r => r.pos);
+    for (const pos of patternPos) {
       const elim = findElim(result!.eliminations, pos);
       expect(elim, `expected eliminations at ${pos.row},${pos.col}`).toBeDefined();
       expect(elim!.digits).toEqual(expectedRemoved);

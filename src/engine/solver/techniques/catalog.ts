@@ -128,18 +128,21 @@ export const TECHNIQUE_CATALOG: Record<TechniqueId, TechniqueCatalogEntry> = {
     tier: 'Hard',
     fixture: hiddenPairFixture,
     description: hiddenPairFixture.description,
+    glossaryTerms: ['pair', 'candidate', 'elimination'],
   },
   'hidden-triple': {
     displayName: 'Hidden Triple',
     tier: 'Hard',
     fixture: hiddenTripleFixture,
     description: hiddenTripleFixture.description,
+    glossaryTerms: ['pair', 'candidate', 'elimination'],
   },
   'hidden-quad': {
     displayName: 'Hidden Quad',
     tier: 'Hard',
     fixture: hiddenQuadFixture,
     description: hiddenQuadFixture.description,
+    glossaryTerms: ['pair', 'candidate', 'elimination'],
   },
   'x-wing': {
     displayName: 'X-Wing',
