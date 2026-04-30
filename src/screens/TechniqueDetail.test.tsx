@@ -42,10 +42,14 @@ describe('TechniqueDetail screen', () => {
     fireEvent.click(getByTestId('walkthrough-highlight'));
     expect(root.getAttribute('data-walkthrough-step')).toBe('pattern');
     expect(queryByTestId('walkthrough-pattern-cells')).not.toBeNull();
+    expect(queryByTestId('walkthrough-pattern-cells')!.textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+    expect(queryByTestId('walkthrough-pattern-cells')!.textContent).toMatch(/highlighted cells/i);
 
     fireEvent.click(getByTestId('walkthrough-show-deduction'));
     expect(root.getAttribute('data-walkthrough-step')).toBe('deduction');
     expect(queryByTestId('walkthrough-deduction')).not.toBeNull();
+    expect(queryByTestId('walkthrough-deduction')!.textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+    expect(queryByTestId('walkthrough-deduction')!.textContent).toMatch(/highlighted cell/i);
 
     fireEvent.click(getByTestId('walkthrough-apply'));
     expect(root.getAttribute('data-walkthrough-step')).toBe('applied');
@@ -111,6 +115,45 @@ describe('TechniqueDetail screen', () => {
 
     expect(getByText('Naked Single')).toBeTruthy();
     expect(queryByTestId('walkthrough-highlight')).not.toBeNull();
+  });
+
+  it('walkthrough panel never contains r1c1-style cell coordinates', () => {
+    const { getByTestId } = render(<TechniqueDetail id="hidden-pair" />);
+
+    const panel = getByTestId('walkthrough-panel');
+
+    fireEvent.click(getByTestId('walkthrough-highlight'));
+    expect(panel.textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+
+    fireEvent.click(getByTestId('walkthrough-show-deduction'));
+    expect(panel.textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+
+    fireEvent.click(getByTestId('walkthrough-apply'));
+    expect(panel.textContent).not.toMatch(/[Rr]\d+[Cc]\d+/);
+  });
+
+  it('renders a role legend for xy-wing with pivot, pincer, and elimination roles', () => {
+    const { getByTestId } = render(<TechniqueDetail id="xy-wing" />);
+
+    const legend = getByTestId('role-legend');
+    expect(legend).toBeTruthy();
+    expect(legend.textContent).toContain('Centre cell');
+    expect(legend.textContent).toContain('Side cell');
+    expect(legend.textContent).toContain('Cells affected');
+  });
+
+  it('renders the Terms used here section for techniques with glossaryTerms', () => {
+    const { getByTestId, queryByTestId } = render(
+      <TechniqueDetail id="naked-single" />,
+    );
+
+    const section = getByTestId('glossary-section');
+    expect(section).toBeTruthy();
+    expect(section.textContent).toContain('Terms used here');
+    expect(queryByTestId('glossary-list')).toBeNull();
+
+    fireEvent.click(getByTestId('glossary-toggle'));
+    expect(queryByTestId('glossary-list')).not.toBeNull();
   });
 
   it('invokes onBack when the back button is clicked', () => {

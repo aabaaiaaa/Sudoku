@@ -3,6 +3,8 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { createGameStore, type GeneratorFactory } from '../store/game';
 import type { GeneratorHandle } from '../workers/generator-client';
 import { Game } from './Game';
+import { createEmptyBoard } from '../engine/types';
+import { classicVariant } from '../engine/variants';
 
 /**
  * Generator factory whose handle never resolves. Lets tests hold the store's
@@ -16,6 +18,19 @@ const pendingGenerator: GeneratorFactory = () => {
   };
   return handle;
 };
+
+function makeNakedSingleBoard() {
+  const board = createEmptyBoard(classicVariant);
+  board.cells[0][1].value = 1;
+  board.cells[0][2].value = 2;
+  board.cells[1][0].value = 3;
+  board.cells[2][0].value = 4;
+  board.cells[1][1].value = 5;
+  board.cells[1][2].value = 6;
+  board.cells[2][1].value = 7;
+  board.cells[2][2].value = 8;
+  return board;
+}
 
 describe('Game screen', () => {
   beforeEach(() => {
@@ -62,6 +77,28 @@ describe('Game screen', () => {
     // Clicking back with no handler is a no-op — should not throw.
     fireEvent.click(getByTestId('game-back'));
     expect(getByTestId('sudoku-board')).toBeTruthy();
+  });
+
+  it('clicking hint highlights cells with data-role and clears them when the board changes', () => {
+    const store = createGameStore('classic', { generator: pendingGenerator });
+    act(() => {
+      store.setState({ board: makeNakedSingleBoard() });
+    });
+
+    const { getByTestId } = render(<Game store={store} />);
+
+    // Before hint: no data-role attribute on cell (0,0)
+    expect(getByTestId('cell-r0-c0').getAttribute('data-role')).toBeNull();
+
+    // Click hint — the naked single at (0,0) produces a 'placement' role
+    fireEvent.click(getByTestId('hint-button'));
+    expect(getByTestId('cell-r0-c0').getAttribute('data-role')).toBe('placement');
+
+    // Mutating the board clears the hint highlights
+    act(() => {
+      store.setState({ board: makeNakedSingleBoard() });
+    });
+    expect(getByTestId('cell-r0-c0').getAttribute('data-role')).toBeNull();
   });
 
   describe('loading overlay', () => {

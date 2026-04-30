@@ -527,7 +527,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/screens/TechniqueDetail.test.tsx`.
 
 ### TASK-073: Update `TechniqueDetail.test.tsx` for new walkthrough copy and legend
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-072
 - **Description**: Update tests in `src/screens/TechniqueDetail.test.tsx`:
@@ -539,7 +539,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/screens/TechniqueDetail.test.tsx`.
 
 ### TASK-074: Update `Game.test.tsx` for hint-driven role highlighting
-- **Status**: pending
+- **Status**: done
 - **Type**: test
 - **Dependencies**: TASK-070
 - **Description**: In `src/screens/Game.test.tsx`, add a test case that:
@@ -559,7 +559,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/catalog.test.ts`.
 
 ### TASK-076: Bump `package.json` to `0.7.0`
-- **Status**: pending
+- **Status**: done
 - **Type**: chore
 - **Dependencies**: TASK-001
 - **Description**: Set `version: '0.7.0'` in `package.json`. Update `package-lock.json` if the version is mirrored there.
