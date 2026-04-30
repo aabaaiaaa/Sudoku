@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -58,10 +59,12 @@ export const fixture: TechniqueFixture = {
     '.9.....1.' +
     '........6',
   roles: [
-    { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 1 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 7 }, role: 'pattern-primary' },
-    { pos: { row: 8, col: 7 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 1 }, role: 'chain-link' },
+    { pos: { row: 3, col: 1 }, role: 'chain-link' },
+    { pos: { row: 3, col: 7 }, role: 'chain-link' },
+    { pos: { row: 8, col: 7 }, role: 'chain-link' },
+    { pos: { row: 0, col: 7 }, role: 'elimination' },
+    { pos: { row: 8, col: 1 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -70,5 +73,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'A chain of bivalue cells where consecutive cells share a house and a candidate, and the chain starts and ends with the same digit Z. Walking the chain, each step "consumes" one candidate of the previous cell and "produces" the other; whichever digit the first cell takes, the chain forces the last cell to Z (or the first cell is itself Z). One endpoint must therefore be Z, so Z can be eliminated from any cell that sees both endpoints.',
+    'Find a chain of cells where each one has only two possible numbers and shares a row, column, or box with the next step in the chain. If the same number appears at both ends of the chain, one of the two end cells must hold it — no matter how the chain resolves, one endpoint is forced to that number. Remove that number from any empty cell that can see both ends of the chain.',
 };

@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,10 +66,17 @@ export const fixture: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 0, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 6 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 5, col: 6 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 3 }, role: 'cluster-a' },
+    { pos: { row: 5, col: 3 }, role: 'cluster-a' },
+    { pos: { row: 0, col: 6 }, role: 'cluster-b' },
+    { pos: { row: 5, col: 6 }, role: 'cluster-b' },
+    { pos: { row: 1, col: 6 }, role: 'elimination' },
+    { pos: { row: 2, col: 6 }, role: 'elimination' },
+    { pos: { row: 3, col: 6 }, role: 'elimination' },
+    { pos: { row: 4, col: 6 }, role: 'elimination' },
+    { pos: { row: 6, col: 6 }, role: 'elimination' },
+    { pos: { row: 7, col: 6 }, role: 'elimination' },
+    { pos: { row: 8, col: 6 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -82,5 +90,5 @@ export const fixture: TechniqueFixture = {
     ],
   },
   description:
-    'Pick a digit and build its strong-link graph: two cells share an edge whenever they are the only candidates for that digit in some house. Two-colour each connected component (cluster). If a cell of one colour in one cluster shares a house with a cell of one colour in another cluster — so neither pair of "true" cells can both hold the digit — then at least one of the *opposite* colours must hold it. Any cell that sees both opposite-colour cells therefore cannot be the digit.',
+    'Pick a number and find all the rows, columns, and boxes where it can only go in two cells — these are your locked pairs. Label each pair in two alternating colours (Group A and Group B) and gather them into separate clusters. If an A-cell in one cluster shares a row, column, or box with an A-cell in another cluster, both cannot hold the number at the same time. That means at least one of their B counterparts must hold it. Remove the number from any empty cell that can see both of those B-cells.',
 };

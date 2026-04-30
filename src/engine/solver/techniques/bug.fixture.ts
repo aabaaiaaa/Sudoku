@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -69,7 +70,7 @@ export const fixture: TechniqueFixture = {
     '978531642',
   roles: [
     { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 0, col: 1 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 1 }, role: 'placement' },
     { pos: { row: 0, col: 2 }, role: 'pattern-primary' },
     { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
     { pos: { row: 3, col: 1 }, role: 'pattern-primary' },
@@ -81,7 +82,7 @@ export const fixture: TechniqueFixture = {
     placement: { pos: { row: 0, col: 1 }, digit: 1 },
   },
   description:
-    'Bivalue Universal Grave +1: when every unsolved cell except one has exactly two candidates, the lone three-candidate cell must take whichever of its candidates would otherwise appear three times in one of its houses (row, column, or box). Placing any other candidate leaves a bivalue pattern that admits multiple solutions, contradicting unique solvability.',
+    'When you are in a near-stuck pattern where every open cell except one has only two possibilities, look at the highlighted cell with three. The number from that cell that appears three times in its row, column, or box must go there. Placing either of the other numbers would leave a pattern that gives the puzzle two answers.',
 };
 
 /**

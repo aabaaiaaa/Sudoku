@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -60,16 +61,17 @@ export const fixtureType1: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 3, col: 0 }, role: 'corner' },
+    { pos: { row: 3, col: 3 }, role: 'corner' },
+    { pos: { row: 4, col: 0 }, role: 'corner' },
+    { pos: { row: 4, col: 3 }, role: 'corner' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 4, col: 3 }, digits: [1, 2] }],
   },
   description:
-    'Spot four cells at the corners of a rectangle that span exactly two boxes, and where three of the corners are bivalue with the same two candidates {X, Y}. The fourth corner has additional candidates beyond {X, Y}. If the fourth corner held X or Y the four cells would form a deadly pattern, giving the puzzle two solutions. The fourth corner must hold one of its other candidates, so X and Y can be eliminated from it.',
+    'Look for four cells at the corners of a rectangle that sit in two different boxes. If three of those corners can only hold the same two numbers, the fourth corner — which has extra possibilities — cannot safely use either of those two numbers, because doing so would leave a pattern that gives the puzzle two answers. Remove those two numbers from the fourth corner.',
 };
 
 /**
@@ -113,10 +115,16 @@ export const fixtureType2: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 3, col: 0 }, role: 'corner' },
+    { pos: { row: 3, col: 3 }, role: 'corner' },
+    { pos: { row: 4, col: 0 }, role: 'corner' },
+    { pos: { row: 4, col: 3 }, role: 'corner' },
+    { pos: { row: 0, col: 0 }, role: 'elimination' },
+    { pos: { row: 1, col: 0 }, role: 'elimination' },
+    { pos: { row: 2, col: 0 }, role: 'elimination' },
+    { pos: { row: 6, col: 0 }, role: 'elimination' },
+    { pos: { row: 7, col: 0 }, role: 'elimination' },
+    { pos: { row: 8, col: 0 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -129,7 +137,7 @@ export const fixtureType2: TechniqueFixture = {
     ],
   },
   description:
-    'Spot four cells at the corners of a rectangle that span exactly two boxes, where two of the corners are bivalue {X, Y} and the other two each carry the same single extra candidate Z. To avoid the deadly {X, Y} pattern, at least one of the two extras-cells must hold Z, so any cell that sees both of those cells cannot be Z and may be eliminated.',
+    'Look for four cells at the corners of a rectangle in two different boxes, where two corners can only hold the same two numbers and the other two each have one extra possibility — call it Z. Because the pattern would have two answers if neither extra cell held Z, at least one of those two cells must be Z. Remove Z from any empty cell that can see both of those two corners.',
 };
 
 /**
@@ -172,10 +180,12 @@ export const fixtureType4: TechniqueFixture = {
     '.........' +
     '.........',
   roles: [
-    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 3 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 4, col: 3 }, role: 'pattern-primary' },
+    { pos: { row: 3, col: 0 }, role: 'corner' },
+    { pos: { row: 3, col: 3 }, role: 'corner' },
+    { pos: { row: 4, col: 0 }, role: 'corner' },
+    { pos: { row: 4, col: 3 }, role: 'corner' },
+    { pos: { row: 4, col: 0 }, role: 'elimination' },
+    { pos: { row: 4, col: 3 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [
@@ -184,7 +194,7 @@ export const fixtureType4: TechniqueFixture = {
     ],
   },
   description:
-    'Spot four cells at the corners of a rectangle that span exactly two boxes, where two of the corners are bivalue {X, Y} and the other two share a row, column, or box. If, in that shared house, one of the digits {X, Y} is confined to only those two cells, then the other digit can be eliminated from both — otherwise the four corners would collapse into the deadly {X, Y} pattern.',
+    'Look for four cells at the corners of a rectangle in two different boxes, where two corners can only hold the same two numbers and the other two sit in the same row, column, or box. If, within that shared group, one of the two numbers can only go in those two corners, the other number would create a two-answer pattern if placed in both — remove it from both of those corners.',
 };
 
 /** Default fixture used by the help-screen detail page. */

@@ -1,4 +1,5 @@
 import type { Digit, Position } from '../../types';
+import type { CellRole } from './roles';
 
 export interface TechniqueFixture {
   variant: 'classic' | 'six' | 'mini';
@@ -8,7 +9,7 @@ export interface TechniqueFixture {
    */
   board: string;
   /** Cells highlighted in the help screen's "highlight pattern" step. */
-  roles: Array<{ pos: Position; role: 'pattern-primary' }>;
+  roles: Array<{ pos: Position; role: CellRole }>;
   deduction: {
     eliminations?: Array<{ pos: Position; digits: Digit[] }>;
     placement?: { pos: Position; digit: Digit };
@@ -65,12 +66,13 @@ export const fixture: TechniqueFixture = {
     '642978531' +
     '978531642',
   roles: [
-    { pos: { row: 0, col: 0 }, role: 'pattern-primary' },
-    { pos: { row: 3, col: 0 }, role: 'pattern-primary' },
+    { pos: { row: 0, col: 0 }, role: 'cluster-a' },
+    { pos: { row: 3, col: 0 }, role: 'cluster-b' },
+    { pos: { row: 4, col: 0 }, role: 'elimination' },
   ],
   deduction: {
     eliminations: [{ pos: { row: 4, col: 0 }, digits: [1] }],
   },
   description:
-    'Two Almost Locked Sets (ALS-A and ALS-B) — each an N-cell set in a single house with N+1 candidates — share a "restricted common" digit X: every X-candidate cell of A sees every X-candidate cell of B. So at most one ALS holds X, and the other is forced into a true locked set whose remaining candidates are pinned. For any other common candidate Z, one of the two ALSes must therefore carry Z; any cell outside both ALSes that sees every Z-candidate cell in A and in B cannot be Z, so Z is eliminated from it.',
+    'Look for two small groups of cells where you almost know which numbers go in them — each group of N cells holds exactly N+1 possible numbers. Find a number X that appears in only one cell of each group, where those two cells can see each other. Because those two cells cannot both be X, each group is forced into its remaining numbers. If a second number Z appears in both groups, and every cell in both groups that could be Z can see a particular outside cell, that outside cell cannot be Z. Remove Z from it.',
 };

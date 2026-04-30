@@ -277,35 +277,35 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npx vitest run src/engine/solver/techniques/two-string-kite.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-038: Rewrite unique-rectangle fixtures (Type 1, Type 2, Type 4)
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: `unique-rectangle.fixture.ts` exports three `fixture*` constants (Type 1, Type 2, Type 4). Rewrite all three descriptions; rectangle corners → `corner`; eliminations → `elimination`. Catalog entry for `unique-rectangle` gets `glossaryTerms: ['candidate', 'elimination']`. The three descriptions stay independent — no shared description string.
 - **Verification**: `npx vitest run src/engine/solver/techniques/unique-rectangle.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-039: Rewrite bug-plus-one fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description, replacing "bivalue universal grave" framing with the §5.1 fallback ("a near-stuck pattern where every cell except one has only two possibilities"); the +1 cell → `placement`; the surrounding bivalue cells → `pattern-primary`. Catalog `glossaryTerms: ['candidate', 'placement']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/bug.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-040: Rewrite xy-chain fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; chain cells → `chain-link`; eliminations → `elimination`. Catalog `glossaryTerms: ['chain', 'candidate', 'elimination']`.
 - **Verification**: `npx vitest run src/engine/solver/techniques/xy-chain.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-041: Rewrite multi-coloring fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description; cluster1A + cluster2A → `cluster-a`; cluster1B + cluster2B → `cluster-b`; eliminations → `elimination`. Catalog `glossaryTerms: ['cluster', 'candidate', 'elimination']`. Description's 3-sentence cap is relaxed to 5 sentences for this one (per §17 fallback).
 - **Verification**: `npx vitest run src/engine/solver/techniques/multi-coloring.test.ts src/engine/solver/techniques/fixtures-round-trip.test.ts`.
 
 ### TASK-042: Rewrite als-xz fixture description and roles
-- **Status**: pending
+- **Status**: done
 - **Type**: refactor
 - **Dependencies**: TASK-003, TASK-005
 - **Description**: Rewrite description, replacing "almost-locked set" with the §5.1 fallback ("a small group of cells where you almost know which numbers go in them"); ALS A cells → `cluster-a`; ALS B cells → `cluster-b`; eliminations → `elimination`. Catalog `glossaryTerms: ['cluster', 'candidate', 'elimination']`. Sentence cap relaxed to 5.
