@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
  * TASK-059 / TASK-037: E2E — observe spinner and cancel via the slow-generate
  * test hatch.
  *
- * Picks Classic + Master on Home and starts a new game with the
+ * Picks Classic + Nightmare on Home and starts a new game with the
  * `?slowGenerate=15000` query param, which the worker client honours in DEV
  * builds (see `src/workers/generator-client.ts`) by pausing the worker for the
  * configured number of milliseconds before generating. That gives us a
@@ -15,12 +15,15 @@ import { test, expect } from '@playwright/test';
  * The hatch is a DEV-only branch (`import.meta.env.DEV`) and is stripped from
  * production bundles by Vite. `playwright.config.ts` runs the dev server, so
  * the hatch is active here.
+ *
+ * Note: Classic + Master was used in iteration-6 but Master was descoped by
+ * the §11 contingency. Nightmare is the hardest advertised classic tier.
  */
 
 // 15s slow-generate + ~10s cancel-button wait + overhead. 30s is plenty.
 const TEST_TIMEOUT_MS = 30_000;
 
-test('Classic + Master shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
+test('Classic + Nightmare shows spinner, reveals Cancel after delay, returns Home on cancel', async ({
   page,
 }) => {
   test.setTimeout(TEST_TIMEOUT_MS);
@@ -36,9 +39,9 @@ test('Classic + Master shows spinner, reveals Cancel after delay, returns Home o
 
   await expect(page.getByTestId('home-new-game')).toBeVisible();
 
-  // --- Pick Classic + Master and start. ------------------------------------
+  // --- Pick Classic + Nightmare and start. ---------------------------------
   await page.getByTestId('home-variant-classic').check();
-  await page.getByTestId('home-difficulty-master').check();
+  await page.getByTestId('home-difficulty-nightmare').check();
   await page.getByTestId('home-new-game').click();
 
   // --- Spinner overlay appears (after the 200ms debounce). -----------------
@@ -50,7 +53,7 @@ test('Classic + Master shows spinner, reveals Cancel after delay, returns Home o
   await expect(page.getByTestId('board-wrapper')).toBeVisible();
 
   // --- Cancel button fades in 10 seconds after the overlay appears. --------
-  // Generous timeout because Master generation can keep running well past
+  // Generous timeout because Nightmare generation can keep running well past
   // 10s and we just need the threshold to elapse.
   const cancelButton = page.getByTestId('loading-cancel');
   await expect(cancelButton).toBeVisible({ timeout: 15_000 });

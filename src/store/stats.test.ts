@@ -158,26 +158,29 @@ describe('stats store', () => {
     const store = createStatsStore();
     const entries = store.getState().entries;
 
-    // Classic iteration-7 ladder advertises all six tiers (Easy/Medium/Hard/
-    // Expert/Master/Nightmare). The old Diabolical/Demonic tiers are collapsed.
-    for (const slug of ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare']) {
+    // Classic iteration-7 ladder ships five tiers after the §11 contingency
+    // descoped classic:Master (solvedRate=0.04 in the final snapshot). The old
+    // Diabolical/Demonic tiers are collapsed; Master is deferred to iteration 8.
+    for (const slug of ['easy', 'medium', 'hard', 'expert', 'nightmare']) {
       expect(entries[entryKey('classic', slug)]).toBeDefined();
       expect(entries[entryKey('classic', slug)].gamesCompleted).toBe(0);
     }
+    expect(entries[entryKey('classic', 'master')]).toBeUndefined();
     expect(entries[entryKey('classic', 'diabolical')]).toBeUndefined();
     expect(entries[entryKey('classic', 'demonic')]).toBeUndefined();
 
-    // Six advertises Easy and Medium; harder tiers remain descoped on the 6×6
-    // grid. Mini stays Easy-only. Total: 6 + 2 + 1 = 9 entries.
+    // Six ships only Easy after the §11 contingency descoped six:Medium
+    // (solvedRate=0.02 in the final snapshot). Mini stays Easy-only.
+    // Total: 5 + 1 + 1 = 7 entries.
     expect(entries[entryKey('six', 'easy')]).toBeDefined();
-    expect(entries[entryKey('six', 'medium')]).toBeDefined();
+    expect(entries[entryKey('six', 'medium')]).toBeUndefined();
     expect(entries[entryKey('six', 'hard')]).toBeUndefined();
 
     expect(entries[entryKey('mini', 'easy')]).toBeDefined();
     expect(entries[entryKey('mini', 'medium')]).toBeUndefined();
     expect(entries[entryKey('mini', 'hard')]).toBeUndefined();
 
-    expect(Object.keys(entries)).toHaveLength(9);
+    expect(Object.keys(entries)).toHaveLength(7);
   });
 
   it('entryKey lowercases the difficulty before composing the key', () => {

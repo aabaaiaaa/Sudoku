@@ -3,14 +3,14 @@ import { test, expect } from '@playwright/test';
 /**
  * E2E — Difficulty picker hides infeasible tiers per variant.
  *
- * Iteration-7 §4.3 collapses the ladder to six tiers. The picker only exposes
- * tiers each variant can realistically produce — see
- * `src/engine/generator/variant-tiers.ts`:
+ * Iteration-7 §4.3 collapses the ladder to six tiers; the §11 contingency
+ * then descoped classic:Master (solvedRate=0.04) and six:Medium (solvedRate=0.02)
+ * in the final snapshot. The picker only exposes tiers each variant can
+ * reliably produce — see `src/engine/generator/variant-tiers.ts`:
  *
- *   - Classic (9×9): Easy, Medium, Hard, Expert, Master, Nightmare
- *                    (all six tiers advertised)
- *   - Six (6×6):     Easy, Medium (iteration-6 lever-2 rescue at clueFloor=14;
- *                    Hard+ remain unreachable on the 6×6 grid)
+ *   - Classic (9×9): Easy, Medium, Hard, Expert, Nightmare (5 tiers; Master
+ *                    deferred to iteration 8)
+ *   - Six (6×6):     Easy only (Medium descoped by §11; Hard+ unreachable)
  *   - Mini (4×4):    Easy only (harder tiers unreachable on the 4×4 grid)
  *
  * Switching the variant on Home must update the difficulty radio group to
@@ -27,8 +27,8 @@ const ALL_TIERS = [
 ] as const;
 
 const VARIANT_TIERS: Record<'classic' | 'six' | 'mini', readonly string[]> = {
-  classic: ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'],
-  six: ['easy', 'medium'],
+  classic: ['easy', 'medium', 'hard', 'expert', 'nightmare'],
+  six: ['easy'],
   mini: ['easy'],
 };
 

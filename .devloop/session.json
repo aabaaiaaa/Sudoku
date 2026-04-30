@@ -1,14 +1,9 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 23,
+  "lastIteration": 24,
   "startedAt": "2026-04-29T23:03:47.435Z",
   "iteration": 6,
   "devloopVersion": "4.2.0",
-  "activeTask": {
-    "taskId": "TASK-024",
-    "taskTitle": "Update E2E specs and full E2E sweep on Chromium and WebKit",
-    "iterationNumber": 24,
-    "startedAt": "2026-04-30T00:12:38.505Z"
-  }
+  "activeTask": null
 }

@@ -16,18 +16,18 @@ function makeSavedGame(overrides: Partial<SavedGame> = {}): SavedGame {
   };
 }
 
-// Classic advertises all six tiers under the iteration-7 ladder. Six
-// advertises Easy and Medium after the iteration-6 lever-2 rescue. Mini stays
+// Classic ships five tiers under the iteration-7 ladder after the §11
+// contingency descoped classic:Master (solvedRate=0.04). Six ships only Easy
+// after the §11 contingency descoped six:Medium (solvedRate=0.02). Mini stays
 // Easy-only. See variant-tiers.ts.
 const CLASSIC_TIERS = [
   'easy',
   'medium',
   'hard',
   'expert',
-  'master',
   'nightmare',
 ] as const;
-const SIX_TIERS = ['easy', 'medium'] as const;
+const SIX_TIERS = ['easy'] as const;
 const MINI_TIERS = ['easy'] as const;
 
 describe('Home screen', () => {
@@ -35,7 +35,7 @@ describe('Home screen', () => {
     window.localStorage.clear();
   });
 
-  it('renders the variant picker and the Classic difficulty tiers (6) by default', () => {
+  it('renders the variant picker and the Classic difficulty tiers (5) by default', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -61,7 +61,7 @@ describe('Home screen', () => {
     expect(queryByTestId('home-difficulty-nightmare')).toBeTruthy();
   });
 
-  it('shows Easy and Medium when Six is selected', () => {
+  it('shows only Easy when Six is selected', () => {
     const store = createGameStore();
     const { getByTestId, queryByTestId } = render(
       <Home
@@ -76,7 +76,8 @@ describe('Home screen', () => {
     for (const tier of SIX_TIERS) {
       expect(getByTestId(`home-difficulty-${tier}`)).toBeTruthy();
     }
-    // Hard+ remain descoped from Six post-tuning.
+    // Medium and Hard+ are descoped from Six after the §11 contingency.
+    expect(queryByTestId('home-difficulty-medium')).toBeNull();
     expect(queryByTestId('home-difficulty-hard')).toBeNull();
     expect(queryByTestId('home-difficulty-expert')).toBeNull();
     expect(queryByTestId('home-difficulty-master')).toBeNull();

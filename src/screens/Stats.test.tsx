@@ -21,23 +21,23 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Classic advertises all six tiers under the iteration-7 ladder
-    // (see variant-tiers.ts).
-    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'];
+    // Classic ships five tiers after the §11 contingency descoped classic:Master
+    // (solvedRate=0.04 in the final snapshot). See variant-tiers.ts.
+    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
       expect(getByTestId(`stats-cell-classic-${slug}-games`)).toBeTruthy();
     }
-    // The renamed Diabolical/Demonic tiers are gone under the iteration-7 ladder.
+    // Master was descoped by the §11 contingency; Diabolical/Demonic collapsed.
+    expect(queryByTestId('stats-header-classic-master')).toBeNull();
     expect(queryByTestId('stats-header-classic-diabolical')).toBeNull();
     expect(queryByTestId('stats-header-classic-demonic')).toBeNull();
 
-    // Six advertises Easy and Medium post-iteration-6 lever-2 rescue;
-    // harder tiers remain descoped. Mini stays Easy-only.
+    // Six ships only Easy after the §11 contingency descoped six:Medium
+    // (solvedRate=0.02 in the final snapshot). Mini stays Easy-only.
     expect(getByTestId('stats-header-six-easy')).toBeTruthy();
     expect(getByTestId('stats-cell-six-easy-games')).toBeTruthy();
-    expect(getByTestId('stats-header-six-medium')).toBeTruthy();
-    expect(getByTestId('stats-cell-six-medium-games')).toBeTruthy();
+    expect(queryByTestId('stats-header-six-medium')).toBeNull();
     expect(queryByTestId('stats-header-six-hard')).toBeNull();
     expect(queryByTestId('stats-header-six-master')).toBeNull();
 
@@ -54,7 +54,7 @@ describe('Stats screen', () => {
     const dash = '—';
     // Top-tier cells with no completions should still render gracefully.
     expect(getByTestId('stats-cell-classic-nightmare-games').textContent).toBe(dash);
-    expect(getByTestId('stats-cell-classic-master-best').textContent).toBe(dash);
+    expect(getByTestId('stats-cell-classic-expert-best').textContent).toBe(dash);
     expect(getByTestId('stats-cell-six-easy-avg').textContent).toBe(dash);
     expect(getByTestId('stats-cell-mini-easy-mistakes').textContent).toBe(dash);
   });
@@ -120,13 +120,13 @@ describe('Stats screen', () => {
     expect(getByTestId('stats-filter-row-classic')).toBeTruthy();
     expect(getByTestId('stats-filter-classic-all')).toBeTruthy();
 
-    // Six now advertises Easy and Medium (iteration-6 lever-2 rescue) — the
-    // pill row should render.
-    expect(getByTestId('stats-filter-row-six')).toBeTruthy();
-    expect(getByTestId('stats-filter-six-all')).toBeTruthy();
+    // Six ships only Easy after the §11 contingency — single-tier, so the
+    // pill row is omitted just like Mini. The table must still render.
+    expect(queryByTestId('stats-filter-row-six')).toBeNull();
+    expect(queryByTestId('stats-filter-six-all')).toBeNull();
     expect(getByTestId('stats-variant-six')).toBeTruthy();
     expect(getByTestId('stats-header-six-easy')).toBeTruthy();
-    expect(getByTestId('stats-header-six-medium')).toBeTruthy();
+    expect(queryByTestId('stats-header-six-medium')).toBeNull();
 
     // Mini advertises only Easy — the pill row should be omitted, but the
     // table itself must still render below.
@@ -140,8 +140,8 @@ describe('Stats screen', () => {
     const store = createStatsStore();
     const { getByTestId, queryByTestId } = render(<Stats store={store} />);
 
-    // Default: all six advertised classic tiers visible.
-    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'master', 'nightmare'];
+    // Default: all five advertised classic tiers visible (Master descoped by §11).
+    const classicTiers = ['easy', 'medium', 'hard', 'expert', 'nightmare'];
     for (const slug of classicTiers) {
       expect(getByTestId(`stats-header-classic-${slug}`)).toBeTruthy();
     }

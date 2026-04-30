@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * TASK-046: E2E — PWA "new version available" banner.
@@ -18,9 +20,13 @@ import { test, expect } from '@playwright/test';
  * Strategy:
  *   1. Load the preview build and wait for the SW to register and reach
  *      the "controller" state.
- *   2. Install a `page.route` handler that bumps a Workbox-generated revision
- *      identifier in the next SW source fetch, so the browser sees the file
- *      as changed and starts installing a new SW.
+ *   2. Write a modified sw.js to dist/ with bumped revision hashes. The
+ *      preview server serves files from disk (no in-memory caching), so the
+ *      next update-check fetch will receive the modified content. This is
+ *      more reliable than `page.route()` / `context.route()`, because
+ *      Chrome's SW self-update fetch goes through the browser's own SW
+ *      network subsystem — it is not interceptable by Playwright's route
+ *      handlers (which hook into the renderer's network stack only).
  *   3. Trigger an update poll via the visibility-change handler (§8) — the
  *      app calls `r.update()` on `visibilityState === 'visible'`.
  *   4. Assert `[data-testid=update-banner]` becomes visible.
@@ -34,11 +40,7 @@ import { test, expect } from '@playwright/test';
 // server.
 test.use({ baseURL: 'http://localhost:5180' });
 
-const PREVIEW_BASE = 'http://localhost:5180';
-// Vite is configured with `base: '/Sudoku/'` so the preview build lives under
-// /Sudoku/ and the SW is registered at /Sudoku/sw.js.
 const APP_PATH = '/Sudoku/';
-const SW_URL = `${PREVIEW_BASE}${APP_PATH}sw.js`;
 
 test('preview app shows update banner when SW source changes and reload click drives updateSW', async ({
   page,
@@ -46,12 +48,19 @@ test('preview app shows update banner when SW source changes and reload click dr
   test.setTimeout(60_000);
 
   // --- 1. Initial load + wait for SW to take control. ----------------------
+  // Two-phase load: the first navigation installs and activates the SW, but
+  // the SW does NOT call `clients.claim()`, so `navigator.serviceWorker.
+  // controller` stays null for the lifetime of that page. A second navigation
+  // to the same origin will be controlled immediately (the already-activated
+  // SW intercepts the navigation before the page loads).
+  //
+  // This matters because Workbox's `messageSkipWaiting()` guards on
+  // `registration.waiting` — if the current page has no controller, the new
+  // bumped SW activates immediately without entering the "waiting" state, and
+  // `messageSkipWaiting()` becomes a no-op. A reload after the first install
+  // puts the SW in the controller seat so the bumped SW correctly waits.
   await page.goto(APP_PATH);
   await expect(page.getByTestId('home-new-game')).toBeVisible();
-
-  // Wait for the SW to register and become the page's controller. Without
-  // this, the update poll has nothing to compare against and the test races
-  // the registration.
   await page.evaluate(async () => {
     if (!('serviceWorker' in navigator)) {
       throw new Error('serviceWorker API unavailable in this browser context');
@@ -59,35 +68,31 @@ test('preview app shows update banner when SW source changes and reload click dr
     await navigator.serviceWorker.ready;
   });
 
-  // --- 2. Intercept the next sw.js fetch and rewrite a revision marker. ----
-  // Workbox embeds the precache manifest inline in sw.js with a `"revision":
-  // "<hash>"` per asset. Bumping any revision is enough for the browser to
-  // see the SW source as changed and start installing a new one. We rewrite
-  // every revision string to the same fresh hash, which is a stronger change
-  // than touching just one entry and avoids fragile per-asset matching.
-  let interceptedSwBody = false;
-  await page.route(SW_URL, async (route, request) => {
-    const response = await page.request.fetch(request, {
-      // Bypass the SW so we read the network copy, not a cached one.
-      ignoreHTTPSErrors: true,
-    });
-    const status = response.status();
-    if (status >= 400) {
-      await route.fulfill({ response });
-      return;
+  // Second navigation: SW is now the controller for this load.
+  await page.goto(APP_PATH);
+  await expect(page.getByTestId('home-new-game')).toBeVisible();
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      throw new Error(
+        'Expected SW to be the controller after second navigation — SW does not call clients.claim() so the controller is only set on subsequent navigations',
+      );
     }
-    const original = await response.text();
-    const bumped = original.replace(
-      /"revision":"[^"]*"/g,
-      `"revision":"playwright-bumped-${Date.now()}"`,
-    );
-    interceptedSwBody = bumped !== original;
-    await route.fulfill({
-      status,
-      headers: response.headers(),
-      body: bumped,
-    });
   });
+
+  // --- 2. Write a modified sw.js to dist/ with bumped revision hashes. -----
+  // Workbox embeds the precache manifest inline in sw.js using unquoted JS
+  // object property keys: `revision:"<hash>"` (not `"revision":"<hash>"`).
+  // Bumping every revision string ensures the browser sees the script as
+  // changed and starts installing a new SW.
+  const swDistPath = path.join(process.cwd(), 'dist', 'sw.js');
+  const originalSw = fs.readFileSync(swDistPath, 'utf8');
+  const bumpedSw = originalSw.replace(
+    /revision:"[^"]*"/g,
+    `revision:"playwright-bumped-${Date.now()}"`,
+  );
+  const didBump = bumpedSw !== originalSw;
+  fs.writeFileSync(swDistPath, bumpedSw, 'utf8');
 
   // --- 3. Trigger an update poll. -----------------------------------------
   // `useUpdate.ts` calls `r.update()` on visibilitychange when the document
@@ -112,35 +117,63 @@ test('preview app shows update banner when SW source changes and reload click dr
   // detection cycle can take a few seconds.
   const banner = page.getByTestId('update-banner');
   await expect(banner).toBeVisible({ timeout: 30_000 });
-  expect(
-    interceptedSwBody,
-    'sw.js fetch was never intercepted; the route handler did not fire',
-  ).toBe(true);
+  expect(didBump, 'sw.js had no `revision` strings to bump').toBe(true);
 
   // --- 5. Reload click is wired through. ----------------------------------
-  // We don't rely on the page actually reloading — depending on the SW
-  // lifecycle, `updateSW(true)` may activate the waiting SW and trigger a
-  // reload, or it may complete silently. We instead capture that *something*
-  // observable happens: either a `beforeunload` fires, or the page navigates
-  // (load event), or the banner disappears once the worker takes over. Any
-  // of those is sufficient evidence the click reached the wired handler.
-  const reloadObserved = page.evaluate(() => {
-    return new Promise<boolean>((resolve) => {
-      const done = () => resolve(true);
-      window.addEventListener('beforeunload', done, { once: true });
-      window.addEventListener('pagehide', done, { once: true });
-      // Fallback: if 8s elapse without a navigation event but the banner is
-      // gone, that's still evidence the handler ran.
-      setTimeout(() => resolve(false), 8_000);
-    });
+  // Primary path: with a true SW controller established by the two-phase load,
+  // Workbox's WorkboxWindow captures `isUpdate = true`. After
+  // `messageSkipWaiting()` activates the new SW, the `controlling` event fires
+  // with `isUpdate: true`, which drives `window.location.reload()`. We detect
+  // that reload via `waitForNavigation`.
+  //
+  // Fallback path: in environments where `isUpdate` is false (e.g. the first
+  // page load in a fresh SW install context), no reload fires. We verify the
+  // click still dispatched the SKIP_WAITING message by spying on
+  // `ServiceWorker.prototype.postMessage` — which IS writable in Chrome.
+
+  // Register the navigation listener BEFORE clicking so we don't miss it.
+  const navigationPromise = page
+    .waitForNavigation({ timeout: 20_000, waitUntil: 'load' })
+    .catch(() => null);
+
+  // Install the SKIP_WAITING spy for the fallback path.
+  await page.evaluate(() => {
+    (window as unknown as Record<string, unknown>).__skipWaitingCalled = false;
+    const orig = ServiceWorker.prototype.postMessage;
+    ServiceWorker.prototype.postMessage = function (
+      this: ServiceWorker,
+      message: unknown,
+      ...rest: unknown[]
+    ) {
+      if (
+        message !== null &&
+        typeof message === 'object' &&
+        (message as Record<string, unknown>).type === 'SKIP_WAITING'
+      ) {
+        (window as unknown as Record<string, unknown>).__skipWaitingCalled = true;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return orig.call(this, message, ...(rest as any[]));
+    };
   });
 
   await page.getByTestId('update-reload').click();
 
-  const sawReload = await reloadObserved;
-  if (!sawReload) {
-    // If neither navigation nor pagehide fired, the banner should at minimum
-    // have been replaced with the post-update state.
-    await expect(banner).toBeHidden({ timeout: 5_000 });
+  const navigated = await navigationPromise;
+  if (navigated === null) {
+    // No full-page reload within 20s (isUpdate was false in this context).
+    // Verify the SKIP_WAITING message was at least dispatched to the waiting SW.
+    await page.waitForFunction(
+      () =>
+        (window as unknown as Record<string, unknown>).__skipWaitingCalled ===
+        true,
+      { timeout: 10_000 },
+    );
   }
+  // else: navigation happened — `window.location.reload()` fired as expected.
+
+  // Restore sw.js after the click cycle. Restoring before this point would
+  // cause the reloaded page to see a different sw.js and trigger another
+  // update cycle, re-showing the banner.
+  fs.writeFileSync(swDistPath, originalSw, 'utf8');
 });
