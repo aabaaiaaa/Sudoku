@@ -28,10 +28,20 @@ import {
  * the timeout is a backstop against pathological single-attempt runtime,
  * not the primary budget (closes iteration-6 review G3).
  *
- * Driver tuples for non-default entries:
- *   Medium:    six:Medium,        solvedRate=0.02, N=308  (worst-case driver)
+ * NOTE (iteration-7 final snapshot, 2026-04-29): The §11 contingency
+ * descoped two driver cells after the final n=50 run showed solvedRate below
+ * the ≥0.05 threshold:
+ *   - six:Medium  (solvedRate=0.02) → six:Medium removed from VARIANT_TIERS
+ *   - classic:Master (solvedRate=0.04) → classic:Master removed from VARIANT_TIERS
+ * The Medium and Master budgets below were calibrated against those cells and
+ * are now conservative (over-budgeted relative to their remaining advertised
+ * cells). The values are retained unchanged for this iteration; iteration-8
+ * will recalibrate once the rater-extension work for small grids lands.
+ *
+ * Driver tuples for non-default entries (as calibrated; see note above):
+ *   Medium:    six:Medium,        solvedRate=0.02, N=308  (cell now descoped)
  *   Expert:    classic:Expert,    solvedRate=0.06, N=101
- *   Master:    classic:Master,    solvedRate=0.04, N=153
+ *   Master:    classic:Master,    solvedRate=0.04, N=153  (cell now descoped)
  *   Nightmare: classic:Nightmare, solvedRate=0.10, N=59
  *
  * Floor-capped entries (formula N < 50):

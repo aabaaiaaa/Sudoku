@@ -3,23 +3,24 @@ import { availableTiers } from './variant-tiers';
 import { classicVariant, miniVariant, sixVariant } from '../variants';
 
 describe('availableTiers', () => {
-  it('returns the full six-tier classic list (iteration-7 collapse)', () => {
-    // Iteration 7 collapsed the ladder to six tiers. Every tier in the new
-    // ladder is reachable on classic per the iteration-7 corrected baseline.
+  it('returns five-tier classic list after iteration-7 final-snapshot contingency', () => {
+    // Iteration-7 final snapshot (n=50) showed classic:Master solvedRate=0.04
+    // (below the ≥0.05 threshold), triggering the §11 contingency. Master is
+    // descoped; classic ships Easy / Medium / Hard / Expert / Nightmare.
     expect(availableTiers(classicVariant)).toEqual([
       'Easy',
       'Medium',
       'Hard',
       'Expert',
-      'Master',
       'Nightmare',
     ]);
   });
 
-  it('exposes Easy and Medium for Six after iteration-6 lever-2 rescue', () => {
-    // Iteration-6 lever-2 sweep rescued Six:Medium at clueFloor=14
-    // (solvedRate=0.05); harder tiers remain unreachable on the 6x6 grid.
-    expect(availableTiers(sixVariant)).toEqual(['Easy', 'Medium']);
+  it('reduces Six to Easy only after iteration-7 final-snapshot contingency', () => {
+    // Iteration-7 final snapshot (n=50) showed six:Medium solvedRate=0.02
+    // (below the ≥0.05 threshold), triggering the §11 contingency. Medium is
+    // descoped; Six ships Easy only.
+    expect(availableTiers(sixVariant)).toEqual(['Easy']);
   });
 
   it('reduces Mini to Easy only', () => {
