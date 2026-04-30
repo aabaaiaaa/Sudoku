@@ -119,9 +119,6 @@ function rowMajor(a: Position, b: Position): number {
   return a.row - b.row || a.col - b.col;
 }
 
-function cellLabel(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
 
 function* combinations<T>(items: T[], k: number, start = 0, picked: T[] = []): Generator<T[]> {
   if (picked.length === k) {

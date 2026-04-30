@@ -73,9 +73,6 @@ function houseLabel(house: 'row' | 'col' | 'box', houseIndex: number): string {
   return `box ${houseIndex + 1}`;
 }
 
-function cellLabel(pos: Position): string {
-  return `R${pos.row + 1}C${pos.col + 1}`;
-}
 
 function sortDigits(digits: Iterable<Digit>): Digit[] {
   return [...digits].sort((a, b) => a - b);

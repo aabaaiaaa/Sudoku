@@ -158,9 +158,6 @@ function formatCell(p: Position): string {
   return `R${p.row + 1}C${p.col + 1}`;
 }
 
-function formatNode(n: NiceLoopNode): string {
-  return `${formatCell(n.pos)}=${n.digit}`;
-}
 
 function buildAdjacency(
   variant: Variant,

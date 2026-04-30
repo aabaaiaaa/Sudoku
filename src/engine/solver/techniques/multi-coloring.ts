@@ -128,10 +128,6 @@ function rowMajor(a: Position, b: Position): number {
   return a.row - b.row || a.col - b.col;
 }
 
-function cellLabel(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
-
 interface Cluster {
   A: Position[];
   B: Position[];
@@ -289,16 +285,6 @@ export function findMultiColoring(board: Board): MultiColoringResult | null {
               }
             }
             if (eliminations.length === 0) continue;
-
-            const c1A = c1.A.map(cellLabel).join(',');
-            const c1B = c1.B.map(cellLabel).join(',');
-            const c2A = c2.A.map(cellLabel).join(',');
-            const c2B = c2.B.map(cellLabel).join(',');
-            const opp1Label = color1 === 'A' ? 'B' : 'A';
-            const opp2Label = color2 === 'A' ? 'B' : 'A';
-            const opp1List = opp1.map(cellLabel).join(',');
-            const opp2List = opp2.map(cellLabel).join(',');
-            const elimList = eliminations.map((e) => cellLabel(e.cell)).join(',');
 
             return {
               technique: 'multi-coloring',

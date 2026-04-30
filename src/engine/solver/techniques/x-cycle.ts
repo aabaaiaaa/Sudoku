@@ -176,9 +176,6 @@ function buildLinkMap(
   return map;
 }
 
-function formatCellList(cells: Position[]): string {
-  return cells.map((p) => `R${p.row + 1}C${p.col + 1}`).join(',');
-}
 
 /**
  * X-Cycle (Single-Digit Alternating Cycle).

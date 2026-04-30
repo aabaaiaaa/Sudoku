@@ -573,7 +573,7 @@ check / build / E2E sweeps are the closing tasks.
 - **Verification**: `npm test` exits 0.
 
 ### TASK-078: Type-check and production build sweep
-- **Status**: pending
+- **Status**: done
 - **Type**: build
 - **Dependencies**: TASK-077
 - **Description**: Run `npx tsc --noEmit` (full project type-check) and `npm run build` (production build). Both must succeed without errors.

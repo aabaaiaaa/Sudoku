@@ -1,14 +1,14 @@
 {
   "phase": "run",
   "sessionId": null,
-  "lastIteration": 16,
+  "lastIteration": 17,
   "startedAt": "2026-04-30T09:37:05.662Z",
   "iteration": 7,
   "devloopVersion": "4.2.0",
   "activeTask": {
-    "taskId": "TASK-077",
-    "taskTitle": "Full unit-test sweep",
-    "iterationNumber": 17,
-    "startedAt": "2026-04-30T13:29:57.391Z"
+    "taskId": "TASK-078",
+    "taskTitle": "Type-check and production build sweep",
+    "iterationNumber": 18,
+    "startedAt": "2026-04-30T13:51:14.098Z"
   }
 }

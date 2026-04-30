@@ -223,16 +223,6 @@ export function findSimpleColoring(board: Board): SimpleColoringResult | null {
               (cell) => ({ cell, digits: [digit] }),
             );
 
-            const aCellList = colorA
-              .map((p) => `R${p.row + 1}C${p.col + 1}`)
-              .join(',');
-            const bCellList = colorB
-              .map((p) => `R${p.row + 1}C${p.col + 1}`)
-              .join(',');
-            const elimList = cells
-              .map((p) => `R${p.row + 1}C${p.col + 1}`)
-              .join(',');
-
             return {
               technique: 'simple-coloring',
               digit,

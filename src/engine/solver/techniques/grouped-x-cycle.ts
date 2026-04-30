@@ -173,22 +173,6 @@ function compareNodes(
   return nodeKey(a).localeCompare(nodeKey(b));
 }
 
-function formatCell(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
-
-function formatCellList(cells: Position[]): string {
-  return cells.map(formatCell).join(',');
-}
-
-function formatNode(node: GroupedXCycleNode): string {
-  if (node.isGroup) return `{${node.cells.map(formatCell).join(',')}}`;
-  return formatCell(node.cells[0]);
-}
-
-function formatNodeList(nodes: GroupedXCycleNode[]): string {
-  return nodes.map(formatNode).join(' → ');
-}
 
 /**
  * Enumerate all candidate nodes for a given digit:

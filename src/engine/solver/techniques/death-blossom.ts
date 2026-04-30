@@ -77,9 +77,6 @@ function posKey(p: Position): string {
   return `${p.row},${p.col}`;
 }
 
-function cellLabel(p: Position): string {
-  return `R${p.row + 1}C${p.col + 1}`;
-}
 
 function cellsContain(cells: Position[], pos: Position): boolean {
   return cells.some((c) => c.row === pos.row && c.col === pos.col);
