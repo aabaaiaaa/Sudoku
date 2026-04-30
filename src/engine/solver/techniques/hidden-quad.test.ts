@@ -96,7 +96,7 @@ describe('findHiddenQuad', () => {
     }
 
     expect(result!.explanation).toContain('row 1');
-    expect(result!.explanation).toContain('1,2,3,4');
+    expect(result!.explanation).toContain('1, 2, 3, 4');
   });
 
   it('fixture deduction matches the finder output', () => {

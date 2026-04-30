@@ -128,11 +128,11 @@ describe('findWWing', () => {
       expect(got!.digits).toEqual(expected.digits);
     }
 
-    // The fixture's patternCells must be the two bivalue cells.
+    // The fixture's pattern-primary cells must be the two bivalue cells.
     const finderCells: Position[] = [...result!.bivalues].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
-    const fixtureCells = [...fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)].sort(
+    const fixtureCells = [...fixture.roles.filter(r => r.role === 'pattern-primary').map(r => r.pos)].sort(
       (a, b) => a.row - b.row || a.col - b.col,
     );
     expect(finderCells).toEqual(fixtureCells);

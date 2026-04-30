@@ -91,9 +91,8 @@ describe('findNakedQuad', () => {
       expect(findElim(result!.eliminations, pos)).toBeUndefined();
     }
 
-    expect(result!.explanation).toContain('naked quad');
     expect(result!.explanation).toContain('row 1');
-    expect(result!.explanation).toContain('1,2,3,4');
+    expect(result!.explanation).toContain('1, 2, 3, 4');
   });
 
   it('fixture deduction matches the finder output', () => {

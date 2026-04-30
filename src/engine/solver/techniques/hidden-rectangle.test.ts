@@ -78,7 +78,7 @@ describe('findHiddenRectangle', () => {
     const result = findHiddenRectangle(board);
     expect(result).not.toBeNull();
     const finderCorners = sortPositions([...result!.corners]);
-    const fixtureCells = sortPositions(fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos));
+    const fixtureCells = sortPositions(fixture.roles.map(r => r.pos));
     expect(finderCorners).toEqual(fixtureCells);
   });
 

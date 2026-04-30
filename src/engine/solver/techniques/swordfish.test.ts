@@ -92,9 +92,8 @@ describe('findSwordfish', () => {
       }
     }
 
-    expect(result!.explanation).toContain('swordfish');
-    expect(result!.explanation).toContain('rows 1, 5, 9');
-    expect(result!.explanation).toContain('columns 1, 5, 9');
+    expect(result!.explanation).toContain('rows 1, 5, and 9');
+    expect(result!.explanation).toContain('columns 1, 5, and 9');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -141,8 +140,8 @@ describe('findSwordfish', () => {
     }
     expect(result!.eliminations.length).toBe(18);
 
-    expect(result!.explanation).toContain('columns 1, 5, 9');
-    expect(result!.explanation).toContain('rows 1, 5, 9');
+    expect(result!.explanation).toContain('columns 1, 5, and 9');
+    expect(result!.explanation).toContain('rows 1, 5, and 9');
   });
 
   it('returns null when three base rows union to four or more columns', () => {

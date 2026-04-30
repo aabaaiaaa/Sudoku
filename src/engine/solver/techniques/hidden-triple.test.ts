@@ -84,7 +84,7 @@ describe('findHiddenTriple', () => {
     }
 
     expect(result!.explanation).toContain('row 1');
-    expect(result!.explanation).toContain('1,2,3');
+    expect(result!.explanation).toContain('1, 2, 3');
   });
 
   it('fixture deduction matches the finder output', () => {

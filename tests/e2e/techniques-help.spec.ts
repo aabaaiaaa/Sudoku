@@ -55,7 +55,7 @@ test('Learn tab → Hidden Single walkthrough → reset → back to index', asyn
   await page.getByTestId('walkthrough-highlight').click();
   await expect(detail).toHaveAttribute('data-walkthrough-step', 'pattern');
   await expect(page.getByTestId('walkthrough-pattern-cells')).toContainText(
-    'r1c1',
+    'highlighted cell',
   );
 
   // --- Step 2: Show deduction. ---------------------------------------------
@@ -63,7 +63,7 @@ test('Learn tab → Hidden Single walkthrough → reset → back to index', asyn
   await expect(detail).toHaveAttribute('data-walkthrough-step', 'deduction');
   // Hidden Single is a placement deduction; the panel should announce it.
   await expect(page.getByTestId('walkthrough-deduction')).toContainText(
-    'Place 9 at r1c1',
+    'Place 9 in the highlighted cell',
   );
 
   // --- Step 3: Apply. ------------------------------------------------------

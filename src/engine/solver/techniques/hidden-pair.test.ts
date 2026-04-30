@@ -91,7 +91,7 @@ describe('findHiddenPair', () => {
     }
 
     expect(result!.explanation).toContain('row 1');
-    expect(result!.explanation).toContain('1,2');
+    expect(result!.explanation).toContain('1 and 2');
   });
 
   it('fixture deduction matches the finder output', () => {

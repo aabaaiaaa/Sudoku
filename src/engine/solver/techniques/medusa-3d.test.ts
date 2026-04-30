@@ -165,9 +165,13 @@ describe('find3DMedusa', () => {
         return { row: r, col: c };
       })
       .sort((a, b) => a.row - b.row || a.col - b.col);
-    const fixturePattern = fixture.roles.map(r => r.pos).sort(
-      (a, b) => a.row - b.row || a.col - b.col,
-    );
+    const fixturePosSet = new Set(fixture.roles.map(r => `${r.pos.row},${r.pos.col}`));
+    const fixturePattern = [...fixturePosSet]
+      .map(k => {
+        const [r, c] = k.split(',').map(Number);
+        return { row: r, col: c };
+      })
+      .sort((a, b) => a.row - b.row || a.col - b.col);
     expect(finderPattern).toEqual(fixturePattern);
   });
 });

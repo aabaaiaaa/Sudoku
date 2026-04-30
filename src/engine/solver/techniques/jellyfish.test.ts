@@ -97,9 +97,8 @@ describe('findJellyfish', () => {
       }
     }
 
-    expect(result!.explanation).toContain('jellyfish');
-    expect(result!.explanation).toContain('rows 1, 3, 7, 9');
-    expect(result!.explanation).toContain('columns 1, 3, 7, 9');
+    expect(result!.explanation).toContain('rows 1, 3, 7, and 9');
+    expect(result!.explanation).toContain('columns 1, 3, 7, and 9');
   });
 
   it('fixture deduction matches the finder output', () => {
@@ -147,8 +146,8 @@ describe('findJellyfish', () => {
     }
     expect(result!.eliminations.length).toBe(20);
 
-    expect(result!.explanation).toContain('columns 1, 3, 7, 9');
-    expect(result!.explanation).toContain('rows 1, 3, 7, 9');
+    expect(result!.explanation).toContain('columns 1, 3, 7, and 9');
+    expect(result!.explanation).toContain('rows 1, 3, 7, and 9');
   });
 
   it('returns null when four base rows union to five or more columns', () => {

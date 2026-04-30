@@ -103,7 +103,7 @@ describe('findAvoidableRectangle', () => {
     const result = findAvoidableRectangle(board);
     expect(result).not.toBeNull();
     expect(sortPositions([...result!.corners])).toEqual(
-      sortPositions(fixture.roles.filter(r => r.role !== 'elimination' && r.role !== 'placement').map(r => r.pos)),
+      sortPositions(fixture.roles.map(r => r.pos)),
     );
   });
 
